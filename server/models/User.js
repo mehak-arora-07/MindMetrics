@@ -25,12 +25,24 @@ const userSchema = new mongoose.Schema(
     },
 
     createdAt: {
-        type: Date,
-        default: Date.now
+        type: String,
+        default: () => {
+            return new Date().toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false
+            });
+        }
     }
 },
 {
     collection: "users"
+
 });
 
 module.exports = mongoose.model("User", userSchema);
