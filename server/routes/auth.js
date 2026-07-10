@@ -9,6 +9,7 @@ router.get("/", (req, res) => {
     res.send("Auth Route Working!");
 });
 
+// register
 router.post("/register", async (req, res) => {
     try {
 
@@ -69,4 +70,80 @@ router.post("/register", async (req, res) => {
 
     }
 });
+
+//login
+router.post("/login", async (req, res) => {
+    try {
+
+        console.log("1. Login route hit");
+
+        const { email, password } = req.body;
+
+        console.log("2. Body received", req.body);
+
+        // Check if user exists
+        const user = await User.findOne({ email });
+
+        console.log("3. User searched");
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        console.log("4. Comparing password");
+
+        // Compare password
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid password"
+            });
+        }
+
+        console.log("5. Generating JWT");
+
+        // Generate JWT Token
+        const token = jwt.sign(
+            {
+                userId: user.userId,
+                email: user.email
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "7d"
+            }
+        );
+
+        console.log("6. Login successful");
+
+        res.status(200).json({
+            success: true,
+            message: "Login Successful",
+            token,
+            user: {
+                userId: user.userId,
+                name: user.name,
+                email: user.email
+            }
+        });
+
+    } catch (err) {
+
+        console.error("LOGIN ERROR");
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+
+    }
+});
+
+
 module.exports = router;
