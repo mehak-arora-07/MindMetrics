@@ -8,7 +8,7 @@ const questionSchema = new mongoose.Schema(
         unique: true
     },
 
-    gameType: {
+    gameId: {
         type: String,
         required: true
     },
