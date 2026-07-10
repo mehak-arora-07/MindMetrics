@@ -10,7 +10,7 @@ router.get("/", (req, res) => {
 });
 
 // register
-router.post("/register", async (req, res) => {
+router.post("/register", async(req, res) => {
     try {
 
         console.log("1. Route hit");
@@ -72,7 +72,7 @@ router.post("/register", async (req, res) => {
 });
 
 //login
-router.post("/login", async (req, res) => {
+router.post("/login", async(req, res) => {
     try {
 
         console.log("1. Login route hit");
@@ -108,13 +108,11 @@ router.post("/login", async (req, res) => {
         console.log("5. Generating JWT");
 
         // Generate JWT Token
-        const token = jwt.sign(
-            {
+        const token = jwt.sign({
                 userId: user.userId,
                 email: user.email
             },
-            process.env.JWT_SECRET,
-            {
+            process.env.JWT_SECRET, {
                 expiresIn: "7d"
             }
         );

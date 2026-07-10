@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
-const gameConfigSchema = new mongoose.Schema(
-{
+const gameConfigSchema = new mongoose.Schema({
     gameId: {
         type: String,
         required: true,
@@ -22,8 +21,7 @@ const gameConfigSchema = new mongoose.Schema(
     visibleTime: Number,
 
     rules: String
-},
-{
+}, {
     collection: "game_config"
 });
 
