@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-// endGame() for an actual fetch/axios call.
+// Drop into client/src/games/WhackACircle.jsx
+// Currently console.logs the final payload — once your teammate's
+// POST /api/sessions endpoint is ready, swap the console.log in
+// endGame() for an actual fetch/axios call (see comment near the bottom).
+
 const TOTAL_TARGETS = 24;
-const BASE_LIFETIME_MS = 1000;
+const BASE_LIFETIME_MS = 2000;
 const MIN_LIFETIME_MS = 950; // how fast it gets by the end
 const SPAWN_GAP_MS = 600;
 const CHAOS_STARTS_AT = 16; // index after which double-spawns can happen
@@ -31,11 +35,14 @@ const styles = `
 }
 
 html, body, #root {
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
   background: #0B0F19;
-  width: 100%;
+  width: 100% !important;
+  max-width: none !important;
   min-height: 100vh;
+  border: none !important;
+  text-align: left !important;
 }
 
 .wac-wrap {

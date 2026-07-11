@@ -9,11 +9,14 @@ const styles = `
 }
 
 html, body, #root {
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
   background: #0B0F19;
-  width: 100%;
+  width: 100% !important;
+  max-width: none !important;
   min-height: 100vh;
+  border: none !important;
+  text-align: left !important;
 }
 
 .auth-wrap {
