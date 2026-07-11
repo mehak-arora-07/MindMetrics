@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 // endGame() for an actual fetch/axios call.
 const TOTAL_TARGETS = 24;
-const BASE_LIFETIME_MS = 2000;
+const BASE_LIFETIME_MS = 1000;
 const MIN_LIFETIME_MS = 950; // how fast it gets by the end
 const SPAWN_GAP_MS = 600;
 const CHAOS_STARTS_AT = 16; // index after which double-spawns can happen
