@@ -1,15 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-// Drop into client/src/games/WhackACircle.jsx
-// Currently console.logs the final payload — once your teammate's
-// POST /api/sessions endpoint is ready, swap the console.log in
-// endGame() for an actual fetch/axios call (see comment near the bottom).
-
+// endGame() for an actual fetch/axios call.
 const TOTAL_TARGETS = 24;
-const BASE_LIFETIME_MS = 1600;
-const MIN_LIFETIME_MS = 750; // how fast it gets by the end
-const SPAWN_GAP_MS = 450;
-const CHAOS_STARTS_AT = 14; // index after which double-spawns can happen
+const BASE_LIFETIME_MS = 2000;
+const MIN_LIFETIME_MS = 950; // how fast it gets by the end
+const SPAWN_GAP_MS = 600;
+const CHAOS_STARTS_AT = 16; // index after which double-spawns can happen
 
 const TYPE_CONFIG = {
   normal: { color: "52, 211, 153", ring: "#34D399", points: 1 },
@@ -30,19 +26,100 @@ function lifetimeForIndex(index) {
 }
 
 const styles = `
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  background: #0B0F19;
+  width: 100%;
+  min-height: 100vh;
+}
+
 .wac-wrap {
   display: grid;
   grid-template-columns: 1fr 220px;
   gap: 20px;
   background: #0B0F19;
   min-height: 100vh;
+  width: 100%;
   padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
   box-sizing: border-box;
   position: relative;
 }
 
-.wac-arena {
+.wac-intro-screen {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1), transparent 40%),
+    #0B0F19;
+  font-family: 'Inter', -apple-system, sans-serif;
+  padding: 24px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.wac-intro-screen h1 {
+  color: #E5E7EB;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.wac-intro-screen .sub {
+  color: #8B93A7;
+  font-size: 15px;
+  max-width: 440px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.wac-intro-cards {
+  display: flex;
+  gap: 16px;
+  margin: 8px 0 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.wac-intro-card {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 12px;
+  padding: 18px 20px;
+  width: 160px;
+  text-align: left;
+}
+
+.wac-intro-card .dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.wac-intro-card .title {
+  color: #E5E7EB;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.wac-intro-card .desc {
+  color: #8B93A7;
+  font-size: 12px;
+  line-height: 1.5;
+}
   position: relative;
   background:
     radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
@@ -331,7 +408,7 @@ function TimerRing({ lifetimeMs, color }) {
 }
 
 export default function WhackACircle({ onComplete }) {
-  const [phase, setPhase] = useState("intro"); // intro | playing | done
+  const [phase, setPhase] = useState("instructions"); // instructions | playing | done
   const [targets, setTargets] = useState([]); // active targets on screen
   const [bursts, setBursts] = useState([]);
   const [spawnedCount, setSpawnedCount] = useState(0);
@@ -502,6 +579,40 @@ export default function WhackACircle({ onComplete }) {
     ? Math.round(reactionTimesMs.reduce((a, b) => a + b, 0) / reactionTimesMs.length)
     : 0;
 
+  if (phase === "instructions") {
+    return (
+      <div className="wac-intro-screen">
+        <style>{styles}</style>
+        <h1>Whack-a-Circle</h1>
+        <p className="sub">
+          {TOTAL_TARGETS} targets will appear one at a time (and sometimes two at
+          once). Click the good ones fast, avoid the trap, and watch the timing
+          ring around each target — that's how long you've got left.
+        </p>
+        <div className="wac-intro-cards">
+          <div className="wac-intro-card">
+            <div className="dot" style={{ background: "#34D399" }} />
+            <div className="title">Normal</div>
+            <div className="desc">Click it. +1 point.</div>
+          </div>
+          <div className="wac-intro-card">
+            <div className="dot" style={{ background: "#F59E0B" }} />
+            <div className="title">Bonus</div>
+            <div className="desc">Smaller window. +2 points.</div>
+          </div>
+          <div className="wac-intro-card">
+            <div className="dot" style={{ background: "#F87171" }} />
+            <div className="title">Trap</div>
+            <div className="desc">Never click. Costs you a miss.</div>
+          </div>
+        </div>
+        <button className="wac-btn" onClick={startGame}>
+          Start the Game
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="wac-wrap">
       <style>{styles}</style>
@@ -521,25 +632,6 @@ export default function WhackACircle({ onComplete }) {
             <div className="wac-combo">🔥 {combo}x combo</div>
           )}
         </div>
-
-        {phase === "intro" && (
-          <div className="wac-center-msg">
-            <h2>Ready for chaos?</h2>
-            <p>
-              {TOTAL_TARGETS} targets, shrinking reaction windows, and
-              occasional double-spawns. Mint = hit, gold = bonus (2 pts),
-              red = trap — avoid it.
-            </p>
-            <div className="wac-legend">
-              <span><i style={{ background: "#34D399" }} /> Normal</span>
-              <span><i style={{ background: "#F59E0B" }} /> Bonus</span>
-              <span><i style={{ background: "#F87171" }} /> Trap</span>
-            </div>
-            <button className="wac-btn" onClick={startGame}>
-              Start
-            </button>
-          </div>
-        )}
 
         {phase === "playing" &&
           targets.map((t) => (
@@ -586,7 +678,7 @@ export default function WhackACircle({ onComplete }) {
                 <div className="value">{avgReactionMs}ms</div>
               </div>
             </div>
-            <button className="wac-btn" onClick={startGame}>
+            <button className="wac-btn" onClick={() => setPhase("instructions")}>
               Play Again
             </button>
           </div>
