@@ -129,12 +129,11 @@ html, body, #root {
   grid-template-columns: 1fr 220px;
   gap: 20px;
   background: #0B0F19;
-  height: 100vh;
+  min-height: 100vh;
   padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
   box-sizing: border-box;
   position: relative;
-  overflow: hidden;
 }
 
 .hs-arena {
@@ -146,7 +145,7 @@ html, body, #root {
   border: 1px solid #232A3D;
   border-radius: 16px;
   overflow: hidden;
-  height: 100%;
+  min-height: 480px;
   display: flex;
   flex-direction: column;
   transition: transform 0.05s ease;
