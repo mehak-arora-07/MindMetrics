@@ -10,10 +10,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<AuthPage />} />
-        <Route path="/play/whack-a-circle" element={<WhackACircle />} />
         <Route path="/play/pattern-sequence" element={<PatternSequence />} />
         <Route path="/play/memory-matrix" element={<MemoryMatrix />} />
-        <Route path="/play/hidden-symbol" element={<HiddenSymbol />} />
 
       </Routes>
     </BrowserRouter>
