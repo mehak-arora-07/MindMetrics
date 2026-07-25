@@ -28,7 +28,9 @@
     const questionRoutes = require("./routes/questions");
     app.use("/api/questions", questionRoutes);
 
+    app.use("/api/assessments", require("./routes/assessments"));
 
+    
     console.log('MONGO_URI is:', process.env.MONGO_URI);
     mongoose.connect(process.env.MONGO_URI)
         .then(() => console.log('MongoDB connected'))

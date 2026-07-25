@@ -420,7 +420,11 @@ export default function AuthPage() {
       }
 
       if (mode === "login") {
+        // Your /api/auth/login route returns { token, user: { userId, name, email } }.
+        // Game components need userId (for props / the session POST), so store
+        // both the token and the user object, not just the token.
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         window.location.href = "/dashboard";
       } else {
         setMode("login");
