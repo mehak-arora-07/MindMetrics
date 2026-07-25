@@ -6,7 +6,7 @@ const router = express.Router();
 
 //route
 
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, async(req, res) => {
 
     try {
 
@@ -43,11 +43,11 @@ router.post("/", verifyToken, async (req, res) => {
 
         const savedSession = await newSession.save();
 
-res.status(201).json({
-  success: true,
-  message: "Session Saved Successfully",
-  session: savedSession
-});
+        res.status(201).json({
+            success: true,
+            message: "Session Saved Successfully",
+            session: savedSession
+        });
 
     } catch (err) {
 
@@ -65,7 +65,7 @@ res.status(201).json({
 
 });
 
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", verifyToken, async(req, res) => {
 
     try {
 

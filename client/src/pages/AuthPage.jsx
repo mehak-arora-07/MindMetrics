@@ -425,7 +425,8 @@ export default function AuthPage() {
         // both the token and the user object, not just the token.
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        window.location.href = "/dashboard";
+        window.location.href = "/";
+        // added "/" just temporarily as we don't hve a dashboard page for now 
       } else {
         setMode("login");
         setForm({ name: "", email: form.email, password: "" });
