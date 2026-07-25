@@ -41,15 +41,13 @@ router.post("/", verifyToken, async (req, res) => {
 
         });
 
-        await newSession.save();
+        const savedSession = await newSession.save();
 
-        res.status(201).json({
-
-            success: true,
-
-            message: "Session Saved Successfully"
-
-        });
+res.status(201).json({
+  success: true,
+  message: "Session Saved Successfully",
+  session: savedSession
+});
 
     } catch (err) {
 
