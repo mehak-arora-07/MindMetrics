@@ -578,18 +578,21 @@ export default function PatternSequence({ onComplete }) {
     }, 800);
   }
 
-  function endGame() {
+  async function endGame() {
     const endedAt = new Date().toISOString();
     const avgTimePerQuestionMs = questionTimesMs.length
       ? Math.round(questionTimesMs.reduce((a, b) => a + b, 0) / questionTimesMs.length)
       : 0;
+    const accuracy = TOTAL_QUESTIONS > 0 ? +(correctCount / TOTAL_QUESTIONS).toFixed(2) : 0;
 
+    // NOTE: assessmentId is a placeholder for now — once there's a real
+    // "assessment flow" that groups multiple games into one sitting,
+    // this should come from that flow instead of being generated here.
     const payload = {
-      sessionId: crypto.randomUUID(),
-      userId: null,
+      assessmentId: crypto.randomUUID(),
       gameId: "pattern_sequence",
-      startedAt: startedAtRef.current,
-      endedAt,
+      accuracy,
+      avgTimeMs: avgTimePerQuestionMs,
       completed: true,
       metrics: {
         questionsTotal: TOTAL_QUESTIONS,
@@ -597,21 +600,29 @@ export default function PatternSequence({ onComplete }) {
         correct: correctCount,
         avgTimePerQuestionMs,
         highestLvl,
+        startedAt: startedAtRef.current,
+        endedAt,
       },
     };
 
-    console.log("Session payload ready:", payload);
-
-    // Once /api/sessions exists, replace the console.log above with:
-    //
-    // fetch("http://localhost:5000/api/sessions", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${localStorage.getItem("token")}`,
-    //   },
-    //   body: JSON.stringify(payload),
-    // });
+    try {
+      const res = await fetch("http://localhost:5000/api/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      if (!result.success) {
+        console.error("Session save failed:", result.error);
+      } else {
+        console.log("Session saved successfully:", result);
+      }
+    } catch (err) {
+      console.error("Could not reach server to save session:", err.message);
+    }
 
     if (onComplete) onComplete(payload);
     setPhase("done");

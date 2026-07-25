@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
-import WhackACircle from "./games/WhackACircle";
+import CPT from "./games/ContinuousPerformanceTest";
 import PatternSequence from "./games/PatternSequence";
-import MemoryMatrix from "./games/MemoryMatrix"
-import HiddenSymbol from "./games/HiddenSymbol";
+import MemoryMatrix from "./games/MemoryMatrix";
+
 
 function App() {
   return (
@@ -12,6 +12,7 @@ function App() {
         <Route path="/login" element={<AuthPage />} />
         <Route path="/play/pattern-sequence" element={<PatternSequence />} />
         <Route path="/play/memory-matrix" element={<MemoryMatrix />} />
+        <Route path="/play/cpt" element={<CPT/>} />
 
       </Routes>
     </BrowserRouter>
