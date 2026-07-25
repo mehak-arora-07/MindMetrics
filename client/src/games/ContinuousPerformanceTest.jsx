@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-// Drop into client/src/games/CPT.jsx
+// Drop into client/src/games/ContinuousPerformanceTest.jsx (imported as CPT)
 // Fetches rules from the real question bank on load via
 // GET /api/questions/cpt. If that fails for any reason (server down,
 // empty bank, network issue), it falls back to the small local RULE_BANK
 // below so the game never breaks — the instructions screen shows which
 // source is actually active ("loaded from database" vs "offline set").
+// POSTs the completed session to POST /api/sessions on game end.
 
 const TOTAL_ROUNDS = 5;
 
@@ -360,7 +361,7 @@ html, body, #root {
 .cpt-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
 `;
 
-export default function CPT({ onComplete }) {
+export default function CPT({ onComplete, userId, assessmentId }) {
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | playing | roundEnd | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [rulesForRound, setRulesForRound] = useState([]);
@@ -565,11 +566,9 @@ export default function CPT({ onComplete }) {
       : 0;
     const accuracy = totalTrueTargets > 0 ? +(hits / totalTrueTargets).toFixed(2) : 0;
 
-    // NOTE: assessmentId is a placeholder for now — once there's a real
-    // "assessment flow" that groups multiple games into one sitting,
-    // this should come from that flow instead of being generated here.
     const payload = {
-      assessmentId: crypto.randomUUID(),
+      userId: userId || null,
+      assessmentId: assessmentId || null, // passed in as a prop — must be a real assessment id, not generated here
       gameId: "cpt",
       accuracy,
       avgTimeMs: avgReactionMs,

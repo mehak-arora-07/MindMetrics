@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-// Drop into client/src/games/ColorSequence.jsx
+// Drop into client/src/games/DualTask.jsx
 // Same visual family as MemoryMatrix / HiddenSymbol — dark arena, mint/gold/red accents.
 // POSTs the completed session to POST /api/sessions on game end.
 // Pass `userId` and `assessmentId` in as props from wherever those live
@@ -504,7 +504,7 @@ function getResultCopy(score) {
   return { title: "Woah, unshakeable memory 🧠" };
 }
 
-export default function ColorSequence({ onComplete, userId, assessmentId }) {
+export default function DualTask({ onComplete, userId, assessmentId }) {
   const [phase, setPhase] = useState("instructions"); // instructions | sequence | math | memory | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [sequence, setSequence] = useState([]);
@@ -675,63 +675,103 @@ export default function ColorSequence({ onComplete, userId, assessmentId }) {
   }
 
   async function endGame() {
-    clearInterval(sessionTickRef.current);
-    const totalRoundsPlayed = roundTimes.length;
-    const memoryAccuracy = totalRoundsPlayed > 0 ? Math.round((memoryCorrectCount / totalRoundsPlayed) * 100) : 0;
-    const mathAccuracy = mathTotalAnswered > 0 ? Math.round((mathCorrectCount / mathTotalAnswered) * 100) : 0;
-    const totalAttempts = totalRoundsPlayed + mathTotalAnswered;
-    const totalCorrect = memoryCorrectCount + mathCorrectCount;
-    const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
-    const avgTimeMs = roundTimes.length
-      ? Math.round(roundTimes.reduce((a, b) => a + b, 0) / roundTimes.length)
+  clearInterval(sessionTickRef.current);
+
+  const totalRoundsPlayed = roundTimes.length;
+
+  const memoryAccuracy =
+    totalRoundsPlayed > 0
+      ? Math.round(
+          (memoryCorrectCount / totalRoundsPlayed) * 100
+        )
       : 0;
 
-    // Matches the Sessions mongoose schema exactly — sessionId, userId,
-    // assessmentId, gameId, accuracy, avgTimeMs, metrics, completed.
-    // Anything game-specific (score, highest round, sequence length, the
-    // memory/math split) lives inside metrics since that field is a free-form Object.
-    const payload = {
-      sessionId: crypto.randomUUID(),
-      userId: userId || null, // pass this in as a prop from wherever the logged-in user is tracked
-      assessmentId: assessmentId || null, // pass this in as a prop from the active assessment
-      gameId: "color_sequence_recall",
-      accuracy,
-      avgTimeMs,
-      metrics: {
-        score,
-        maxPossibleScore: MAX_POSSIBLE_SCORE,
-        roundsPlayed: totalRoundsPlayed,
-        highestRoundReached: highestLevelReached,
-        maxSequenceLength,
-        memoryAccuracy,
-        mathAccuracy,
-        memoryCorrect: memoryCorrectCount,
-        mathCorrect: mathCorrectCount,
-        mathAnswered: mathTotalAnswered,
-        roundTimesMs: roundTimes,
-      },
-      completed: true,
-    };
+  const mathAccuracy =
+    mathTotalAnswered > 0
+      ? Math.round(
+          (mathCorrectCount / mathTotalAnswered) * 100
+        )
+      : 0;
 
-    try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
+  const totalAttempts =
+    totalRoundsPlayed + mathTotalAnswered;
+
+  const totalCorrect =
+    memoryCorrectCount + mathCorrectCount;
+
+  const accuracy =
+    totalAttempts > 0
+      ? Math.round(
+          (totalCorrect / totalAttempts) * 100
+        )
+      : 0;
+
+  const avgTimeMs = roundTimes.length
+    ? Math.round(
+        roundTimes.reduce((a, b) => a + b, 0) /
+          roundTimes.length
+      )
+    : 0;
+
+  const payload = {
+  assessmentId: localStorage.getItem("assessmentId"),
+  gameId: "dual_task",
+  accuracy,
+  avgTimeMs,
+  metrics: {
+    score,
+    maxPossibleScore: MAX_POSSIBLE_SCORE,
+    roundsPlayed: totalRoundsPlayed,
+    highestRoundReached: highestLevelReached,
+    maxSequenceLength,
+    memoryAccuracy,
+    mathAccuracy,
+    memoryCorrect: memoryCorrectCount,
+    mathCorrect: mathCorrectCount,
+    mathAnswered: mathTotalAnswered,
+    roundTimesMs: roundTimes,
+  },
+  completed: true,
+};
+console.log("Assessment ID:", localStorage.getItem("assessmentId"));
+console.log("Payload being sent:", payload);
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/sessions",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
         },
         body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        console.error("Failed to save session:", res.status, await res.text());
       }
-    } catch (err) {
-      console.error("Failed to save session:", err);
-    }
+    );
 
-    if (onComplete) onComplete(payload);
-    setPhase("done");
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error(
+        "Failed to save session:",
+        res.status,
+        data
+      );
+    } else {
+      console.log(
+        "Session saved successfully:",
+        data
+      );
+    }
+  } catch (err) {
+    console.error("Failed to save session:", err);
   }
+
+  if (onComplete) onComplete(payload);
+
+  setPhase("done");
+}
 
   const round = ROUNDS[Math.min(roundIndex, ROUNDS.length - 1)];
   const totalRoundsPlayed = roundTimes.length;

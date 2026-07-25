@@ -34,37 +34,82 @@ export function setAssessmentId(id) {
 // Creates a new assessment for the logged-in user and stores its id.
 // Call this once, right before routing someone into the first game.
 export async function startAssessment() {
-  const res = await fetch(`${API_BASE}/api/assessments`, {
+  const token = getToken();
+
+  console.log("Starting assessment...");
+  console.log("Token exists:", !!token);
+
+  const res = await fetch("http://localhost:5000/api/assessments", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`,
+      Authorization: `Bearer ${token}`,
     },
   });
+
   const data = await res.json();
+
+  console.log("Assessment response status:", res.status);
+  console.log("Assessment response:", data);
 
   if (!res.ok || !data.success) {
     throw new Error(data.message || "Failed to start assessment");
   }
 
-  setAssessmentId(data.assessment.assessmentId);
-  return data.assessment.assessmentId;
-}
+  const newAssessmentId =
+    data.assessmentId || data.assessment?.assessmentId;
 
-// Call once the user has finished every game in the current assessment.
-export async function completeAssessment(assessmentId) {
-  const res = await fetch(`${API_BASE}/api/assessments/${assessmentId}/complete`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`,
-    },
-  });
-  const data = await res.json();
-
-  if (!res.ok || !data.success) {
-    throw new Error(data.message || "Failed to complete assessment");
+  if (!newAssessmentId) {
+    throw new Error("Backend did not return an assessmentId");
   }
 
-  return data.assessment;
+  setAssessmentId(newAssessmentId);
+
+  return newAssessmentId;
 }
+// export async function saveGameSession(sessionData) {
+//   const token = getToken();
+//   const assessmentId = getAssessmentId();
+
+//   if (!token) {
+//     throw new Error("No login token found");
+//   }
+
+//   if (!assessmentId) {
+//     throw new Error("No assessment ID found");
+//   }
+
+//   const payload = {
+//     assessmentId,
+//     gameId: sessionData.gameId,
+//     accuracy: Number(sessionData.accuracy),
+//     avgTimeMs: Number(sessionData.avgTimeMs),
+//     metrics: sessionData.metrics || {},
+//     completed: sessionData.completed ?? true,
+//   };
+
+//   console.log("Sending session payload:", payload);
+
+//   const res = await fetch(`${API_BASE}/api/sessions`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${token}`,
+//     },
+//     body: JSON.stringify(payload),
+//   });
+
+//   const data = await res.json();
+
+//   console.log("Session API response:", data);
+
+//   if (!res.ok || !data.success) {
+//     throw new Error(
+//       data.message ||
+//       data.error ||
+//       "Failed to save game session"
+//     );
+//   }
+
+//   return data.session;
+// }  
