@@ -5,6 +5,7 @@ import PatternSequence from "./games/PatternSequence";
 import MemoryMatrix from "./games/MemoryMatrix";
 import DualTask from "./games/DualTask";
 import CPT from "./games/ContinuousPerformanceTest";
+import KeepTrackTask from "./games/KeepTrackTask";
 import { getUser, getAssessmentId, startAssessment } from "./utils/session";
 
 function App() {
@@ -55,6 +56,10 @@ function App() {
           path="/play/cpt"
           element={<CPT userId={user?.userId} assessmentId={assessmentId} />}
         />
+        <Route 
+         path="/play/keep-track"
+         element={<KeepTrackTask userId={user?.userId} assessmentId={assessmentId} />}
+         />
       </Routes>
     </BrowserRouter>
   );

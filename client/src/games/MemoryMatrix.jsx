@@ -366,18 +366,15 @@ function getResultCopy(score) {
   if (pct < 0.35) {
     return {
       title: "Room to grow",
-      subtitle: "You can work on your memory — run it back and try to beat this score.",
     };
   }
   if (pct < 0.7) {
     return {
-      title: "Nice memory!",
-      subtitle: "Solid recall — a bit more practice and you'll be crushing the later levels.",
+      title: "Nice memory",
     };
   }
   return {
-    title: "Woah, certified memory machine 🧠",
-    subtitle: "That's a seriously sharp recall — not many people clear it that clean.",
+    title: "Sharp memory",
   };
 }
 
