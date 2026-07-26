@@ -1,11 +1,18 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { saveGameSession } from "../utils/session";
 
 // Drop into client/src/games/PatternSequence.jsx
-// Currently console.logs the final payload — once /api/sessions is ready,
-// swap the console.log in endGame() for an actual fetch call (see bottom).
+//
+// Fetches real questions from GET /api/questions/pattern_sequence
+// (matching your actual questions.js route: { success, questions }).
+// Falls back to a small local procedural generator only if that fetch
+// fails, so the game never breaks even if the server hiccups.
+//
+// Saves completed sessions via POST /api/sessions
+// (matching your actual sessions.js route + Sessions.js schema:
+// assessmentId, gameId, accuracy, avgTimeMs, metrics, completed).
 
 const TOTAL_QUESTIONS = 10;
-const OPTIONS_COUNT = 4;
 const BASE_TIME_LIMIT_MS = 12000;
 const MIN_TIME_LIMIT_MS = 6000;
 
@@ -14,10 +21,18 @@ function tierName(level) {
   return TIER_NAMES[Math.min(level - 1, TIER_NAMES.length - 1)];
 }
 
-function generateSequence(level) {
+// Which difficulty string to prefer from the bank at a given level.
+// Your QuestionBank schema only allows "Easy" | "Medium" | "Hard".
+function difficultyForLevel(level) {
+  if (level <= 2) return "Easy";
+  if (level <= 4) return "Medium";
+  return "Hard";
+}
+
+// ---- Fallback generator, used ONLY if the real bank fetch fails ----
+function generateFallbackQuestion(level) {
   const type = Math.floor(Math.random() * 3);
   const length = 4 + Math.min(Math.floor(level / 2), 3);
-
   let seq = [];
   let answer;
 
@@ -43,14 +58,21 @@ function generateSequence(level) {
   }
 
   const optionsSet = new Set([answer]);
-  while (optionsSet.size < OPTIONS_COUNT) {
+  while (optionsSet.size < 4) {
     const offset = Math.floor(Math.random() * 10) - 5;
     const candidate = answer + (offset === 0 ? 3 : offset);
     if (candidate !== answer) optionsSet.add(candidate);
   }
-  const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+  const options = Array.from(optionsSet)
+    .sort(() => Math.random() - 0.5)
+    .map(String);
 
-  return { seq, answer, options };
+  return {
+    patternText: seq.join(", ") + ", ?",
+    options,
+    answer: String(answer),
+    difficulty: level <= 2 ? "Easy" : level <= 4 ? "Medium" : "Hard",
+  };
 }
 
 function timeLimitForLevel(level) {
@@ -99,33 +121,20 @@ html, body, #root {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-@keyframes ps-flow {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-@keyframes ps-tile-pop {
-  from { opacity: 0; transform: scale(0.6) translateY(6px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
 @keyframes ps-flame-pop {
   0% { transform: scale(0.7); }
   50% { transform: scale(1.15); }
   100% { transform: scale(1); }
 }
-
 @keyframes ps-toast-in {
-  0% { opacity: 0; transform: translate(-50%, -16px); }
+  0% { opacity: 0; transform: translate(-50%, -14px); }
   15% { opacity: 1; transform: translate(-50%, 0); }
   85% { opacity: 1; transform: translate(-50%, 0); }
-  100% { opacity: 0; transform: translate(-50%, -10px); }
+  100% { opacity: 0; transform: translate(-50%, -8px); }
 }
-
-@keyframes ps-confetti {
-  from { transform: translate(0, 0) scale(1); opacity: 1; }
-  to { transform: translate(var(--dx), var(--dy)) scale(0.4); opacity: 0; }
+@keyframes ps-pattern-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .ps-screen { animation: ps-fade-in 0.35s ease; }
@@ -137,115 +146,77 @@ html, body, #root {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 22px;
-  background: #0B0F19;
+  gap: 20px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.08), transparent 40%),
+    #0B0F19;
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
   text-align: center;
 }
 
-.ps-eyebrow {
-  color: #7C8A9E;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-
-.ps-intro-screen h1 {
-  color: #EDEFF3;
-  font-size: 30px;
-  font-weight: 600;
-  letter-spacing: -0.3px;
-  margin: 0;
-}
-
-.ps-intro-screen .sub {
-  color: #8B93A7;
-  font-size: 14.5px;
-  max-width: 420px;
-  margin: 0;
-  line-height: 1.65;
-}
+.ps-intro-screen h1 { color: #E5E7EB; font-size: 32px; font-weight: 700; margin: 0; }
+.ps-intro-screen .sub { color: #8B93A7; font-size: 15px; max-width: 460px; margin: 0; line-height: 1.6; }
 
 .ps-example {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: #141A2E;
+  border: 1px solid #232A3D;
   border-radius: 12px;
   padding: 18px 26px;
-  color: #EDEFF3;
+  color: #E5E7EB;
   font-size: 19px;
   font-weight: 600;
   letter-spacing: 1.5px;
 }
-
 .ps-example span { color: #3B82F6; }
 
 .ps-btn {
-  background: #34D399;
+  background: linear-gradient(90deg, #34D399, #3B82F6);
   color: #05221A;
   border: none;
   border-radius: 8px;
-  padding: 12px 30px;
+  padding: 12px 28px;
   font-size: 14px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+  transition: transform 0.12s ease;
 }
-
-.ps-btn:hover { background: #3EE0A8; box-shadow: 0 4px 18px rgba(52, 211, 153, 0.25); }
 .ps-btn:active { transform: scale(0.97); }
+.ps-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .ps-wrap {
   min-height: 100vh;
   width: 100%;
-  background:
-    radial-gradient(circle at 15% 10%, rgba(59, 130, 246, 0.05), transparent 45%),
-    radial-gradient(circle at 85% 90%, rgba(167, 139, 250, 0.05), transparent 45%),
-    #0B0F19;
-  background-image:
-    radial-gradient(circle at 15% 10%, rgba(59, 130, 246, 0.05), transparent 45%),
-    radial-gradient(circle at 85% 90%, rgba(167, 139, 250, 0.05), transparent 45%),
-    radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    #0B0F19;
-  background-size: auto, auto, 26px 26px, auto;
+  padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
-  padding: 40px 24px;
+  box-sizing: border-box;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 22px;
-  position: relative;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.06), transparent 40%),
+    #0B0F19;
 }
 
-.ps-top-bar {
+.ps-topbar {
   width: 100%;
-  max-width: 640px;
+  max-width: 720px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+.ps-topbar h2 { color: #E5E7EB; font-size: 17px; font-weight: 600; margin: 0; }
+.ps-topright { display: flex; align-items: center; gap: 10px; }
 
-.ps-top-bar h2 {
-  color: #EDEFF3;
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
-  letter-spacing: -0.2px;
-}
-
-.ps-top-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ps-tier-badge {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  color: #60A5FA;
+.ps-round-badge {
+  background: rgba(167, 139, 250, 0.12);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  color: #A78BFA;
   font-size: 12.5px;
   font-weight: 600;
   padding: 5px 12px;
@@ -260,171 +231,101 @@ html, body, #root {
   font-weight: 600;
   color: #F59E0B;
 }
-
-.ps-flame .icon {
-  animation: ps-flame-pop 0.3s ease;
-  display: inline-block;
-}
+.ps-flame .icon { animation: ps-flame-pop 0.3s ease; display: inline-block; }
 
 .ps-progress-bar {
   width: 100%;
-  max-width: 640px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
+  max-width: 720px;
+  height: 5px;
+  background: #232A3D;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.ps-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #34D399, #3B82F6);
+  transition: width 0.15s linear;
+}
+
+.ps-prompt-banner {
+  width: 100%;
+  max-width: 720px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #232A3D;
+  border-radius: 12px;
+  padding: 14px 20px;
+  color: #E5E7EB;
+  font-size: 14px;
+  text-align: center;
+}
+
+.ps-arena {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  min-height: 340px;
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  padding: 36px 30px;
   overflow: hidden;
 }
 
-.ps-progress-fill {
-  height: 100%;
-  background: #34D399;
-  transition: width 0.3s ease;
-}
-
-.ps-card {
-  background: rgba(255, 255, 255, 0.035);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 16px;
-  padding: 36px 40px 40px;
-  width: 100%;
-  max-width: 640px;
-  text-align: center;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-  position: relative;
-  animation: ps-fade-in 0.3s ease;
-}
-
-.ps-ring-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 6px;
-}
-
+.ps-ring-wrap { display: flex; justify-content: center; }
 .ps-ring-svg { transform: rotate(-90deg); }
 
-.ps-card .prompt {
-  color: #8B93A7;
-  font-size: 13px;
-  margin: 6px 0 20px;
-}
-
-.ps-sequence {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0;
-  margin-bottom: 34px;
-  position: relative;
-}
-
-.ps-seq-item {
+.ps-pattern-display {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 999px;
-  min-width: 52px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #EDEFF3;
-  font-size: 17px;
+  border-radius: 12px;
+  padding: 18px 28px;
+  color: #E5E7EB;
+  font-size: 22px;
   font-weight: 700;
+  letter-spacing: 1px;
+  text-align: center;
+  max-width: 90%;
   opacity: 0;
-  animation: ps-tile-pop 0.35s ease forwards;
-  position: relative;
-  z-index: 2;
-}
-
-.ps-seq-item.mark {
-  border-color: #3B82F6;
-  color: #60A5FA;
-  background: rgba(59, 130, 246, 0.1);
-}
-
-.ps-seq-link {
-  width: 22px;
-  height: 3px;
-  border-radius: 3px;
-  background: linear-gradient(
-    90deg,
-    rgba(59, 130, 246, 0.15) 0%,
-    rgba(59, 130, 246, 0.7) 50%,
-    rgba(59, 130, 246, 0.15) 100%
-  );
-  background-size: 200% 100%;
-  animation: ps-flow 1.8s linear infinite;
-  opacity: 0;
-  animation: ps-flow 1.8s linear infinite, ps-fade-in 0.3s ease forwards;
+  animation: ps-pattern-in 0.3s ease forwards;
 }
 
 .ps-options {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  position: relative;
+  width: 100%;
+  max-width: 380px;
 }
 
 .ps-option {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: 3px solid var(--accent, rgba(255, 255, 255, 0.15));
+  border: 1px solid #232A3D;
   border-radius: 10px;
   padding: 15px;
-  color: #EDEFF3;
+  color: #E5E7EB;
   font-size: 17px;
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
 }
-
-.ps-option:hover:not(:disabled) {
-  border-color: rgba(59, 130, 246, 0.45);
-  background: rgba(59, 130, 246, 0.06);
-}
-
+.ps-option:hover:not(:disabled) { border-color: #3B82F6; background: rgba(59, 130, 246, 0.06); }
 .ps-option:active:not(:disabled) { transform: scale(0.97); }
 .ps-option:disabled { cursor: default; }
-
-.ps-option.correct {
-  border-color: rgba(52, 211, 153, 0.5);
-  background: rgba(52, 211, 153, 0.12);
-  color: #34D399;
-  transform: scale(1.03);
-}
-
-.ps-option.wrong {
-  border-color: rgba(248, 113, 113, 0.5);
-  background: rgba(248, 113, 113, 0.1);
-  color: #F87171;
-}
-
-.ps-feedback {
-  margin-top: 18px;
-  font-size: 13px;
-  color: #8B93A7;
-  min-height: 18px;
-}
-
-.ps-confetti-dot {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  left: 50%;
-  top: 50%;
-  pointer-events: none;
-  animation: ps-confetti 0.6s ease-out forwards;
-}
+.ps-option.correct { border-color: #34D399; background: rgba(52, 211, 153, 0.12); color: #34D399; }
+.ps-option.wrong { border-color: #F87171; background: rgba(248, 113, 113, 0.1); color: #F87171; }
 
 .ps-levelup-toast {
   position: absolute;
-  top: 12px;
+  top: 14px;
   left: 50%;
   background: linear-gradient(90deg, rgba(52, 211, 153, 0.16), rgba(59, 130, 246, 0.16));
   border: 1px solid rgba(52, 211, 153, 0.35);
-  color: #EDEFF3;
+  color: #E5E7EB;
   font-size: 13px;
   font-weight: 600;
   padding: 8px 18px;
@@ -434,6 +335,24 @@ html, body, #root {
   white-space: nowrap;
 }
 
+.ps-stats-row {
+  width: 100%;
+  max-width: 720px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.ps-stat {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.ps-stat .label { color: #8B93A7; font-size: 11px; margin-bottom: 4px; }
+.ps-stat .value { color: #E5E7EB; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ps-stat .value.correct { color: #34D399; }
+
 .ps-results-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -442,36 +361,30 @@ html, body, #root {
   max-width: 420px;
   margin: 0 auto;
 }
-
 .ps-results-grid div {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 10px;
-  padding: 15px;
+  background: #0B0F19;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
 }
-
-.ps-results-grid .label { color: #8B93A7; font-size: 11px; margin-bottom: 4px; }
-.ps-results-grid .value {
-  color: #EDEFF3;
-  font-size: 19px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
+.ps-results-grid .label { color: #8B93A7; font-size: 11px; }
+.ps-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
 `;
 
-const CONFETTI_COLORS = ["#34D399", "#3B82F6", "#F59E0B", "#A78BFA"];
-
-export default function PatternSequence({ onComplete }) {
-  const [phase, setPhase] = useState("instructions");
+export default function PatternSequence({ onComplete, userId, assessmentId }) {
+  const [phase, setPhase] = useState("instructions"); // instructions | playing | done
   const [level, setLevel] = useState(1);
   const [streak, setStreak] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [current, setCurrent] = useState(null);
   const [selected, setSelected] = useState(null);
-  const [feedback, setFeedback] = useState("");
   const [timeLeft, setTimeLeft] = useState(BASE_TIME_LIMIT_MS);
-  const [confetti, setConfetti] = useState([]);
   const [levelUpToast, setLevelUpToast] = useState(null);
+
+  const [masterPool, setMasterPool] = useState([]); // fetched once from the real bank
+  const [workingPool, setWorkingPool] = useState([]); // consumed per session
+  const [bankLoaded, setBankLoaded] = useState(false);
+  const [bankSource, setBankSource] = useState(null); // "api" | "local"
 
   const [correctCount, setCorrectCount] = useState(0);
   const [attempts, setAttempts] = useState(0);
@@ -483,16 +396,67 @@ export default function PatternSequence({ onComplete }) {
   const timerIntervalRef = useRef(null);
   const timeLimitRef = useRef(BASE_TIME_LIMIT_MS);
 
-  const loadQuestion = useCallback((lvl) => {
-    const q = generateSequence(lvl);
-    setCurrent(q);
-    setSelected(null);
-    setFeedback("");
-    const limit = timeLimitForLevel(lvl);
-    timeLimitRef.current = limit;
-    setTimeLeft(limit);
-    questionStartRef.current = performance.now();
+  // ---- Load real questions from the bank on mount ----
+  useEffect(() => {
+    async function loadQuestionBank() {
+      try {
+        const res = await fetch("http://localhost:5000/api/questions/pattern_sequence");
+        const result = await res.json();
+
+        if (!result.success || !result.questions || result.questions.length === 0) {
+          throw new Error("Bank empty or request unsuccessful");
+        }
+
+        const normalized = result.questions.map((q) => ({
+          questionId: q.questionId,
+          difficulty: q.difficulty,
+          patternText: q.data.pattern,
+          options: [
+            q.data["Option A"],
+            q.data["Option B"],
+            q.data["Option C"],
+            q.data["Option D"],
+          ],
+          answer: q.data.Correct,
+        }));
+
+        setMasterPool(normalized);
+        setBankSource("api");
+      } catch (err) {
+        console.warn("Falling back to local generator — bank fetch failed:", err.message);
+        setMasterPool([]); // empty means "use generateFallbackQuestion" per-question
+        setBankSource("local");
+      } finally {
+        setBankLoaded(true);
+      }
+    }
+    loadQuestionBank();
   }, []);
+
+  const loadQuestion = useCallback(
+    (lvl, pool) => {
+      let q;
+      const targetDifficulty = difficultyForLevel(lvl);
+
+      if (pool.length > 0) {
+        const matching = pool.filter((item) => item.difficulty === targetDifficulty);
+        const candidates = matching.length > 0 ? matching : pool;
+        const idx = Math.floor(Math.random() * candidates.length);
+        q = candidates[idx];
+        setWorkingPool(pool.filter((item) => item.questionId !== q.questionId));
+      } else {
+        q = generateFallbackQuestion(lvl);
+      }
+
+      setCurrent(q);
+      setSelected(null);
+      const limit = timeLimitForLevel(lvl);
+      timeLimitRef.current = limit;
+      setTimeLeft(limit);
+      questionStartRef.current = performance.now();
+    },
+    []
+  );
 
   useEffect(() => {
     if (phase !== "playing" || selected !== null) return;
@@ -520,18 +484,9 @@ export default function PatternSequence({ onComplete }) {
     setQuestionTimesMs([]);
     setHighestLvl(1);
     startedAtRef.current = new Date().toISOString();
-    loadQuestion(1);
-  }
-
-  function spawnConfetti() {
-    const dots = Array.from({ length: 8 }, (_, i) => ({
-      id: crypto.randomUUID(),
-      color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-      dx: (Math.random() - 0.5) * 160,
-      dy: (Math.random() - 0.5) * 100 - 30,
-    }));
-    setConfetti(dots);
-    setTimeout(() => setConfetti([]), 650);
+    const freshPool = [...masterPool];
+    setWorkingPool(freshPool);
+    loadQuestion(1, freshPool);
   }
 
   function handleAnswer(option) {
@@ -547,8 +502,6 @@ export default function PatternSequence({ onComplete }) {
 
     if (isCorrect) {
       setCorrectCount((c) => c + 1);
-      setFeedback("Correct");
-      spawnConfetti();
       setStreak((s) => {
         const ns = s + 1;
         if (ns % 3 === 0) {
@@ -564,7 +517,6 @@ export default function PatternSequence({ onComplete }) {
       });
     } else {
       setStreak(0);
-      setFeedback(option === null ? "Time's up" : "Not quite");
     }
 
     setTimeout(() => {
@@ -573,7 +525,7 @@ export default function PatternSequence({ onComplete }) {
         endGame();
       } else {
         setQuestionIndex(nextIndex);
-        loadQuestion(level);
+        loadQuestion(level, workingPool);
       }
     }, 800);
   }
@@ -585,11 +537,12 @@ export default function PatternSequence({ onComplete }) {
       : 0;
     const accuracy = TOTAL_QUESTIONS > 0 ? +(correctCount / TOTAL_QUESTIONS).toFixed(2) : 0;
 
-    // NOTE: assessmentId is a placeholder for now — once there's a real
-    // "assessment flow" that groups multiple games into one sitting,
-    // this should come from that flow instead of being generated here.
-    const payload = {
-      assessmentId: crypto.randomUUID(),
+    // sessionData here is intentionally NOT the full API payload —
+    // saveGameSession() (in utils/session.js) attaches assessmentId and
+    // the auth token itself, reading them from the same localStorage
+    // App.jsx already manages. This keeps every game consistent instead
+    // of each one reimplementing the fetch/token/assessmentId logic.
+    const sessionData = {
       gameId: "pattern_sequence",
       accuracy,
       avgTimeMs: avgTimePerQuestionMs,
@@ -606,55 +559,49 @@ export default function PatternSequence({ onComplete }) {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      const result = await res.json();
-      if (!result.success) {
-        console.error("Session save failed:", result.error);
-      } else {
-        console.log("Session saved successfully:", result);
-      }
+      const saved = await saveGameSession(sessionData);
+      console.log("Session saved successfully:", saved);
     } catch (err) {
       console.error("Could not reach server to save session:", err.message);
     }
 
-    if (onComplete) onComplete(payload);
+    if (onComplete) onComplete(sessionData);
     setPhase("done");
   }
 
   const avgTimePerQuestionMs = questionTimesMs.length
     ? Math.round(questionTimesMs.reduce((a, b) => a + b, 0) / questionTimesMs.length)
     : 0;
-  const accuracy = Math.round((correctCount / TOTAL_QUESTIONS) * 100);
 
   const animatedCorrect = useCountUp(correctCount, 700, phase === "done");
-  const animatedAccuracy = useCountUp(accuracy, 700, phase === "done");
-  const animatedLevel = useCountUp(highestLvl, 700, phase === "done");
+  const animatedAccuracy = useCountUp(
+    Math.round((correctCount / TOTAL_QUESTIONS) * 100),
+    700,
+    phase === "done"
+  );
   const animatedTime = useCountUp(avgTimePerQuestionMs, 700, phase === "done");
 
   if (phase === "instructions") {
     return (
       <div className="ps-intro-screen ps-screen">
         <style>{styles}</style>
-        <div className="ps-eyebrow">Cognitive Assessment</div>
         <h1>Pattern Sequence</h1>
         <p className="sub">
-          You'll see a short sequence of numbers. Identify the pattern and
-          select what comes next. Chain correct answers to level up —
-          sequences get longer and the clock gets tighter.
+          You'll see a short pattern — numbers, letters, or shapes. Identify
+          the rule and select what comes next. Chain correct answers to
+          level up.
         </p>
         <div className="ps-example">
           2 &nbsp; 4 &nbsp; 6 &nbsp; 8 &nbsp; <span>?</span>
         </div>
-        <button className="ps-btn" onClick={startGame}>
-          Begin Assessment
+        <button className="ps-btn" onClick={startGame} disabled={!bankLoaded}>
+          {bankLoaded ? "Begin Assessment" : "Loading questions…"}
         </button>
+        {bankLoaded && (
+          <p style={{ color: "#4B5468", fontSize: 11 }}>
+            {bankSource === "api" ? "Question bank loaded from database" : "Using offline question set"}
+          </p>
+        )}
       </div>
     );
   }
@@ -663,12 +610,9 @@ export default function PatternSequence({ onComplete }) {
     return (
       <div className="ps-wrap ps-screen">
         <style>{styles}</style>
-        <div className="ps-card">
-          <div className="ps-eyebrow" style={{ marginBottom: 10 }}>
-            Assessment Complete
-          </div>
-          <h2 style={{ color: "#EDEFF3", fontSize: 21, fontWeight: 600, marginBottom: 28 }}>
-            Here's how you did
+        <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
+          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>
+            Assessment complete
           </h2>
           <div className="ps-results-grid">
             <div>
@@ -690,11 +634,7 @@ export default function PatternSequence({ onComplete }) {
               <div className="value">{animatedTime}ms</div>
             </div>
           </div>
-          <button
-            className="ps-btn"
-            style={{ marginTop: 26 }}
-            onClick={() => setPhase("instructions")}
-          >
+          <button className="ps-btn" style={{ marginTop: 24 }} onClick={startGame}>
             Try Again
           </button>
         </div>
@@ -708,15 +648,15 @@ export default function PatternSequence({ onComplete }) {
     <div className="ps-wrap ps-screen">
       <style>{styles}</style>
 
-      <div className="ps-top-bar">
+      <div className="ps-topbar">
         <h2>Pattern Sequence</h2>
-        <div className="ps-top-right">
+        <div className="ps-topright">
           {streak >= 2 && (
             <div className="ps-flame" key={streak}>
               <span className="icon">🔥</span> {streak}
             </div>
           )}
-          <div className="ps-tier-badge">{tierName(level)}</div>
+          <div className="ps-round-badge">{tierName(level)}</div>
         </div>
       </div>
 
@@ -727,86 +667,78 @@ export default function PatternSequence({ onComplete }) {
         />
       </div>
 
-      {current && (
-        <div className="ps-card" key={questionIndex}>
-          {levelUpToast && <div className="ps-levelup-toast">{levelUpToast}</div>}
+      <div className="ps-prompt-banner">
+        Question {questionIndex + 1} of {TOTAL_QUESTIONS} — what comes next?
+      </div>
 
-          <div className="ps-ring-wrap">
-            <svg className="ps-ring-svg" width="64" height="64" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r={RING_R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
-              <circle
-                cx="32"
-                cy="32"
-                r={RING_R}
-                fill="none"
-                stroke={timeLeft < 3000 ? "#F87171" : "#3B82F6"}
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeDasharray={RING_CIRC}
-                strokeDashoffset={ringOffset}
-                style={{ transition: "stroke-dashoffset 0.1s linear, stroke 0.3s ease" }}
-              />
-            </svg>
-          </div>
+      <div className="ps-arena">
+        {levelUpToast && <div className="ps-levelup-toast">{levelUpToast}</div>}
 
-          <div className="prompt">
-            Question {questionIndex + 1} of {TOTAL_QUESTIONS} — what comes next?
-          </div>
-
-          <div className="ps-sequence">
-            {current.seq.map((n, i) => (
-              <div key={`tile-${i}`} style={{ display: "contents" }}>
-                <div
-                  className="ps-seq-item"
-                  style={{ animationDelay: `${i * 70}ms` }}
-                >
-                  {n}
-                </div>
-                <div
-                  className="ps-seq-link"
-                  style={{ animationDelay: `${i * 70 + 40}ms, ${i * 70 + 40}ms` }}
+        {current && (
+          <>
+            <div className="ps-ring-wrap">
+              <svg className="ps-ring-svg" width="64" height="64" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r={RING_R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
+                <circle
+                  cx="32"
+                  cy="32"
+                  r={RING_R}
+                  fill="none"
+                  stroke={timeLeft < 3000 ? "#F87171" : "#3B82F6"}
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeDasharray={RING_CIRC}
+                  strokeDashoffset={ringOffset}
+                  style={{ transition: "stroke-dashoffset 0.1s linear, stroke 0.3s ease" }}
                 />
-              </div>
-            ))}
-            <div
-              className="ps-seq-item mark"
-              style={{ animationDelay: `${current.seq.length * 70}ms` }}
-            >
-              ?
+              </svg>
             </div>
-          </div>
 
-          <div className="ps-options">
-            {confetti.map((c) => (
-              <div
-                key={c.id}
-                className="ps-confetti-dot"
-                style={{ background: c.color, "--dx": `${c.dx}px`, "--dy": `${c.dy}px` }}
-              />
-            ))}
-            {current.options.map((opt, i) => {
-              let cls = "ps-option";
-              if (selected !== null) {
-                if (opt === current.answer) cls += " correct";
-                else if (opt === selected) cls += " wrong";
-              }
-              const accentColors = ["#34D399", "#3B82F6", "#A78BFA", "#F59E0B"];
-              return (
-                <button
-                  key={opt}
-                  className={cls}
-                  disabled={selected !== null}
-                  onClick={() => handleAnswer(opt)}
-                  style={{ "--accent": accentColors[i % accentColors.length] }}
-                >
-                  {opt}
-                </button>
-              );
-            })}
-          </div>
-          <div className="ps-feedback">{feedback}</div>
+            <div className="ps-pattern-display" key={questionIndex}>
+              {current.patternText}
+            </div>
+
+            <div className="ps-options">
+              {current.options.map((opt) => {
+                let cls = "ps-option";
+                if (selected !== null) {
+                  if (opt === current.answer) cls += " correct";
+                  else if (opt === selected) cls += " wrong";
+                }
+                return (
+                  <button
+                    key={opt}
+                    className={cls}
+                    disabled={selected !== null}
+                    onClick={() => handleAnswer(opt)}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="ps-stats-row">
+        <div className="ps-stat">
+          <div className="label">Correct</div>
+          <div className="value correct">{correctCount}</div>
         </div>
-      )}
+        <div className="ps-stat">
+          <div className="label">Attempts</div>
+          <div className="value">{attempts}</div>
+        </div>
+        <div className="ps-stat">
+          <div className="label">Tier</div>
+          <div className="value">{tierName(level)}</div>
+        </div>
+        <div className="ps-stat">
+          <div className="label">Avg Time</div>
+          <div className="value">{avgTimePerQuestionMs || "--"} ms</div>
+        </div>
+      </div>
     </div>
   );
 }

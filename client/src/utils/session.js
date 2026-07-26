@@ -1,6 +1,7 @@
 // Drop into client/src/utils/session.js
-// Small wrapper around localStorage + the /api/assessments route so game
-// components and App.jsx don't each reimplement this.
+// Small wrapper around localStorage + the /api/assessments and
+// /api/sessions routes so game components and App.jsx don't each
+// reimplement this.
 
 const API_BASE = "http://localhost:5000";
 
@@ -36,10 +37,7 @@ export function setAssessmentId(id) {
 export async function startAssessment() {
   const token = getToken();
 
-  console.log("Starting assessment...");
-  console.log("Token exists:", !!token);
-
-  const res = await fetch("http://localhost:5000/api/assessments", {
+  const res = await fetch(`${API_BASE}/api/assessments`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -49,15 +47,11 @@ export async function startAssessment() {
 
   const data = await res.json();
 
-  console.log("Assessment response status:", res.status);
-  console.log("Assessment response:", data);
-
   if (!res.ok || !data.success) {
     throw new Error(data.message || "Failed to start assessment");
   }
 
-  const newAssessmentId =
-    data.assessmentId || data.assessment?.assessmentId;
+  const newAssessmentId = data.assessmentId || data.assessment?.assessmentId;
 
   if (!newAssessmentId) {
     throw new Error("Backend did not return an assessmentId");
@@ -67,49 +61,45 @@ export async function startAssessment() {
 
   return newAssessmentId;
 }
-// export async function saveGameSession(sessionData) {
-//   const token = getToken();
-//   const assessmentId = getAssessmentId();
 
-//   if (!token) {
-//     throw new Error("No login token found");
-//   }
+// Saves a completed game session against the current assessment.
+// Every game calls this the same way — no game reimplements the
+// fetch/token/assessmentId logic itself.
+export async function saveGameSession(sessionData) {
+  const token = getToken();
+  const assessmentId = getAssessmentId();
 
-//   if (!assessmentId) {
-//     throw new Error("No assessment ID found");
-//   }
+  if (!token) {
+    throw new Error("No login token found");
+  }
 
-//   const payload = {
-//     assessmentId,
-//     gameId: sessionData.gameId,
-//     accuracy: Number(sessionData.accuracy),
-//     avgTimeMs: Number(sessionData.avgTimeMs),
-//     metrics: sessionData.metrics || {},
-//     completed: sessionData.completed ?? true,
-//   };
+  if (!assessmentId) {
+    throw new Error("No assessment ID found");
+  }
 
-//   console.log("Sending session payload:", payload);
+  const payload = {
+    assessmentId,
+    gameId: sessionData.gameId,
+    accuracy: Number(sessionData.accuracy),
+    avgTimeMs: Number(sessionData.avgTimeMs),
+    metrics: sessionData.metrics || {},
+    completed: sessionData.completed ?? true,
+  };
 
-//   const res = await fetch(`${API_BASE}/api/sessions`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `Bearer ${token}`,
-//     },
-//     body: JSON.stringify(payload),
-//   });
+  const res = await fetch(`${API_BASE}/api/sessions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
 
-//   const data = await res.json();
+  const data = await res.json();
 
-//   console.log("Session API response:", data);
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || data.error || "Failed to save game session");
+  }
 
-//   if (!res.ok || !data.success) {
-//     throw new Error(
-//       data.message ||
-//       data.error ||
-//       "Failed to save game session"
-//     );
-//   }
-
-//   return data.session;
-// }  
+  return data.session;
+}

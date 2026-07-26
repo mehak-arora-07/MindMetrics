@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { saveGameSession } from "../utils/session";
 
-// Drop into client/src/games/ContinuousPerformanceTest.jsx (imported as CPT)
+// Drop into client/src/games/CPT.jsx
 // Fetches rules from the real question bank on load via
 // GET /api/questions/cpt. If that fails for any reason (server down,
 // empty bank, network issue), it falls back to the small local RULE_BANK
 // below so the game never breaks — the instructions screen shows which
 // source is actually active ("loaded from database" vs "offline set").
-// POSTs the completed session to POST /api/sessions on game end.
 
 const TOTAL_ROUNDS = 5;
 
@@ -566,9 +566,12 @@ export default function CPT({ onComplete, userId, assessmentId }) {
       : 0;
     const accuracy = totalTrueTargets > 0 ? +(hits / totalTrueTargets).toFixed(2) : 0;
 
-    const payload = {
-      userId: userId || null,
-      assessmentId: assessmentId || null, // passed in as a prop — must be a real assessment id, not generated here
+    // sessionData here is intentionally NOT the full API payload —
+    // saveGameSession() (in utils/session.js) attaches assessmentId and
+    // the auth token itself, reading them from the same localStorage
+    // App.jsx already manages. This keeps every game consistent instead
+    // of each one reimplementing the fetch/token/assessmentId logic.
+    const sessionData = {
       gameId: "cpt",
       accuracy,
       avgTimeMs: avgReactionMs,
@@ -587,25 +590,13 @@ export default function CPT({ onComplete, userId, assessmentId }) {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      const result = await res.json();
-      if (!result.success) {
-        console.error("Session save failed:", result.error);
-      } else {
-        console.log("Session saved successfully:", result);
-      }
+      const saved = await saveGameSession(sessionData);
+      console.log("Session saved successfully:", saved);
     } catch (err) {
       console.error("Could not reach server to save session:", err.message);
     }
 
-    if (onComplete) onComplete(payload);
+    if (onComplete) onComplete(sessionData);
     setPhase("done");
   }
 
