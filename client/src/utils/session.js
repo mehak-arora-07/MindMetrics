@@ -51,7 +51,7 @@ export async function startAssessment() {
     throw new Error(data.message || "Failed to start assessment");
   }
 
-  const newAssessmentId = data.assessmentId || data.assessment?.assessmentId;
+  const newAssessmentId = data.assessment?.assessmentId;
 
   if (!newAssessmentId) {
     throw new Error("Backend did not return an assessmentId");

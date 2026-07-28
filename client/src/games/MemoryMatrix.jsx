@@ -510,7 +510,7 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
     // strictly need to be sent, but assessmentId/gameId/accuracy/avgTimeMs/
     // metrics/completed are exactly what that route destructures.
     const payload = {
-      assessmentId, // passed in as a prop — must be a real assessment _id, not null
+      assessmentId: localStorage.getItem("assessmentId"),
       gameId: "memory_matrix",
       accuracy,
       avgTimeMs,
@@ -534,14 +534,27 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
         },
         body: JSON.stringify(payload),
       });
+      const data = await res.json();
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("assessmentId");
+
+          alert("Your login session expired. Please log in again.");
+          window.location.href = "/";
+          return;
+        }
       if (!res.ok) {
-        console.error("Failed to save session:", res.status, await res.text());
+        console.error("Failed to save session:", res.status, data);
+      } else {
+        console.log("Session saved successfully:", data);
       }
     } catch (err) {
       console.error("Failed to save session:", err);
     }
 
     if (onComplete) onComplete(payload);
+
     setPhase("done");
   }
 

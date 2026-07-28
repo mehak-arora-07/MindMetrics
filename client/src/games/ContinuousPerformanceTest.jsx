@@ -571,11 +571,11 @@ export default function CPT({ onComplete, userId, assessmentId }) {
     // the auth token itself, reading them from the same localStorage
     // App.jsx already manages. This keeps every game consistent instead
     // of each one reimplementing the fetch/token/assessmentId logic.
-    const sessionData = {
+    const payload = {
+      assessmentId: localStorage.getItem("assessmentId"),
       gameId: "cpt",
       accuracy,
       avgTimeMs: avgReactionMs,
-      completed: true,
       metrics: {
         roundsCompleted: TOTAL_ROUNDS,
         totalTrueTargets,
@@ -587,17 +587,54 @@ export default function CPT({ onComplete, userId, assessmentId }) {
         startedAt: startedAtRef.current,
         endedAt,
       },
+            completed: true,
     };
+console.log("Assessment ID:", localStorage.getItem("assessmentId"));
+console.log("Payload being sent:", payload);
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/sessions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
 
-    try {
-      const saved = await saveGameSession(sessionData);
-      console.log("Session saved successfully:", saved);
-    } catch (err) {
-      console.error("Could not reach server to save session:", err.message);
+     const data = await res.json();
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("assessmentId");
+
+          alert("Your login session expired. Please log in again.");
+          window.location.href = "/";
+          return;
+        }
+    if (!res.ok) {
+      console.error(
+        "Failed to save session:",
+        res.status,
+        data
+      );
+    } else {
+      console.log(
+        "Session saved successfully:",
+        data
+      );
     }
+  } catch (err) {
+    console.error("Failed to save session:", err);
+  }
 
-    if (onComplete) onComplete(sessionData);
-    setPhase("done");
+  if (onComplete) onComplete(payload);
+
+  setPhase("done");
   }
 
   const avgReactionMs = reactionTimesMs.length

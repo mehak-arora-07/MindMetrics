@@ -726,8 +726,16 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+    const data = await res.json();
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("assessmentId");
 
+          alert("Your login session expired. Please log in again.");
+          window.location.href = "/";
+          return;
+        }
       if (!res.ok) {
         console.error("Failed to save session:", res.status, data);
       } else {
