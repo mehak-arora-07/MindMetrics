@@ -9,16 +9,16 @@ import { useState, useRef, useEffect } from "react";
 // additionalData shape requested: { recallAccuracy, maxLevel, incorrectRecalls }
 // — all three live inside metrics, same as every other game here.
 
-const SESSION_TIME_LIMIT_MS = 45000;
+const SESSION_TIME_LIMIT_MS = 65000;
 
 const ROUNDS = [
-  { label: "Round 1", categoryCount: 3, itemCount: 6, displayMs: 1200, types: ["latest"] },
-  { label: "Round 2", categoryCount: 4, itemCount: 7, displayMs: 1200, types: ["latest", "mostRecentCategory"] },
+  { label: "Round 1", categoryCount: 3, itemCount: 6, displayMs: 1400, types: ["latest"] },
+  { label: "Round 2", categoryCount: 4, itemCount: 7, displayMs: 1500, types: ["latest", "mostRecentCategory"] },
   {
     label: "Round 3",
     categoryCount: 4,
     itemCount: 8,
-    displayMs: 1400,
+    displayMs: 1900,
     types: ["latest", "secondLatest", "mostRecentCategory", "itemBefore"],
   },
 ];
@@ -582,6 +582,17 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
   const endedRef = useRef(false);
   const sessionTickRef = useRef(null);
 
+  // Mirrors of the scoring state. handleSelectOption schedules endGame()
+  // inside a setTimeout right after calling setScore/setCorrectCount/etc
+  // with functional updaters — but endGame's own closure still sees the
+  // pre-update values until the next render, which would silently drop
+  // the very last round's result from the saved session. Refs avoid that.
+  const scoreRef = useRef(0);
+  const correctCountRef = useRef(0);
+  const incorrectCountRef = useRef(0);
+  const maxLevelRef = useRef(0);
+  const roundTimesRef = useRef([]);
+
   const triggerShake = () => {
     setShake(true);
     setTimeout(() => setShake(false), 300);
@@ -627,6 +638,11 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
     setMaxLevel(0);
     setRoundTimes([]);
     setTimeLeftMs(SESSION_TIME_LIMIT_MS);
+    scoreRef.current = 0;
+    correctCountRef.current = 0;
+    incorrectCountRef.current = 0;
+    maxLevelRef.current = 0;
+    roundTimesRef.current = [];
     startedAtRef.current = new Date().toISOString();
     beginRound(0);
   }
@@ -657,16 +673,32 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
     const isCorrect = opt === question.correctAnswer;
     setSelectedOption(opt);
     if (isCorrect) {
-      setCorrectCount((c) => c + 1);
-      setScore((s) => s + RECALL_POINTS);
+      setCorrectCount((c) => {
+        correctCountRef.current = c + 1;
+        return c + 1;
+      });
+      setScore((s) => {
+        scoreRef.current = s + RECALL_POINTS;
+        return s + RECALL_POINTS;
+      });
     } else {
-      setIncorrectCount((c) => c + 1);
+      setIncorrectCount((c) => {
+        incorrectCountRef.current = c + 1;
+        return c + 1;
+      });
       triggerShake();
       triggerFlash();
     }
     const elapsed = Math.round(performance.now() - roundStartRef.current);
-    setRoundTimes((prev) => [...prev, elapsed]);
-    setMaxLevel((prev) => Math.max(prev, roundIndex + 1));
+    setRoundTimes((prev) => {
+      const next = [...prev, elapsed];
+      roundTimesRef.current = next;
+      return next;
+    });
+    setMaxLevel((prev) => {
+      maxLevelRef.current = Math.max(prev, roundIndex + 1);
+      return Math.max(prev, roundIndex + 1);
+    });
     setPhase("roundBreak");
 
     setTimeout(() => {
@@ -685,15 +717,21 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
   async function endGame() {
     clearInterval(sessionTickRef.current);
 
-    const roundsPlayed = roundTimes.length;
+    const finalScore = scoreRef.current;
+    const finalCorrectCount = correctCountRef.current;
+    const finalIncorrectCount = incorrectCountRef.current;
+    const finalMaxLevel = maxLevelRef.current;
+    const finalRoundTimes = roundTimesRef.current;
+
+    const roundsPlayed = finalRoundTimes.length;
 
     const recallAccuracy =
-      roundsPlayed > 0 ? Math.round((correctCount / roundsPlayed) * 100) : 0;
+      roundsPlayed > 0 ? Math.round((finalCorrectCount / roundsPlayed) * 100) : 0;
 
     const accuracy = recallAccuracy;
 
-    const avgTimeMs = roundTimes.length
-      ? Math.round(roundTimes.reduce((a, b) => a + b, 0) / roundTimes.length)
+    const avgTimeMs = finalRoundTimes.length
+      ? Math.round(finalRoundTimes.reduce((a, b) => a + b, 0) / finalRoundTimes.length)
       : 0;
 
     const payload = {
@@ -702,13 +740,13 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
       accuracy,
       avgTimeMs,
       metrics: {
-        score,
+        score: finalScore,
         maxPossibleScore: MAX_POSSIBLE_SCORE,
         roundsPlayed,
         recallAccuracy,
-        maxLevel,
-        incorrectRecalls: incorrectCount,
-        roundTimesMs: roundTimes,
+        maxLevel: finalMaxLevel,
+        incorrectRecalls: finalIncorrectCount,
+        roundTimesMs: finalRoundTimes,
       },
       completed: true,
     };
@@ -800,17 +838,17 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
       <div className={`kt-arena ${shake ? "shake" : ""}`}>
         <div className={`kt-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
 
-        <div className="kt-arena-header">
-          <div>
-            <h2>Keep Track Task</h2>
-            <p>Watch the stream, keep track, then recall.</p>
-          </div>
-          {phase !== "done" && (
+        {phase !== "done" && (
+          <div className="kt-arena-header">
+            <div>
+              <h2>Keep Track Task</h2>
+              <p>Watch the stream, keep track, then recall.</p>
+            </div>
             <div className={`kt-badge ${phase === "streaming" ? "" : "warn"}`}>
               Round {roundIndex + 1}/{ROUNDS.length} • {round.label}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {phase === "streaming" && currentStreamEntry && (
           <div className="kt-board-area">

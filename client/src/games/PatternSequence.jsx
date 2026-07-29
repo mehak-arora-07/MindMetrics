@@ -112,7 +112,8 @@ html, body, #root {
   background: #0B0F19;
   width: 100% !important;
   max-width: none !important;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   border: none !important;
   text-align: left !important;
 }
@@ -187,25 +188,39 @@ html, body, #root {
 .ps-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .ps-wrap {
-  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 20px;
+  height: 100vh;
   width: 100%;
   padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
   box-sizing: border-box;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 22px;
+  overflow: hidden;
   background:
     radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.06), transparent 40%),
     radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.06), transparent 40%),
     #0B0F19;
 }
 
+.ps-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.ps-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .ps-topbar {
   width: 100%;
-  max-width: 720px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -235,7 +250,6 @@ html, body, #root {
 
 .ps-progress-bar {
   width: 100%;
-  max-width: 720px;
   height: 5px;
   background: #232A3D;
   border-radius: 5px;
@@ -249,7 +263,6 @@ html, body, #root {
 
 .ps-prompt-banner {
   width: 100%;
-  max-width: 720px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid #232A3D;
   border-radius: 12px;
@@ -262,8 +275,8 @@ html, body, #root {
 .ps-arena {
   position: relative;
   width: 100%;
-  max-width: 720px;
-  min-height: 340px;
+  flex: 1;
+  min-height: 0;
   background: #141A2E;
   border: 1px solid #232A3D;
   border-radius: 16px;
@@ -335,18 +348,11 @@ html, body, #root {
   white-space: nowrap;
 }
 
-.ps-stats-row {
-  width: 100%;
-  max-width: 720px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
 .ps-stat {
   background: #141A2E;
   border: 1px solid #232A3D;
-  border-radius: 10px;
-  padding: 12px;
+  border-radius: 12px;
+  padding: 14px;
   text-align: center;
 }
 .ps-stat .label { color: #8B93A7; font-size: 11px; margin-bottom: 4px; }
@@ -395,6 +401,16 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
   const startedAtRef = useRef(null);
   const timerIntervalRef = useRef(null);
   const timeLimitRef = useRef(BASE_TIME_LIMIT_MS);
+
+  // Mirrors of the scoring state. handleAnswer schedules endGame() inside a
+  // setTimeout right after calling setCorrectCount/setHighestLvl with
+  // functional updaters — but endGame's own closure still sees the
+  // pre-update values of correctCount/highestLvl until the next render.
+  // Refs avoid that off-by-one entirely.
+  const correctCountRef = useRef(0);
+  const attemptsRef = useRef(0);
+  const questionTimesMsRef = useRef([]);
+  const highestLvlRef = useRef(1);
 
   // ---- Load real questions from the bank on mount ----
   useEffect(() => {
@@ -483,6 +499,10 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
     setAttempts(0);
     setQuestionTimesMs([]);
     setHighestLvl(1);
+    correctCountRef.current = 0;
+    attemptsRef.current = 0;
+    questionTimesMsRef.current = [];
+    highestLvlRef.current = 1;
     startedAtRef.current = new Date().toISOString();
     const freshPool = [...masterPool];
     setWorkingPool(freshPool);
@@ -497,17 +517,30 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
     const isCorrect = option === current.answer;
 
     setSelected(option ?? "timeout");
-    setAttempts((a) => a + 1);
-    setQuestionTimesMs((arr) => [...arr, timeTakenMs]);
+    setAttempts((a) => {
+      attemptsRef.current = a + 1;
+      return a + 1;
+    });
+    setQuestionTimesMs((arr) => {
+      const next = [...arr, timeTakenMs];
+      questionTimesMsRef.current = next;
+      return next;
+    });
 
     if (isCorrect) {
-      setCorrectCount((c) => c + 1);
+      setCorrectCount((c) => {
+        correctCountRef.current = c + 1;
+        return c + 1;
+      });
       setStreak((s) => {
         const ns = s + 1;
         if (ns % 3 === 0) {
           setLevel((lvl) => {
             const nl = lvl + 1;
-            setHighestLvl((h) => Math.max(h, nl));
+            setHighestLvl((h) => {
+              highestLvlRef.current = Math.max(h, nl);
+              return Math.max(h, nl);
+            });
             setLevelUpToast(`Level up — ${tierName(nl)}`);
             setTimeout(() => setLevelUpToast(null), 1400);
             return nl;
@@ -532,10 +565,15 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
 
   async function endGame() {
     const endedAt = new Date().toISOString();
-    const avgTimePerQuestionMs = questionTimesMs.length
-      ? Math.round(questionTimesMs.reduce((a, b) => a + b, 0) / questionTimesMs.length)
+    const finalCorrectCount = correctCountRef.current;
+    const finalAttempts = attemptsRef.current;
+    const finalQuestionTimesMs = questionTimesMsRef.current;
+    const finalHighestLvl = highestLvlRef.current;
+
+    const avgTimePerQuestionMs = finalQuestionTimesMs.length
+      ? Math.round(finalQuestionTimesMs.reduce((a, b) => a + b, 0) / finalQuestionTimesMs.length)
       : 0;
-    const accuracy = TOTAL_QUESTIONS > 0 ? +(correctCount / TOTAL_QUESTIONS).toFixed(2) : 0;
+    const accuracy = TOTAL_QUESTIONS > 0 ? +(finalCorrectCount / TOTAL_QUESTIONS).toFixed(2) : 0;
 
     // sessionData here is intentionally NOT the full API payload —
     // saveGameSession() (in utils/session.js) attaches assessmentId and
@@ -550,10 +588,10 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
       completed: true,
       metrics: {
         questionsTotal: TOTAL_QUESTIONS,
-        attempts,
-        correct: correctCount,
+        attempts: finalAttempts,
+        correct: finalCorrectCount,
         avgTimePerQuestionMs,
-        highestLvl,
+        highestLvl: finalHighestLvl,
         startedAt: startedAtRef.current,
         endedAt,
       },
@@ -644,7 +682,7 @@ console.log("Payload being sent:", payload);
 
   if (phase === "done") {
     return (
-      <div className="ps-wrap ps-screen">
+      <div className="ps-intro-screen ps-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
           <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>
@@ -684,80 +722,82 @@ console.log("Payload being sent:", payload);
     <div className="ps-wrap ps-screen">
       <style>{styles}</style>
 
-      <div className="ps-topbar">
-        <h2>Pattern Sequence</h2>
-        <div className="ps-topright">
-          {streak >= 2 && (
-            <div className="ps-flame" key={streak}>
-              <span className="icon">🔥</span> {streak}
-            </div>
+      <div className="ps-main">
+        <div className="ps-topbar">
+          <h2>Pattern Sequence</h2>
+          <div className="ps-topright">
+            {streak >= 2 && (
+              <div className="ps-flame" key={streak}>
+                <span className="icon">🔥</span> {streak}
+              </div>
+            )}
+            <div className="ps-round-badge">{tierName(level)}</div>
+          </div>
+        </div>
+
+        <div className="ps-progress-bar">
+          <div
+            className="ps-progress-fill"
+            style={{ width: `${(questionIndex / TOTAL_QUESTIONS) * 100}%` }}
+          />
+        </div>
+
+        <div className="ps-prompt-banner">
+          Question {questionIndex + 1} of {TOTAL_QUESTIONS} — what comes next?
+        </div>
+
+        <div className="ps-arena">
+          {levelUpToast && <div className="ps-levelup-toast">{levelUpToast}</div>}
+
+          {current && (
+            <>
+              <div className="ps-ring-wrap">
+                <svg className="ps-ring-svg" width="64" height="64" viewBox="0 0 64 64">
+                  <circle cx="32" cy="32" r={RING_R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r={RING_R}
+                    fill="none"
+                    stroke={timeLeft < 3000 ? "#F87171" : "#3B82F6"}
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeDasharray={RING_CIRC}
+                    strokeDashoffset={ringOffset}
+                    style={{ transition: "stroke-dashoffset 0.1s linear, stroke 0.3s ease" }}
+                  />
+                </svg>
+              </div>
+
+              <div className="ps-pattern-display" key={questionIndex}>
+                {current.patternText}
+              </div>
+
+              <div className="ps-options">
+                {current.options.map((opt) => {
+                  let cls = "ps-option";
+                  if (selected !== null) {
+                    if (opt === current.answer) cls += " correct";
+                    else if (opt === selected) cls += " wrong";
+                  }
+                  return (
+                    <button
+                      key={opt}
+                      className={cls}
+                      disabled={selected !== null}
+                      onClick={() => handleAnswer(opt)}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
           )}
-          <div className="ps-round-badge">{tierName(level)}</div>
         </div>
       </div>
 
-      <div className="ps-progress-bar">
-        <div
-          className="ps-progress-fill"
-          style={{ width: `${(questionIndex / TOTAL_QUESTIONS) * 100}%` }}
-        />
-      </div>
-
-      <div className="ps-prompt-banner">
-        Question {questionIndex + 1} of {TOTAL_QUESTIONS} — what comes next?
-      </div>
-
-      <div className="ps-arena">
-        {levelUpToast && <div className="ps-levelup-toast">{levelUpToast}</div>}
-
-        {current && (
-          <>
-            <div className="ps-ring-wrap">
-              <svg className="ps-ring-svg" width="64" height="64" viewBox="0 0 64 64">
-                <circle cx="32" cy="32" r={RING_R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
-                <circle
-                  cx="32"
-                  cy="32"
-                  r={RING_R}
-                  fill="none"
-                  stroke={timeLeft < 3000 ? "#F87171" : "#3B82F6"}
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeDasharray={RING_CIRC}
-                  strokeDashoffset={ringOffset}
-                  style={{ transition: "stroke-dashoffset 0.1s linear, stroke 0.3s ease" }}
-                />
-              </svg>
-            </div>
-
-            <div className="ps-pattern-display" key={questionIndex}>
-              {current.patternText}
-            </div>
-
-            <div className="ps-options">
-              {current.options.map((opt) => {
-                let cls = "ps-option";
-                if (selected !== null) {
-                  if (opt === current.answer) cls += " correct";
-                  else if (opt === selected) cls += " wrong";
-                }
-                return (
-                  <button
-                    key={opt}
-                    className={cls}
-                    disabled={selected !== null}
-                    onClick={() => handleAnswer(opt)}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="ps-stats-row">
+      <div className="ps-sidebar">
         <div className="ps-stat">
           <div className="label">Correct</div>
           <div className="value correct">{correctCount}</div>

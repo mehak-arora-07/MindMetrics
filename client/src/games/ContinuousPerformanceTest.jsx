@@ -24,14 +24,16 @@ const RULE_BANK = [
   { ruleId: "CPT010", difficulty: "Hard", cue: "Q", target: "X", commonLetters: false },
 ];
 
-// Round tiers per your spec: Easy, Easy, Medium, Hard, Expert(dual rule)
-// Shortened so each round only needs 3 true-target hits.
+// Round tiers per your spec: Easy, Easy, Medium, Hard, Expert(single question)
+// Shortened so each round only needs 3 true-target hits. The last round is
+// intentionally just one true-target trial in a short stream — a single
+// question rather than a long run of letters.
 const ROUND_CONFIG = [
   { difficulty: "Easy", intervalMs: 750, length: 18, requiredHits: 3, dual: false },
   { difficulty: "Easy", intervalMs: 700, length: 20, requiredHits: 3, dual: false },
   { difficulty: "Medium", intervalMs: 550, length: 22, requiredHits: 3, dual: false },
   { difficulty: "Hard", intervalMs: 420, length: 24, requiredHits: 3, dual: false },
-  { difficulty: "Expert", intervalMs: 650, length: 24, requiredHits: 4, dual: true },
+  { difficulty: "Hard", intervalMs: 650, length: 6, requiredHits: 1, dual: false },
 ];
 
 const LETTER_POOL = "ABCDEFGHJKLMNPQRSTUVWXYZ".split(""); // no O/I, avoid confusion
@@ -89,7 +91,8 @@ html, body, #root {
   background: #0B0F19;
   width: 100% !important;
   max-width: none !important;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   border: none !important;
   text-align: left !important;
 }
@@ -183,25 +186,39 @@ html, body, #root {
 .cpt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .cpt-wrap {
-  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 20px;
+  height: 100vh;
   width: 100%;
   padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
   box-sizing: border-box;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 22px;
+  overflow: hidden;
   background:
     radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.06), transparent 40%),
     radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.06), transparent 40%),
     #0B0F19;
 }
 
+.cpt-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.cpt-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .cpt-topbar {
   width: 100%;
-  max-width: 720px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -221,7 +238,6 @@ html, body, #root {
 
 .cpt-rule-banner {
   width: 100%;
-  max-width: 720px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid #232A3D;
   border-radius: 12px;
@@ -237,8 +253,8 @@ html, body, #root {
 .cpt-arena {
   position: relative;
   width: 100%;
-  max-width: 720px;
-  min-height: 340px;
+  flex: 1;
+  min-height: 0;
   background: #141A2E;
   border: 1px solid #232A3D;
   border-radius: 16px;
@@ -290,7 +306,6 @@ html, body, #root {
 
 .cpt-progress-bar {
   width: 100%;
-  max-width: 720px;
   height: 5px;
   background: #232A3D;
   border-radius: 5px;
@@ -303,19 +318,11 @@ html, body, #root {
   transition: width 0.15s linear;
 }
 
-.cpt-stats-row {
-  width: 100%;
-  max-width: 720px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
 .cpt-stat {
   background: #141A2E;
   border: 1px solid #232A3D;
-  border-radius: 10px;
-  padding: 12px;
+  border-radius: 12px;
+  padding: 14px;
   text-align: center;
 }
 
@@ -389,6 +396,21 @@ export default function CPT({ onComplete, userId, assessmentId }) {
   const windowStartRef = useRef(null);
   const tickRef = useRef(null);
 
+  // Mirrors of the metric state, kept in sync alongside every setHits/
+  // setMisses/etc call. endGame() is reached through a chain of
+  // setInterval/setTimeout callbacks that all trace back to the closure
+  // created when startGame() was first called — that closure never gets
+  // refreshed as rounds progress, so reading `hits`/`misses`/etc directly
+  // there would always see their *initial* (zero) values even though the
+  // UI itself re-renders correctly. Refs sidestep that entirely since
+  // ref.current is always the latest value regardless of which closure
+  // reads it.
+  const hitsRef = useRef(0);
+  const missesRef = useRef(0);
+  const falsePositivesRef = useRef(0);
+  const reactionTimesMsRef = useRef([]);
+  const totalTrueTargetsRef = useRef(0);
+
   // ---- Loading rules from the real question bank ----
   useEffect(() => {
     async function loadRuleBank() {
@@ -428,6 +450,11 @@ export default function CPT({ onComplete, userId, assessmentId }) {
     setFalsePositives(0);
     setReactionTimesMs([]);
     setTotalTrueTargets(0);
+    hitsRef.current = 0;
+    missesRef.current = 0;
+    falsePositivesRef.current = 0;
+    reactionTimesMsRef.current = [];
+    totalTrueTargetsRef.current = 0;
     const freshPool = [...masterPool];
     setRuleBankPool(freshPool);
     startedAtRef.current = new Date().toISOString();
@@ -462,6 +489,7 @@ export default function CPT({ onComplete, userId, assessmentId }) {
         (acc, _, i) => acc + (isTrueTargetAt(stream, i, rules) ? 1 : 0),
         0
       );
+      totalTrueTargetsRef.current = t + trueCount;
       return t + trueCount;
     });
 
@@ -481,15 +509,28 @@ export default function CPT({ onComplete, userId, assessmentId }) {
 
     if (wasTrueTarget && clicked) {
       const rt = Math.round(performance.now() - windowStartRef.current);
-      setReactionTimesMs((arr) => [...arr, rt]);
-      setHits((h) => h + 1);
+      setReactionTimesMs((arr) => {
+        const next = [...arr, rt];
+        reactionTimesMsRef.current = next;
+        return next;
+      });
+      setHits((h) => {
+        hitsRef.current = h + 1;
+        return h + 1;
+      });
       setFlash("hit");
       spawnBurst("#34D399");
     } else if (wasTrueTarget && !clicked) {
-      setMisses((m) => m + 1);
+      setMisses((m) => {
+        missesRef.current = m + 1;
+        return m + 1;
+      });
       setFlash("miss");
     } else if (!wasTrueTarget && clicked) {
-      setFalsePositives((f) => f + 1);
+      setFalsePositives((f) => {
+        falsePositivesRef.current = f + 1;
+        return f + 1;
+      });
       setFlash("fp");
       triggerShake();
     }
@@ -561,10 +602,18 @@ export default function CPT({ onComplete, userId, assessmentId }) {
 
   async function endGame() {
     const endedAt = new Date().toISOString();
-    const avgReactionMs = reactionTimesMs.length
-      ? Math.round(reactionTimesMs.reduce((a, b) => a + b, 0) / reactionTimesMs.length)
+    // Read from refs, not state — see the comment on the ref declarations
+    // above for why the state values here can't be trusted at this point.
+    const finalHits = hitsRef.current;
+    const finalMisses = missesRef.current;
+    const finalFalsePositives = falsePositivesRef.current;
+    const finalReactionTimesMs = reactionTimesMsRef.current;
+    const finalTotalTrueTargets = totalTrueTargetsRef.current;
+
+    const avgReactionMs = finalReactionTimesMs.length
+      ? Math.round(finalReactionTimesMs.reduce((a, b) => a + b, 0) / finalReactionTimesMs.length)
       : 0;
-    const accuracy = totalTrueTargets > 0 ? +(hits / totalTrueTargets).toFixed(2) : 0;
+    const accuracy = finalTotalTrueTargets > 0 ? +(finalHits / finalTotalTrueTargets).toFixed(2) : 0;
 
     // sessionData here is intentionally NOT the full API payload —
     // saveGameSession() (in utils/session.js) attaches assessmentId and
@@ -578,12 +627,12 @@ export default function CPT({ onComplete, userId, assessmentId }) {
       avgTimeMs: avgReactionMs,
       metrics: {
         roundsCompleted: TOTAL_ROUNDS,
-        totalTrueTargets,
-        hits,
-        misses,
-        falsePositives,
+        totalTrueTargets: finalTotalTrueTargets,
+        hits: finalHits,
+        misses: finalMisses,
+        falsePositives: finalFalsePositives,
         avgReactionMs,
-        reactionTimesMs,
+        reactionTimesMs: finalReactionTimesMs,
         startedAt: startedAtRef.current,
         endedAt,
       },
@@ -672,7 +721,7 @@ console.log("Payload being sent:", payload);
 
   if (phase === "done") {
     return (
-      <div className="cpt-wrap cpt-screen">
+      <div className="cpt-intro-screen cpt-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
           <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>
@@ -710,81 +759,83 @@ console.log("Payload being sent:", payload);
     <div className="cpt-wrap cpt-screen">
       <style>{styles}</style>
 
-      <div className="cpt-topbar">
-        <h2>Continuous Performance Test</h2>
-        <div className="cpt-round-badge">
-          Round {Math.min(roundIndex + 1, TOTAL_ROUNDS)} of {TOTAL_ROUNDS}
-        </div>
-      </div>
-
-      <div className="cpt-progress-bar">
-        <div
-          className="cpt-progress-fill"
-          style={{ width: `${(roundIndex / TOTAL_ROUNDS) * 100}%` }}
-        />
-      </div>
-
-      {rulesForRound.length > 0 && (
-        <div className="cpt-rule-banner">
-          {rulesForRound.map((r, i) => (
-            <span key={r.ruleId}>
-              Click <b className="target">{r.target}</b> only when it follows{" "}
-              <b className="cue">{r.cue}</b>
-              {i < rulesForRound.length - 1 ? " — and — " : ""}
-            </span>
-          ))}
-        </div>
-      )}
-
-      <div className={`cpt-arena ${shake ? "shake" : ""}`}>
-        <div
-          className="cpt-flash"
-          style={{
-            background: flash === "hit" ? "#34D399" : flash === "fp" ? "#F87171" : "#F59E0B",
-            opacity: flash ? undefined : 0,
-          }}
-          key={flash ? letterPos : "none"}
-        >
-          <div className={flash ? "cpt-flash on" : ""} style={{ position: "absolute", inset: 0 }} />
+      <div className="cpt-main">
+        <div className="cpt-topbar">
+          <h2>Continuous Performance Test</h2>
+          <div className="cpt-round-badge">
+            Round {Math.min(roundIndex + 1, TOTAL_ROUNDS)} of {TOTAL_ROUNDS}
+          </div>
         </div>
 
-        {phase === "playing" && <div className="cpt-letter">{currentLetter}</div>}
-
-        {bursts.map((b) => (
+        <div className="cpt-progress-bar">
           <div
-            key={b.id}
-            className="cpt-burst"
-            style={{ "--burst-color": b.color }}
+            className="cpt-progress-fill"
+            style={{ width: `${(roundIndex / TOTAL_ROUNDS) * 100}%` }}
           />
-        ))}
+        </div>
 
-        {phase === "playing" && (
-          <button className="cpt-respond-btn" onClick={handleRespond}>
-            Click here or press SPACE to respond
-          </button>
-        )}
-
-        {phase === "roundIntro" && (
-          <div className="cpt-center-msg">
-            <h3>Round {roundIndex + 1}</h3>
-            {rulesForRound.map((r) => (
-              <p key={r.ruleId}>
-                Click <b style={{ color: "#34D399" }}>{r.target}</b> only after{" "}
-                <b style={{ color: "#60A5FA" }}>{r.cue}</b>
-              </p>
+        {rulesForRound.length > 0 && (
+          <div className="cpt-rule-banner">
+            {rulesForRound.map((r, i) => (
+              <span key={r.ruleId}>
+                Click <b className="target">{r.target}</b> only when it follows{" "}
+                <b className="cue">{r.cue}</b>
+                {i < rulesForRound.length - 1 ? " — and — " : ""}
+              </span>
             ))}
           </div>
         )}
 
-        {phase === "roundEnd" && (
-          <div className="cpt-center-msg">
-            <h3>Round {roundIndex + 1} complete</h3>
-            <p>Next rule loading…</p>
+        <div className={`cpt-arena ${shake ? "shake" : ""}`}>
+          <div
+            className="cpt-flash"
+            style={{
+              background: flash === "hit" ? "#34D399" : flash === "fp" ? "#F87171" : "#F59E0B",
+              opacity: flash ? undefined : 0,
+            }}
+            key={flash ? letterPos : "none"}
+          >
+            <div className={flash ? "cpt-flash on" : ""} style={{ position: "absolute", inset: 0 }} />
           </div>
-        )}
+
+          {phase === "playing" && <div className="cpt-letter">{currentLetter}</div>}
+
+          {bursts.map((b) => (
+            <div
+              key={b.id}
+              className="cpt-burst"
+              style={{ "--burst-color": b.color }}
+            />
+          ))}
+
+          {phase === "playing" && (
+            <button className="cpt-respond-btn" onClick={handleRespond}>
+              Click here or press SPACE to respond
+            </button>
+          )}
+
+          {phase === "roundIntro" && (
+            <div className="cpt-center-msg">
+              <h3>Round {roundIndex + 1}</h3>
+              {rulesForRound.map((r) => (
+                <p key={r.ruleId}>
+                  Click <b style={{ color: "#34D399" }}>{r.target}</b> only after{" "}
+                  <b style={{ color: "#60A5FA" }}>{r.cue}</b>
+                </p>
+              ))}
+            </div>
+          )}
+
+          {phase === "roundEnd" && (
+            <div className="cpt-center-msg">
+              <h3>Round {roundIndex + 1} complete</h3>
+              <p>Next rule loading…</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="cpt-stats-row">
+      <div className="cpt-sidebar">
         <div className="cpt-stat">
           <div className="label">Hits</div>
           <div className="value hits">{hits}</div>
