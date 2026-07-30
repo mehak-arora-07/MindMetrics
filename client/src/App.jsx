@@ -7,6 +7,7 @@ import DualTask from "./games/DualTask";
 import CPT from "./games/ContinuousPerformanceTest";
 import KeepTrackTask from "./games/KeepTrackTask";
 import { getUser, getAssessmentId, startAssessment } from "./utils/session";
+import FindTheBox from "./games/FindTheBox";
 
 function App() {
   const [assessmentId, setAssessmentIdState] = useState(() =>
@@ -59,6 +60,10 @@ function App() {
         <Route 
          path="/play/keep-track"
          element={<KeepTrackTask userId={user?.userId} assessmentId={assessmentId} />}
+         />
+         <Route 
+         path="/play/find-the-box"
+         element={<FindTheBox userId={user?.userId} assessmentId={assessmentId} />}
          />
       </Routes>
     </BrowserRouter>
