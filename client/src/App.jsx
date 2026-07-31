@@ -9,6 +9,7 @@ import KeepTrackTask from "./games/KeepTrackTask";
 import MultiSwitch from "./games/MultiSwitch";
 import { getUser, getAssessmentId, startAssessment } from "./utils/session";
 import FindTheBox from "./games/FindTheBox";
+import OperationSpanTask from "./games/OperationSpanTask"
 
 function App() {
   const [assessmentId, setAssessmentIdState] = useState(() =>
@@ -69,6 +70,10 @@ function App() {
         <Route
          path="/play/find-the-box"
          element={<FindTheBox userId={user?.userId} assessmentId={assessmentId} />}      
+         />
+         <Route
+         path="/play/operation-span"
+         element={<OperationSpanTask userId={user?.userId} assessmentId={assessmentId} />}      
          />
       </Routes>
     </BrowserRouter>

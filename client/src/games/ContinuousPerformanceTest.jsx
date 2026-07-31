@@ -293,7 +293,7 @@ html, body, #root {
   z-index: 2;
 }
 
-.cpt-respond-btn {
+.cpt-respond-hint {
   position: absolute;
   bottom: 22px;
   background: rgba(255, 255, 255, 0.05);
@@ -302,6 +302,7 @@ html, body, #root {
   font-size: 12px;
   padding: 8px 16px;
   border-radius: 20px;
+  pointer-events: none;
 }
 
 .cpt-progress-bar {
@@ -579,7 +580,7 @@ export default function CPT({ onComplete, userId, assessmentId }) {
 
   useEffect(() => {
     function onKey(e) {
-      if (e.code === "Space") {
+      if (e.code === "Backspace") {
         e.preventDefault();
         handleRespond();
       }
@@ -697,15 +698,15 @@ console.log("Payload being sent:", payload);
         <h1>Continuous Performance Test</h1>
         <p className="sub">
           Letters will flash one at a time. Each round has a different rule —
-          click (or press space) only when the target letter immediately
-          follows the cue letter. There are {TOTAL_ROUNDS} rounds, and the
-          rule changes every round.
+          press BACKSPACE only when the target letter immediately follows
+          the cue letter. There are {TOTAL_ROUNDS} rounds, and the rule
+          changes every round.
         </p>
         <div className="cpt-example">
           <span className="letter-chip cue">A</span>
           <span>→</span>
           <span className="letter-chip target">X</span>
-          <span style={{ color: "#8B93A7", fontWeight: 500 }}>= click</span>
+          <span style={{ color: "#8B93A7", fontWeight: 500 }}>= press BACKSPACE</span>
         </div>
         <button className="cpt-btn" onClick={startGame} disabled={!bankLoaded}>
           {bankLoaded ? "Start the Test" : "Loading questions…"}
@@ -778,7 +779,7 @@ console.log("Payload being sent:", payload);
           <div className="cpt-rule-banner">
             {rulesForRound.map((r, i) => (
               <span key={r.ruleId}>
-                Click <b className="target">{r.target}</b> only when it follows{" "}
+                Press BACKSPACE for <b className="target">{r.target}</b> only when it follows{" "}
                 <b className="cue">{r.cue}</b>
                 {i < rulesForRound.length - 1 ? " — and — " : ""}
               </span>
@@ -809,9 +810,7 @@ console.log("Payload being sent:", payload);
           ))}
 
           {phase === "playing" && (
-            <button className="cpt-respond-btn" onClick={handleRespond}>
-              Click here or press SPACE to respond
-            </button>
+            <div className="cpt-respond-hint">Press BACKSPACE to respond</div>
           )}
 
           {phase === "roundIntro" && (
@@ -819,7 +818,7 @@ console.log("Payload being sent:", payload);
               <h3>Round {roundIndex + 1}</h3>
               {rulesForRound.map((r) => (
                 <p key={r.ruleId}>
-                  Click <b style={{ color: "#34D399" }}>{r.target}</b> only after{" "}
+                  Press BACKSPACE for <b style={{ color: "#34D399" }}>{r.target}</b> only after{" "}
                   <b style={{ color: "#60A5FA" }}>{r.cue}</b>
                 </p>
               ))}

@@ -54,6 +54,23 @@ const FIND_BOX_BANK = [
   { id: "FB16", tier: "Hard", prompt: "The opposite of empty is ___?", hint: "Think of the answer, then click its first letter.", answer: "F" },
   { id: "FB17", tier: "Hard", prompt: "An insect that makes honey is called a ___?", hint: "Think of the answer, then click its first letter.", answer: "B" },
   { id: "FB18", tier: "Hard", prompt: "The opposite of true is ___?", hint: "Think of the answer, then click its first letter.", answer: "F" },
+
+  // ---- Hard+: deeper extraction — a specific letter of a specific word, ----
+  // ---- or a specific letter of the riddle's answer (not just the first) ----
+  { id: "FB19", tier: "Hard", prompt: "My father repaired the old bicycle yesterday.", hint: "Click the box with the 3rd letter of the 6th word.", answer: "C" },
+  { id: "FB20", tier: "Hard", prompt: "A gigantic elephant trumpeted loudly nearby.", hint: "Click the box with the 6th letter of the 3rd word.", answer: "A" },
+  { id: "FB21", tier: "Hard", prompt: "We bought fresh chocolate cake today.", hint: "Click the box with the 7th letter of the 4th word.", answer: "A" },
+  { id: "FB22", tier: "Hard", prompt: "She painted a beautiful landscape yesterday.", hint: "Click the box with the 7th letter of the 4th word.", answer: "F" },
+  { id: "FB23", tier: "Hard", prompt: "They planned an exciting adventure together.", hint: "Click the box with the 2nd letter of the 5th word.", answer: "D" },
+  { id: "FB24", tier: "Hard", prompt: "He definitely finished his homework early.", hint: "Click the box with the 3rd letter of the 2nd word.", answer: "F" },
+  { id: "FB25", tier: "Hard", prompt: "It was a wonderful sunny afternoon.", hint: "Click the box with the 4th letter of the 4th word.", answer: "D" },
+  { id: "FB26", tier: "Hard", prompt: "The opposite of night is ___?", hint: "Think of the answer, then click the 2nd letter of it.", answer: "A" },
+  { id: "FB27", tier: "Hard", prompt: "A young cat is called a ___?", hint: "Think of the answer, then click the 5th letter of it.", answer: "E" },
+  { id: "FB28", tier: "Hard", prompt: "The capital of Italy is ___?", hint: "Think of the answer, then click the 4th letter of it.", answer: "E" },
+  { id: "FB29", tier: "Hard", prompt: "The first meal of the day is ___?", hint: "Think of the answer, then click the 4th letter of it.", answer: "A" },
+  { id: "FB30", tier: "Hard", prompt: "The frozen form of water is ___?", hint: "Think of the answer, then click the 2nd letter of it.", answer: "C" },
+  { id: "FB31", tier: "Hard", prompt: "A shape with four equal sides is called a ___?", hint: "Think of the answer, then click the 4th letter of it.", answer: "A" },
+  { id: "FB32", tier: "Hard", prompt: "The organ that pumps blood is the ___?", hint: "Think of the answer, then click the 3rd letter of it.", answer: "A" },
 ];
 
 const ALL_LABELS = ["A", "B", "C", "D", "E", "F"];
@@ -710,17 +727,17 @@ export default function FindTheBox({ onComplete, userId, assessmentId }) {
       <div className={`fb-arena ${shake ? "shake" : ""}`}>
         <div className={`fb-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
 
-        <div className="fb-arena-header">
-          <div>
-            <h2>Find the Box</h2>
-            <p>Read carefully, then click the right box.</p>
-          </div>
-          {phase !== "done" && (
+        {phase !== "done" && (
+          <div className="fb-arena-header">
+            <div>
+              <h2>Find the Box</h2>
+              <p>Read carefully, then click the right box.</p>
+            </div>
             <div className={`fb-badge ${round.tier === "Hard" ? "warn" : ""}`}>
               Round {roundIndex + 1}/{ROUNDS.length} • {round.tier}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {phase === "question" && question && (
           <div className="fb-board-area">
@@ -794,7 +811,10 @@ export default function FindTheBox({ onComplete, userId, assessmentId }) {
 
         {phase === "done" && (
           <div className="fb-center-msg">
-            <h2>{getResultCopy(score).title}</h2>
+            <h2>Find the Box</h2>
+            <p style={{ color: "#8B93A7", fontSize: 14, margin: "-8px 0 4px" }}>
+              {getResultCopy(score).title}
+            </p>
             <div className="fb-results-grid">
               <div>
                 <div className="label">Score</div>
