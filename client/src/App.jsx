@@ -6,6 +6,7 @@ import MemoryMatrix from "./games/MemoryMatrix";
 import DualTask from "./games/DualTask";
 import CPT from "./games/ContinuousPerformanceTest";
 import KeepTrackTask from "./games/KeepTrackTask";
+import MultiSwitch from "./games/MultiSwitch";
 import { getUser, getAssessmentId, startAssessment } from "./utils/session";
 
 function App() {
@@ -59,6 +60,10 @@ function App() {
         <Route 
          path="/play/keep-track"
          element={<KeepTrackTask userId={user?.userId} assessmentId={assessmentId} />}
+         />
+         <Route 
+         path="/play/multi-switch"
+         element={<MultiSwitch userId={user?.userId} assessmentId={assessmentId} />}
          />
       </Routes>
     </BrowserRouter>
