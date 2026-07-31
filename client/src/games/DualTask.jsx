@@ -796,7 +796,7 @@ console.log("Payload being sent:", payload);
     return (
       <div className="cs-intro-screen">
         <style>{styles}</style>
-        <h1>Color Sequence Recall</h1>
+        <h1>Dual Task</h1>
         <p className="sub">
           Watch a sequence of colors flash by, then solve a few quick math
           questions before you're asked to recall one color from the
@@ -836,7 +836,7 @@ console.log("Payload being sent:", payload);
 
         <div className="cs-arena-header">
           <div>
-            <h2>Color Sequence Recall</h2>
+            <h2>Dual Task</h2>
             <p>Watch, calculate, then recall.</p>
           </div>
           {phase !== "done" && (

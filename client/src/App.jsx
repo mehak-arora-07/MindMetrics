@@ -8,6 +8,7 @@ import CPT from "./games/ContinuousPerformanceTest";
 import KeepTrackTask from "./games/KeepTrackTask";
 import MultiSwitch from "./games/MultiSwitch";
 import { getUser, getAssessmentId, startAssessment } from "./utils/session";
+import FindTheBox from "./games/FindTheBox";
 
 function App() {
   const [assessmentId, setAssessmentIdState] = useState(() =>
@@ -64,6 +65,10 @@ function App() {
          <Route 
          path="/play/multi-switch"
          element={<MultiSwitch userId={user?.userId} assessmentId={assessmentId} />}
+         />
+        <Route
+         path="/play/find-the-box"
+         element={<FindTheBox userId={user?.userId} assessmentId={assessmentId} />}      
          />
       </Routes>
     </BrowserRouter>
