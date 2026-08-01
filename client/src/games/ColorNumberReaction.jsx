@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import CNR_QUESTIONS_FALLBACK from "./cnr_questions.json";
 
 // Drop into client/src/games/ColorNumberReaction.jsx
 // Same visual family as DualTask/KeepTrackTask/OperationSpanTask/ContinuousPerformanceTest — dark arena, mint/gold/red accents.
@@ -65,7 +66,7 @@ function pickNumberWithParity(parity) {
   return n === 9 ? 8 : n + 1;
 }
 
-function buildStimulus(rule, forceGo) {
+function buildStimulusProcedural(rule, forceGo) {
   let inkColor, number;
 
   if (forceGo) {
@@ -84,6 +85,39 @@ function buildStimulus(rule, forceGo) {
   const word = randomColor().name; // the printed word — a distractor, independent of ink color
   const isGo = matchesRule(rule, inkColor.name, number);
   return { word, inkColor, number, isGo };
+}
+
+// Picks a stimulus straight from the loaded question bank (DB-backed, with
+// the local JSON as a fallback — see the loadQuestionBank effect below).
+// Every bank entry already has word/inkColor/number fixed; whether it's a
+// go or no-go trial still depends on whichever rule got picked for this
+// playthrough, so that's evaluated here rather than stored in the bank.
+function pickStimulusFromBank(rule, forceGo, bank) {
+  const candidates = bank.filter((entry) => {
+    const isGo = matchesRule(rule, entry.data.inkColor, entry.data.number);
+    return forceGo ? isGo : !isGo;
+  });
+  if (candidates.length === 0) return null;
+
+  const chosen = candidates[randInt(0, candidates.length - 1)];
+  const inkColor = COLORS.find((c) => c.name === chosen.data.inkColor);
+  return {
+    word: chosen.data.word,
+    inkColor,
+    number: chosen.data.number,
+    isGo: forceGo,
+  };
+}
+
+function buildStimulus(rule, forceGo, bank) {
+  if (bank && bank.length) {
+    const fromBank = pickStimulusFromBank(rule, forceGo, bank);
+    if (fromBank) return fromBank;
+    // that exact color+parity combo wasn't in the bank (e.g. a sparsely
+    // sampled Hard-tier one) — fall back to generating it on the fly so
+    // the go/no-go ratio still holds.
+  }
+  return buildStimulusProcedural(rule, forceGo);
 }
 
 const styles = `
@@ -434,6 +468,11 @@ html, body, #root {
   cursor: pointer;
 }
 
+.sr-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .sr-results-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -469,6 +508,8 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
   const [rule, setRule] = useState(null);
   const [ruleFlashMsLeft, setRuleFlashMsLeft] = useState(RULE_FLASH_MS);
   const [stimulus, setStimulus] = useState(null); // null while blank (ISI)
+  const [bankLoaded, setBankLoaded] = useState(false);
+  const [bankSource, setBankSource] = useState(null); // "api" | "local"
   const [flashGood, setFlashGood] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [falseClicks, setFalseClicks] = useState(0);
@@ -480,6 +521,7 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
   const [timeLeftMs, setTimeLeftMs] = useState(SESSION_DURATION_MS);
 
   const ruleRef = useRef(null);
+  const questionBankRef = useRef([]);
   const trialCountRef = useRef(0);
   const currentTrialRef = useRef(null); // { isGo, responded, startTime }
   const endedRef = useRef(false);
@@ -499,6 +541,46 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
   const missedResponsesRef = useRef(0);
   const correctRejectionsRef = useRef(0);
   const reactionTimesMsRef = useRef([]);
+
+  // Load the stimulus bank once on mount. Tries the DB-backed endpoint
+  // first; if that's unreachable, missing, or empty, falls back to the
+  // local cnr_questions.json bundled with the component so the game is
+  // never blocked by a network hiccup.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadQuestionBank() {
+      try {
+        const res = await fetch("http://localhost:5000/api/questions/color_number_reaction", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        if (!res.ok) throw new Error(`Bad status ${res.status}`);
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) throw new Error("Empty question bank");
+
+        if (!cancelled) {
+          questionBankRef.current = data;
+          setBankSource("api");
+          console.log(`Loaded ${data.length} Color & Number stimuli from the API.`);
+        }
+      } catch (err) {
+        console.warn("Falling back to the local question bank:", err.message);
+        if (!cancelled) {
+          questionBankRef.current = CNR_QUESTIONS_FALLBACK;
+          setBankSource("local");
+        }
+      } finally {
+        if (!cancelled) setBankLoaded(true);
+      }
+    }
+
+    loadQuestionBank();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const triggerShake = () => {
     setShake(true);
@@ -523,7 +605,7 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
 
     trialCountRef.current += 1;
     const forceGo = Math.random() < GO_TRIAL_RATE;
-    const stim = buildStimulus(ruleRef.current, forceGo);
+    const stim = buildStimulus(ruleRef.current, forceGo, questionBankRef.current);
 
     currentTrialRef.current = {
       isGo: stim.isGo,
@@ -702,6 +784,7 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
         score: finalScore,
         maxPossibleScore: MAX_POSSIBLE_SCORE,
         rule: ruleRef.current ? ruleRef.current.label : null,
+        questionSource: bankSource,
         correctResponses: finalCorrect,
         falseClicks: finalFalseClicks,
         missedResponses: finalMissed,
@@ -785,8 +868,8 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
             <div className="desc">Press SPACE only if both conditions are true.</div>
           </div>
         </div>
-        <button className="sr-btn" onClick={startGame}>
-          Start the Game
+        <button className="sr-btn" onClick={startGame} disabled={!bankLoaded}>
+          {bankLoaded ? "Start the Game" : "Loading questions…"}
         </button>
       </div>
     );

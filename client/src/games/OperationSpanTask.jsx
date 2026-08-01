@@ -53,7 +53,11 @@ function pickLetterSequence(setSize, exclude = []) {
   return shuffled.slice(0, setSize);
 }
 
-function generateEquation(difficulty) {
+// Fallback ONLY — used if GET /api/questions/operation_span can't be
+// reached or returns no questions. The real question bank (equation,
+// statedResult, correctResult, isTrue, difficulty) is fetched from the DB
+// in the component below.
+function generateEquationFallback(difficulty) {
   let a, b, op, correctAnswer;
 
   if (difficulty === "easy") {
@@ -599,6 +603,68 @@ export default function OperationSpanTask({ onComplete, userId, assessmentId }) 
   const maxSetReachedRef = useRef(0);
   const setTimesMsRef = useRef([]);
 
+  // Question bank (fetched from the DB). Kept in state for the loading
+  // gate below, and mirrored into a ref so pickEquation() — called from
+  // deep inside setTimeout chains — always reads the latest pool instead
+  // of whatever it was at the time that particular closure was created.
+  const [bankLoaded, setBankLoaded] = useState(false);
+  const [bankSource, setBankSource] = useState(null); // 'api' | 'local'
+  const masterEquationPoolRef = useRef([]);
+  const usedQuestionIdsRef = useRef(new Set());
+
+  // ---- Load real questions from the DB on mount ----
+  useEffect(() => {
+    async function loadQuestionBank() {
+      try {
+        const res = await fetch("http://localhost:5000/api/questions/operation_span");
+        const result = await res.json();
+
+        if (!result.success || !result.questions || result.questions.length === 0) {
+          throw new Error("Bank empty or request unsuccessful");
+        }
+
+        const normalized = result.questions.map((q) => ({
+          questionId: q.questionId,
+          difficulty: q.difficulty, // "Easy" | "Medium" | "Hard"
+          text: `${q.data.equation} = ${q.data.statedResult}`,
+          isTrue: q.data.isTrue,
+          correctResult: q.data.correctResult,
+        }));
+
+        masterEquationPoolRef.current = normalized;
+        setBankSource("api");
+      } catch (err) {
+        console.warn("Falling back to local equation generator — bank fetch failed:", err.message);
+        masterEquationPoolRef.current = [];
+        setBankSource("local");
+      } finally {
+        setBankLoaded(true);
+      }
+    }
+    loadQuestionBank();
+  }, []);
+
+  // Picks the next equation for a trial. Prefers unused DB questions
+  // matching this set's difficulty; falls back to any DB question of that
+  // difficulty once the unused ones run out; falls back to the local
+  // generator only if the bank is empty (fetch failed).
+  function pickEquation(mathDifficulty) {
+    const label = mathDifficulty.charAt(0).toUpperCase() + mathDifficulty.slice(1);
+    const pool = masterEquationPoolRef.current;
+
+    if (pool.length > 0) {
+      const sameDifficulty = pool.filter((q) => q.difficulty === label);
+      const unused = sameDifficulty.filter((q) => !usedQuestionIdsRef.current.has(q.questionId));
+      const candidates = unused.length > 0 ? unused : sameDifficulty.length > 0 ? sameDifficulty : pool;
+
+      const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+      usedQuestionIdsRef.current.add(chosen.questionId);
+      return { text: chosen.text, isTrue: chosen.isTrue };
+    }
+
+    return generateEquationFallback(mathDifficulty);
+  }
+
   const triggerShake = () => {
     setShake(true);
     setTimeout(() => setShake(false), 300);
@@ -612,7 +678,7 @@ export default function OperationSpanTask({ onComplete, userId, assessmentId }) 
     if (endedRef.current) return;
     clearInterval(mathTickRef.current);
     const set = SETS[setIdx];
-    const eq = generateEquation(set.mathDifficulty);
+    const eq = pickEquation(set.mathDifficulty);
     setCurrentEquation(eq);
     setMathAnswered(null);
     setMathTimeLeftMs(set.mathTimeLimitMs);
@@ -722,6 +788,7 @@ export default function OperationSpanTask({ onComplete, userId, assessmentId }) 
     recallTotalLettersRef.current = 0;
     maxSetReachedRef.current = 0;
     setTimesMsRef.current = [];
+    usedQuestionIdsRef.current = new Set();
     startedAtRef.current = new Date().toISOString();
     beginSet(0);
   }
@@ -929,8 +996,8 @@ export default function OperationSpanTask({ onComplete, userId, assessmentId }) 
             <div className="desc">Tap every letter back, in the order it appeared.</div>
           </div>
         </div>
-        <button className="os-btn" onClick={startGame}>
-          Start the Game
+        <button className="os-btn" onClick={startGame} disabled={!bankLoaded}>
+          {bankLoaded ? "Start the Game" : "Loading questions…"}
         </button>
       </div>
     );

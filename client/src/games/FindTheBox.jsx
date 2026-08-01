@@ -17,61 +17,16 @@ const SESSION_TIME_LIMIT_MS = 75000; // overall safety net, same pattern as Dual
 const ROUNDS = [
   { label: "Round 1", tier: "Easy", timeLimitMs: 15000, boxCount: 5 },
   { label: "Round 2", tier: "Easy", timeLimitMs: 13000, boxCount: 5 },
-  { label: "Round 3", tier: "Normal", timeLimitMs: 11000, boxCount: 5 },
-  { label: "Round 4", tier: "Normal", timeLimitMs: 10000, boxCount: 6 },
+  { label: "Round 3", tier: "Medium", timeLimitMs: 11000, boxCount: 5 },
+  { label: "Round 4", tier: "Medium", timeLimitMs: 10000, boxCount: 6 },
   { label: "Round 5", tier: "Hard", timeLimitMs: 9000, boxCount: 6 },
   { label: "Round 6", tier: "Hard", timeLimitMs: 8000, boxCount: 6 },
 ];
 
-const POINTS_PER_TIER = { Easy: 10, Normal: 15, Hard: 20 };
+const POINTS_PER_TIER = { Easy: 10, Medium: 15, Hard: 20 };
 const ROUND_REVEAL_MS = 500; // brief correct/wrong reveal before the pause
 const ROUND_BREAK_MS = 700;
 const MAX_POSSIBLE_SCORE = ROUNDS.reduce((sum, r) => sum + POINTS_PER_TIER[r.tier], 0);
-
-// Every entry is authored so the extracted letter is guaranteed to be
-// within A–F, since that's the actual box label range.
-const FIND_BOX_BANK = [
-  // ---- Easy: direct word-position extraction ----
-  { id: "FB01", tier: "Easy", prompt: "An apple always makes a delicious breakfast.", hint: "Click the box with the first letter of the 2nd word.", answer: "A" },
-  { id: "FB02", tier: "Easy", prompt: "The dog barked loudly at the mailman.", hint: "Click the box with the first letter of the 2nd word.", answer: "D" },
-  { id: "FB03", tier: "Easy", prompt: "My brother baked a cake for the party.", hint: "Click the box with the first letter of the 3rd word.", answer: "B" },
-  { id: "FB04", tier: "Easy", prompt: "The elephant walked slowly across the field.", hint: "Click the box with the first letter of the 2nd word.", answer: "E" },
-  { id: "FB05", tier: "Easy", prompt: "The idea seemed brilliant at first.", hint: "Click the box with the last letter of the 2nd word.", answer: "A" },
-  { id: "FB06", tier: "Easy", prompt: "A snake slithered through the grass.", hint: "Click the box with the last letter of the 2nd word.", answer: "E" },
-
-  // ---- Normal: longer sentences, position + longest-word logic ----
-  { id: "FB07", tier: "Normal", prompt: "A brave dog defended the family bravely today.", hint: "Click the box with the first letter of the longest word.", answer: "D" },
-  { id: "FB08", tier: "Normal", prompt: "The clever fox escaped before dawn.", hint: "Click the box with the first letter of the 4th word.", answer: "E" },
-  { id: "FB09", tier: "Normal", prompt: "A camel crossed the vast desert calmly.", hint: "Click the box with the last letter of the 3rd word.", answer: "D" },
-  { id: "FB10", tier: "Normal", prompt: "Every big cat loves to nap all day.", hint: "Click the box with the first letter of the 3rd word.", answer: "C" },
-
-  // ---- Hard: general-knowledge riddles — think of the answer, then extract ----
-  { id: "FB11", tier: "Hard", prompt: "The sun rises in the ___?", hint: "Think of the answer, then click its first letter.", answer: "E" },
-  { id: "FB12", tier: "Hard", prompt: "The opposite of hot is ___?", hint: "Think of the answer, then click its first letter.", answer: "C" },
-  { id: "FB13", tier: "Hard", prompt: "The color of the sky on a clear day is ___?", hint: "Think of the answer, then click its first letter.", answer: "B" },
-  { id: "FB14", tier: "Hard", prompt: "The opposite of up is ___?", hint: "Think of the answer, then click its first letter.", answer: "D" },
-  { id: "FB15", tier: "Hard", prompt: "A baby cow is called a ___?", hint: "Think of the answer, then click its first letter.", answer: "C" },
-  { id: "FB16", tier: "Hard", prompt: "The opposite of empty is ___?", hint: "Think of the answer, then click its first letter.", answer: "F" },
-  { id: "FB17", tier: "Hard", prompt: "An insect that makes honey is called a ___?", hint: "Think of the answer, then click its first letter.", answer: "B" },
-  { id: "FB18", tier: "Hard", prompt: "The opposite of true is ___?", hint: "Think of the answer, then click its first letter.", answer: "F" },
-
-  // ---- Hard+: deeper extraction — a specific letter of a specific word, ----
-  // ---- or a specific letter of the riddle's answer (not just the first) ----
-  { id: "FB19", tier: "Hard", prompt: "My father repaired the old bicycle yesterday.", hint: "Click the box with the 3rd letter of the 6th word.", answer: "C" },
-  { id: "FB20", tier: "Hard", prompt: "A gigantic elephant trumpeted loudly nearby.", hint: "Click the box with the 6th letter of the 3rd word.", answer: "A" },
-  { id: "FB21", tier: "Hard", prompt: "We bought fresh chocolate cake today.", hint: "Click the box with the 7th letter of the 4th word.", answer: "A" },
-  { id: "FB22", tier: "Hard", prompt: "She painted a beautiful landscape yesterday.", hint: "Click the box with the 7th letter of the 4th word.", answer: "F" },
-  { id: "FB23", tier: "Hard", prompt: "They planned an exciting adventure together.", hint: "Click the box with the 2nd letter of the 5th word.", answer: "D" },
-  { id: "FB24", tier: "Hard", prompt: "He definitely finished his homework early.", hint: "Click the box with the 3rd letter of the 2nd word.", answer: "F" },
-  { id: "FB25", tier: "Hard", prompt: "It was a wonderful sunny afternoon.", hint: "Click the box with the 4th letter of the 4th word.", answer: "D" },
-  { id: "FB26", tier: "Hard", prompt: "The opposite of night is ___?", hint: "Think of the answer, then click the 2nd letter of it.", answer: "A" },
-  { id: "FB27", tier: "Hard", prompt: "A young cat is called a ___?", hint: "Think of the answer, then click the 5th letter of it.", answer: "E" },
-  { id: "FB28", tier: "Hard", prompt: "The capital of Italy is ___?", hint: "Think of the answer, then click the 4th letter of it.", answer: "E" },
-  { id: "FB29", tier: "Hard", prompt: "The first meal of the day is ___?", hint: "Think of the answer, then click the 4th letter of it.", answer: "A" },
-  { id: "FB30", tier: "Hard", prompt: "The frozen form of water is ___?", hint: "Think of the answer, then click the 2nd letter of it.", answer: "C" },
-  { id: "FB31", tier: "Hard", prompt: "A shape with four equal sides is called a ___?", hint: "Think of the answer, then click the 4th letter of it.", answer: "A" },
-  { id: "FB32", tier: "Hard", prompt: "The organ that pumps blood is the ___?", hint: "Think of the answer, then click the 3rd letter of it.", answer: "A" },
-];
 
 const ALL_LABELS = ["A", "B", "C", "D", "E", "F"];
 
@@ -79,10 +34,10 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function pickQuestion(tier, usedIds) {
-  const candidates = FIND_BOX_BANK.filter((q) => q.tier === tier && !usedIds.includes(q.id));
-  const pool = candidates.length > 0 ? candidates : FIND_BOX_BANK.filter((q) => !usedIds.includes(q.id));
-  const finalPool = pool.length > 0 ? pool : FIND_BOX_BANK;
+function pickQuestion(tier, usedIds, bank) {
+  const candidates = bank.filter((q) => q.tier === tier && !usedIds.includes(q.id));
+  const pool = candidates.length > 0 ? candidates : bank.filter((q) => !usedIds.includes(q.id));
+  const finalPool = pool.length > 0 ? pool : bank;
   return finalPool[randInt(0, finalPool.length - 1)];
 }
 
@@ -447,6 +402,11 @@ html, body, #root {
   cursor: pointer;
 }
 
+.fb-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .fb-results-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -480,6 +440,8 @@ export default function FindTheBox({ onComplete, userId, assessmentId }) {
   const [boxLabels, setBoxLabels] = useState([]);
   const [selected, setSelected] = useState(null);
   const [roundTimeLeftMs, setRoundTimeLeftMs] = useState(0);
+  const [bankLoaded, setBankLoaded] = useState(false);
+  const [bankError, setBankError] = useState(null);
 
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
@@ -497,6 +459,7 @@ export default function FindTheBox({ onComplete, userId, assessmentId }) {
   const sessionTickRef = useRef(null);
   const roundTickRef = useRef(null);
   const usedIdsRef = useRef([]);
+  const questionBankRef = useRef([]);
 
   const triggerShake = () => {
     setShake(true);
@@ -507,9 +470,51 @@ export default function FindTheBox({ onComplete, userId, assessmentId }) {
     setTimeout(() => setFlash(false), 350);
   };
 
+  // Fetch the question bank from the DB on mount. No local fallback here —
+  // the bank lives in the DB now, so Start stays disabled (and an error
+  // shown, with a retry) until this actually succeeds.
+  function loadQuestionBank() {
+    setBankError(null);
+    fetch("http://localhost:5000/api/questions/find_the_box", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Bad status ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error("Question bank came back empty");
+        }
+        // DB shape: { questionId, gameId, difficulty, data: { prompt, hint, answer } }
+        // Internal shape the game logic already uses: { id, tier, prompt, hint, answer }
+        const mapped = data.map((q) => ({
+          id: q.questionId,
+          tier: q.difficulty,
+          prompt: q.data.prompt,
+          hint: q.data.hint,
+          answer: q.data.answer,
+        }));
+        questionBankRef.current = mapped;
+        setBankLoaded(true);
+        console.log(`Loaded ${mapped.length} Find the Box questions from the DB.`);
+      })
+      .catch((err) => {
+        console.error("Failed to load Find the Box question bank:", err);
+        setBankError("Couldn't load questions. Please check your connection and try again.");
+        setBankLoaded(false);
+      });
+  }
+
+  useEffect(() => {
+    loadQuestionBank();
+  }, []);
+
   function beginRound(idx) {
     const round = ROUNDS[idx];
-    const q = pickQuestion(round.tier, usedIdsRef.current);
+    const q = pickQuestion(round.tier, usedIdsRef.current, questionBankRef.current);
     usedIdsRef.current = [...usedIdsRef.current, q.id];
     const labels = buildBoxLabels(round.boxCount, q.answer);
 
@@ -535,6 +540,7 @@ export default function FindTheBox({ onComplete, userId, assessmentId }) {
   }
 
   function startGame() {
+    if (!bankLoaded || questionBankRef.current.length === 0) return;
     endedRef.current = false;
     usedIdsRef.current = [];
     setRoundIndex(0);
@@ -713,9 +719,17 @@ export default function FindTheBox({ onComplete, userId, assessmentId }) {
             <div className="desc">Select the box labeled with that letter, fast.</div>
           </div>
         </div>
-        <button className="fb-btn" onClick={startGame}>
-          Start the Game
+        <button className="fb-btn" onClick={startGame} disabled={!bankLoaded}>
+          {bankLoaded ? "Start the Game" : bankError ? "Questions unavailable" : "Loading questions…"}
         </button>
+        {bankError && (
+          <>
+            <p className="sub" style={{ color: "#F87171", fontSize: 13 }}>{bankError}</p>
+            <button className="fb-btn" onClick={loadQuestionBank} style={{ background: "#232A3D", color: "#E5E7EB" }}>
+              Retry
+            </button>
+          </>
+        )}
       </div>
     );
   }
