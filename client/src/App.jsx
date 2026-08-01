@@ -10,6 +10,7 @@ import MultiSwitch from "./games/MultiSwitch";
 import { getUser, getAssessmentId, startAssessment } from "./utils/session";
 import FindTheBox from "./games/FindTheBox";
 import OperationSpanTask from "./games/OperationSpanTask"
+import RuleDiscovery from "./games/RuleDiscovery";
 
 function App() {
   const [assessmentId, setAssessmentIdState] = useState(() =>
@@ -74,6 +75,10 @@ function App() {
          <Route
          path="/play/operation-span"
          element={<OperationSpanTask userId={user?.userId} assessmentId={assessmentId} />}      
+         />
+         <Route
+         path="/play/rule-discovery"
+         element={<RuleDiscovery userId={user?.userId} assessmentId={assessmentId} />}      
          />
       </Routes>
     </BrowserRouter>
