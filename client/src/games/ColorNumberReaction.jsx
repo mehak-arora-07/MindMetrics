@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import CNR_QUESTIONS_FALLBACK from "./cnr_questions.json";
+// import CNR_QUESTIONS_FALLBACK from "./cnr_questions.json";
 
 // Drop into client/src/games/ColorNumberReaction.jsx
 // Same visual family as DualTask/KeepTrackTask/OperationSpanTask/ContinuousPerformanceTest — dark arena, mint/gold/red accents.
@@ -567,10 +567,10 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
         }
       } catch (err) {
         console.warn("Falling back to the local question bank:", err.message);
-        if (!cancelled) {
-          questionBankRef.current = CNR_QUESTIONS_FALLBACK;
-          setBankSource("local");
-        }
+        // if (!cancelled) {
+        //   questionBankRef.current = CNR_QUESTIONS_FALLBACK;
+        //   setBankSource("local");
+        // }
       } finally {
         if (!cancelled) setBankLoaded(true);
       }
