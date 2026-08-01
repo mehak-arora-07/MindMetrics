@@ -11,6 +11,7 @@ import { getUser, getAssessmentId, startAssessment } from "./utils/session";
 import FindTheBox from "./games/FindTheBox";
 import OperationSpanTask from "./games/OperationSpanTask"
 import RuleDiscovery from "./games/RuleDiscovery";
+import ColorNumberReaction from "./games/ColorNumberReaction";
 
 function App() {
   const [assessmentId, setAssessmentIdState] = useState(() =>
@@ -79,6 +80,10 @@ function App() {
          <Route
          path="/play/rule-discovery"
          element={<RuleDiscovery userId={user?.userId} assessmentId={assessmentId} />}      
+         />
+         <Route
+         path="/play/color-number"
+         element={<ColorNumberReaction userId={user?.userId} assessmentId={assessmentId} />}      
          />
       </Routes>
     </BrowserRouter>
