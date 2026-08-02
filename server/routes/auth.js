@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const verifyToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -133,6 +134,118 @@ router.post("/login", async(req, res) => {
     } catch (err) {
 
         console.error("LOGIN ERROR");
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+
+    }
+});
+
+// update profile (currently just name — email changes usually need a
+// verification flow, so that's left out on purpose)
+router.patch("/profile", verifyToken, async(req, res) => {
+    try {
+
+        const { name } = req.body;
+
+        if (!name || !name.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Name is required"
+            });
+        }
+
+        const updatedUser = await User.findOneAndUpdate(
+            { userId: req.user.userId },
+            { $set: { name: name.trim() } },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user: {
+                userId: updatedUser.userId,
+                name: updatedUser.name,
+                email: updatedUser.email
+            }
+        });
+
+    } catch (err) {
+
+        console.error("PROFILE UPDATE ERROR");
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+
+    }
+});
+
+// change password
+router.post("/change-password", verifyToken, async(req, res) => {
+    try {
+
+        const { oldPassword, newPassword } = req.body;
+
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Both current and new password are required"
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: "New password must be at least 6 characters"
+            });
+        }
+
+        const user = await User.findOne({ userId: req.user.userId });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Current password is incorrect"
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        });
+
+    } catch (err) {
+
+        console.error("CHANGE PASSWORD ERROR");
         console.error(err);
 
         res.status(500).json({

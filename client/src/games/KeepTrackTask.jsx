@@ -722,86 +722,116 @@ export default function KeepTrackTask({ onComplete, onNextGame, userId, assessme
       beginRound(nextIdx);
     }, 900);
   }
+async function endGame() {
+  clearInterval(sessionTickRef.current);
 
-  async function endGame() {
-    clearInterval(sessionTickRef.current);
+  const finalScore = scoreRef.current;
+  const finalCorrectCount = correctCountRef.current;
+  const finalIncorrectCount = incorrectCountRef.current;
+  const finalMaxLevel = maxLevelRef.current;
+  const finalRoundTimes = roundTimesRef.current;
 
-    const finalScore = scoreRef.current;
-    const finalCorrectCount = correctCountRef.current;
-    const finalIncorrectCount = incorrectCountRef.current;
-    const finalMaxLevel = maxLevelRef.current;
-    const finalRoundTimes = roundTimesRef.current;
+  const roundsPlayed = finalRoundTimes.length;
 
-    const roundsPlayed = finalRoundTimes.length;
-
-    const recallAccuracy =
-      roundsPlayed > 0 ? Math.round((finalCorrectCount / roundsPlayed) * 100) : 0;
-
-    const accuracy = recallAccuracy;
-
-    const avgTimeMs = finalRoundTimes.length
-      ? Math.round(finalRoundTimes.reduce((a, b) => a + b, 0) / finalRoundTimes.length)
+  const recallAccuracy =
+    roundsPlayed > 0
+      ? Math.round((finalCorrectCount / roundsPlayed) * 100)
       : 0;
 
-    const payload = {
-      assessmentId: localStorage.getItem("assessmentId"),
-      gameId: "keep_track_task",
-      accuracy,
-      avgTimeMs,
-      metrics: {
-        score: finalScore,
-        maxPossibleScore: MAX_POSSIBLE_SCORE,
-        roundsPlayed,
-        recallAccuracy,
-        maxLevel: finalMaxLevel,
-        incorrectRecalls: finalIncorrectCount,
-        roundTimesMs: finalRoundTimes,
-      },
-      completed: true,
-    };
+  const accuracy = recallAccuracy;
 
-    console.log("Assessment ID:", localStorage.getItem("assessmentId"));
-    console.log("Payload being sent:", payload);
+  const avgTimeMs = finalRoundTimes.length
+    ? Math.round(
+        finalRoundTimes.reduce((a, b) => a + b, 0) /
+          finalRoundTimes.length
+      )
+    : 0;
 
-    try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
+  const payload = {
+    assessmentId: localStorage.getItem("assessmentId"),
+    gameId: "keep_track_task",
+    accuracy,
+    avgTimeMs,
+    metrics: {
+      score: finalScore,
+      maxPossibleScore: MAX_POSSIBLE_SCORE,
+      roundsPlayed,
+      recallAccuracy,
+      maxLevel: finalMaxLevel,
+      incorrectRecalls: finalIncorrectCount,
+      roundTimesMs: finalRoundTimes,
+    },
+    completed: true,
+  };
+
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+
+  console.log("Payload being sent:", payload);
+
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/sessions",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
         },
         body: JSON.stringify(payload),
-      });
+      }
+    );
 
     const data = await res.json();
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          localStorage.removeItem("assessmentId");
 
-          alert("Your login session expired. Please log in again.");
-          window.location.href = "/";
-          return;
-        }
-      if (!res.ok) {
-        console.error("Failed to save session:", res.status, data);
-      } else {
-        console.log("Session saved successfully:", data);
-      }
-       const nextPath = getNextGamePath("keep_track_task");
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
 
-  if (nextPath) {
-    navigate(nextPath);
-  }
-    } catch (err) {
-      console.error("Failed to save session:", err);
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
     }
 
-    if (onComplete) onComplete(payload);
+    if (!res.ok) {
+      console.error(
+        "Failed to save session:",
+        res.status,
+        data
+      );
+      return;
+    }
+
+    console.log(
+      "Session saved successfully:",
+      data
+    );
 
     setPhase("done");
-  }
 
+    const nextPath =
+      getNextGamePath("keep_track_task");
+
+    if (nextPath) {
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 4000);
+    }
+  } catch (err) {
+    console.error(
+      "Failed to save session:",
+      err
+    );
+  }
+}
   const round = ROUNDS[Math.min(roundIndex, ROUNDS.length - 1)];
   const roundsPlayed = roundTimes.length;
   const recallAccuracy = roundsPlayed > 0 ? Math.round((correctCount / roundsPlayed) * 100) : 0;

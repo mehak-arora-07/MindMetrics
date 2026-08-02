@@ -643,72 +643,109 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
   }
 
   async function endGame() {
-    clearInterval(sessionTickRef.current);
-    clearInterval(roundTickRef.current);
+  clearInterval(sessionTickRef.current);
+  clearInterval(roundTickRef.current);
 
-    const totalAnswered = responseTimes.length;
-    const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
-    const avgTimeMs = responseTimes.length
-      ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
+  const totalAnswered = responseTimes.length;
+
+  const accuracy =
+    totalAnswered > 0
+      ? Math.round((correctCount / totalAnswered) * 100)
       : 0;
 
-    const payload = {
-      assessmentId: localStorage.getItem("assessmentId"),
-      gameId: "find_the_box",
-      accuracy,
-      avgTimeMs,
-      metrics: {
-        score,
-        maxPossibleScore: MAX_POSSIBLE_SCORE,
-        totalQuestions: totalAnswered,
-        highestRoundReached: highestLevelReached,
-        correct: correctCount,
-        wrong: wrongCount,
-        timeouts: timeoutCount,
-        responseTimesMs: responseTimes,
-      },
-      completed: true,
-    };
+  const avgTimeMs = responseTimes.length
+    ? Math.round(
+        responseTimes.reduce((a, b) => a + b, 0) /
+          responseTimes.length
+      )
+    : 0;
 
-    console.log("Assessment ID:", localStorage.getItem("assessmentId"));
-    console.log("Payload being sent:", payload);
+  const payload = {
+    assessmentId: localStorage.getItem("assessmentId"),
+    gameId: "find_the_box",
+    accuracy,
+    avgTimeMs,
+    metrics: {
+      score,
+      maxPossibleScore: MAX_POSSIBLE_SCORE,
+      totalQuestions: totalAnswered,
+      highestRoundReached: highestLevelReached,
+      correct: correctCount,
+      wrong: wrongCount,
+      timeouts: timeoutCount,
+      responseTimesMs: responseTimes,
+    },
+    completed: true,
+  };
 
-    try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+
+  console.log("Payload being sent:", payload);
+
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/sessions",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
         },
         body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("assessmentId");
-        alert("Your login session expired. Please log in again.");
-        window.location.href = "/";
-        return;
       }
-      if (!res.ok) {
-        console.error("Failed to save session:", res.status, data);
-      } else {
-        console.log("Session saved successfully:", data);
-      }
-       const nextPath = getNextGamePath("find_the_box");
+    );
 
-  if (nextPath) {
-    navigate(nextPath);
-  }
-    } catch (err) {
-      console.error("Failed to save session:", err);
+    const data = await res.json();
+
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
+
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
     }
 
-    if (onComplete) onComplete(payload);
+    if (!res.ok) {
+      console.error(
+        "Failed to save session:",
+        res.status,
+        data
+      );
+      return;
+    }
+
+    console.log(
+      "Session saved successfully:",
+      data
+    );
+
     setPhase("done");
+
+    const nextPath =
+      getNextGamePath("find_the_box");
+
+    if (nextPath) {
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 4000);
+    }
+  } catch (err) {
+    console.error(
+      "Failed to save session:",
+      err
+    );
   }
+}
 
   const round = ROUNDS[Math.min(roundIndex, ROUNDS.length - 1)];
   const totalAnswered = responseTimes.length;

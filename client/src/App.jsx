@@ -13,6 +13,9 @@ import FindTheBox from "./games/FindTheBox";
 import OperationSpanTask from "./games/OperationSpanTask"
 import RuleDiscovery from "./games/RuleDiscovery";
 import ColorNumberReaction from "./games/ColorNumberReaction";
+import MyProfile from "./pages/MyProfile";
+import AboutUs from "./pages/AboutUs";
+
 
 function App() {
   const [assessmentId, setAssessmentIdState] = useState(() =>
@@ -48,6 +51,9 @@ function App() {
         <Route path="/login" element={<AuthPage />} />
         <Route path="/" element={<HomePage />} />
         {/* <Route path="/results" element={<Results />} /> */}
+        <Route path="/profile" element={<MyProfile />} />
+        <Route path="/about" element={<AboutUs />} />
+
         <Route
           path="/play/pattern-sequence"
           element={<PatternSequence userId={user?.userId} assessmentId={assessmentId} />}

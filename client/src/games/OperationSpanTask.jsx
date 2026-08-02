@@ -925,95 +925,141 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
-  async function endGame() {
-    clearInterval(sessionTickRef.current);
-    clearInterval(mathTickRef.current);
+async function endGame() {
+  clearInterval(sessionTickRef.current);
+  clearInterval(mathTickRef.current);
 
-    const finalScore = scoreRef.current;
-    const finalMathCorrect = mathCorrectCountRef.current;
-    const finalMathAnswered = mathTotalAnsweredRef.current;
-    const finalMathReactionTimes = mathReactionTimesMsRef.current;
-    const finalRecallCorrect = recallCorrectLettersRef.current;
-    const finalRecallTotal = recallTotalLettersRef.current;
-    const finalMaxSetReached = maxSetReachedRef.current;
-    const finalSetTimes = setTimesMsRef.current;
+  const finalScore = scoreRef.current;
+  const finalMathCorrect = mathCorrectCountRef.current;
+  const finalMathAnswered = mathTotalAnsweredRef.current;
+  const finalMathReactionTimes = mathReactionTimesMsRef.current;
+  const finalRecallCorrect = recallCorrectLettersRef.current;
+  const finalRecallTotal = recallTotalLettersRef.current;
+  const finalMaxSetReached = maxSetReachedRef.current;
+  const finalSetTimes = setTimesMsRef.current;
 
-    const processingAccuracy =
-      finalMathAnswered > 0 ? Math.round((finalMathCorrect / finalMathAnswered) * 100) : 0;
-
-    const storageAccuracy =
-      finalRecallTotal > 0 ? Math.round((finalRecallCorrect / finalRecallTotal) * 100) : 0;
-
-    const accuracy = Math.round((processingAccuracy + storageAccuracy) / 2);
-
-    const avgMathReactionMs = finalMathReactionTimes.length
-      ? Math.round(finalMathReactionTimes.reduce((a, b) => a + b, 0) / finalMathReactionTimes.length)
+  const processingAccuracy =
+    finalMathAnswered > 0
+      ? Math.round(
+          (finalMathCorrect / finalMathAnswered) * 100
+        )
       : 0;
 
-    const payload = {
-      assessmentId: localStorage.getItem("assessmentId"),
-      gameId: "operation_span",
-      accuracy,
-      avgTimeMs: avgMathReactionMs,
-      metrics: {
-        score: finalScore,
-        maxPossibleScore: MAX_POSSIBLE_SCORE,
-        setsCompleted: finalSetTimes.length,
-        maxSetReached: finalMaxSetReached,
-        processingAccuracy,
-        storageAccuracy,
-        mathCorrect: finalMathCorrect,
-        mathAnswered: finalMathAnswered,
-        avgMathReactionMs,
-        mathReactionTimesMs: finalMathReactionTimes,
-        correctLettersRecalled: finalRecallCorrect,
-        totalLettersPresented: finalRecallTotal,
-        setTimesMs: finalSetTimes,
-      },
-      completed: true,
-    };
+  const storageAccuracy =
+    finalRecallTotal > 0
+      ? Math.round(
+          (finalRecallCorrect / finalRecallTotal) * 100
+        )
+      : 0;
 
-    console.log("Assessment ID:", localStorage.getItem("assessmentId"));
-    console.log("Payload being sent:", payload);
+  const accuracy = Math.round(
+    (processingAccuracy + storageAccuracy) / 2
+  );
 
-    try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
+  const avgMathReactionMs =
+    finalMathReactionTimes.length
+      ? Math.round(
+          finalMathReactionTimes.reduce(
+            (a, b) => a + b,
+            0
+          ) / finalMathReactionTimes.length
+        )
+      : 0;
+
+  const payload = {
+    assessmentId:
+      localStorage.getItem("assessmentId"),
+    gameId: "operation_span",
+    accuracy,
+    avgTimeMs: avgMathReactionMs,
+    metrics: {
+      score: finalScore,
+      maxPossibleScore: MAX_POSSIBLE_SCORE,
+      setsCompleted: finalSetTimes.length,
+      maxSetReached: finalMaxSetReached,
+      processingAccuracy,
+      storageAccuracy,
+      mathCorrect: finalMathCorrect,
+      mathAnswered: finalMathAnswered,
+      avgMathReactionMs,
+      mathReactionTimesMs:
+        finalMathReactionTimes,
+      correctLettersRecalled:
+        finalRecallCorrect,
+      totalLettersPresented:
+        finalRecallTotal,
+      setTimesMs: finalSetTimes,
+    },
+    completed: true,
+  };
+
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+  console.log("Payload being sent:", payload);
+
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/sessions",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
         },
         body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("assessmentId");
-
-        alert("Your login session expired. Please log in again.");
-        window.location.href = "/";
-        return;
       }
-      if (!res.ok) {
-        console.error("Failed to save session:", res.status, data);
-      } else {
-        console.log("Session saved successfully:", data);
-      }
-      const nextPath = getNextGamePath("operation_span");
+    );
 
-      if (nextPath) {
-       navigate(nextPath);
-       }
-    } catch (err) {
-      console.error("Failed to save session:", err);
+    const data = await res.json();
+
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
+
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
     }
 
-    if (onComplete) onComplete(payload);
+    if (!res.ok) {
+      console.error(
+        "Failed to save session:",
+        res.status,
+        data
+      );
+      return;
+    }
+
+    console.log(
+      "Session saved successfully:",
+      data
+    );
 
     setPhase("done");
+
+    const nextPath =
+      getNextGamePath("operation_span");
+
+    if (nextPath) {
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 4000);
+    }
+  } catch (err) {
+    console.error(
+      "Failed to save session:",
+      err
+    );
   }
+}
 
   const set = SETS[Math.min(setIndex, SETS.length - 1)];
   const processingAccuracy =

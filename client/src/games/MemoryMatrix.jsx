@@ -502,71 +502,109 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
   }
 
   async function endGame() {
-    clearInterval(sessionTickRef.current);
-    const totalAttempted = correctCellsTotal + wrongCellsTotal;
-    const accuracy = totalAttempted > 0 ? Math.round((correctCellsTotal / totalAttempted) * 100) : 0;
-    const avgTimeMs = levelTimes.length
-      ? Math.round(levelTimes.reduce((a, b) => a + b, 0) / levelTimes.length)
+  clearInterval(sessionTickRef.current);
+
+  const totalAttempted =
+    correctCellsTotal + wrongCellsTotal;
+
+  const accuracy =
+    totalAttempted > 0
+      ? Math.round(
+          (correctCellsTotal / totalAttempted) * 100
+        )
       : 0;
 
-    // Matches the Sessions mongoose schema — sessionId and userId are set
-    // server-side (from the JWT) by your /api/sessions route, so they don't
-    // strictly need to be sent, but assessmentId/gameId/accuracy/avgTimeMs/
-    // metrics/completed are exactly what that route destructures.
-    const payload = {
-      assessmentId: localStorage.getItem("assessmentId"),
-      gameId: "memory_matrix",
-      accuracy,
-      avgTimeMs,
-      metrics: {
-        score,
-        correctCellsTotal,
-        wrongCellsTotal,
-        highestLevelReached,
-        totalLevels: LEVELS.length,
-        levelTimesMs: levelTimes,
-      },
-      completed: true,
-    };
+  const avgTimeMs = levelTimes.length
+    ? Math.round(
+        levelTimes.reduce((a, b) => a + b, 0) /
+          levelTimes.length
+      )
+    : 0;
 
-    try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
+  const payload = {
+    assessmentId: localStorage.getItem("assessmentId"),
+    gameId: "memory_matrix",
+    accuracy,
+    avgTimeMs,
+    metrics: {
+      score,
+      correctCellsTotal,
+      wrongCellsTotal,
+      highestLevelReached,
+      totalLevels: LEVELS.length,
+      levelTimesMs: levelTimes,
+    },
+    completed: true,
+  };
+
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+
+  console.log("Payload being sent:", payload);
+
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/sessions",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
         },
         body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          localStorage.removeItem("assessmentId");
-
-          alert("Your login session expired. Please log in again.");
-          window.location.href = "/";
-          return;
-        }
-      if (!res.ok) {
-        console.error("Failed to save session:", res.status, data);
-      } else {
-        console.log("Session saved successfully:", data);
       }
-       const nextPath = getNextGamePath("memory_matrix");
+    );
 
-  if (nextPath) {
-    navigate(nextPath);
-  }
-    } catch (err) {
-      console.error("Failed to save session:", err);
+    const data = await res.json();
+
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
+
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
     }
 
-    if (onComplete) onComplete(payload);
+    if (!res.ok) {
+      console.error(
+        "Failed to save session:",
+        res.status,
+        data
+      );
+      return;
+    }
+
+    console.log(
+      "Session saved successfully:",
+      data
+    );
 
     setPhase("done");
-  }
 
+    const nextPath =
+      getNextGamePath("memory_matrix");
+
+    if (nextPath) {
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 4000);
+    }
+  } catch (err) {
+    console.error(
+      "Failed to save session:",
+      err
+    );
+  }
+}
   const level = LEVELS[Math.min(levelIndex, LEVELS.length - 1)];
   const totalAttempted = correctCellsTotal + wrongCellsTotal;
   const accuracy = totalAttempted > 0 ? Math.round((correctCellsTotal / totalAttempted) * 100) : 0;

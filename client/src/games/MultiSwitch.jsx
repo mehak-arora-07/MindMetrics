@@ -625,97 +625,152 @@ export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGa
     setTimeout(() => setFlash(false), 350);
   }
 
-  async function endGame() {
-    clearInterval(sessionTickRef.current);
+async function endGame() {
+  clearInterval(sessionTickRef.current);
 
-    // Read from refs, not state — see the comment on the ref declarations
-    // above for why the state values here can't be trusted at this point.
-    const finalHits = hitsRef.current;
-    const finalMisses = missesRef.current;
-    const finalFalsePositives = falsePositivesRef.current;
-    const log = questionLogRef.current;
+  const finalHits = hitsRef.current;
+  const finalMisses = missesRef.current;
+  const finalFalsePositives = falsePositivesRef.current;
+  const log = questionLogRef.current;
 
-    // Switch cost: average RT on the first question of each round (right
-    // after the rule changes) minus average RT on the other questions.
-    const firstQuestionRTs = log.filter((t) => t.questionIndex === 0).map((t) => t.rtMs);
-    const otherQuestionRTs = log.filter((t) => t.questionIndex !== 0).map((t) => t.rtMs);
-    const avgFirstQuestionRT = firstQuestionRTs.length
-      ? Math.round(firstQuestionRTs.reduce((a, b) => a + b, 0) / firstQuestionRTs.length)
+  const firstQuestionRTs = log
+    .filter((t) => t.questionIndex === 0)
+    .map((t) => t.rtMs);
+
+  const otherQuestionRTs = log
+    .filter((t) => t.questionIndex !== 0)
+    .map((t) => t.rtMs);
+
+  const avgFirstQuestionRT = firstQuestionRTs.length
+    ? Math.round(
+        firstQuestionRTs.reduce((a, b) => a + b, 0) /
+          firstQuestionRTs.length
+      )
+    : 0;
+
+  const avgOtherQuestionsRT = otherQuestionRTs.length
+    ? Math.round(
+        otherQuestionRTs.reduce((a, b) => a + b, 0) /
+          otherQuestionRTs.length
+      )
+    : 0;
+
+  const switchCostMs =
+    avgFirstQuestionRT - avgOtherQuestionsRT;
+
+  const allRTs = log.map((t) => t.rtMs);
+
+  const avgTimeMs = allRTs.length
+    ? Math.round(
+        allRTs.reduce((a, b) => a + b, 0) /
+          allRTs.length
+      )
+    : 0;
+
+  const totalJudged =
+    finalHits + finalMisses + finalFalsePositives;
+
+  const accuracy =
+    totalJudged > 0
+      ? Math.round((finalHits / totalJudged) * 100)
       : 0;
-    const avgOtherQuestionsRT = otherQuestionRTs.length
-      ? Math.round(otherQuestionRTs.reduce((a, b) => a + b, 0) / otherQuestionRTs.length)
-      : 0;
-    const switchCostMs = avgFirstQuestionRT - avgOtherQuestionsRT;
 
-    const allRTs = log.map((t) => t.rtMs);
-    const avgTimeMs = allRTs.length ? Math.round(allRTs.reduce((a, b) => a + b, 0) / allRTs.length) : 0;
-    const totalJudged = finalHits + finalMisses + finalFalsePositives;
-    const accuracy = totalJudged > 0 ? Math.round((finalHits / totalJudged) * 100) : 0;
-    const score = Math.max(0, finalHits * SCORE_PER_HIT - finalFalsePositives * SCORE_PENALTY_PER_FALSE_POSITIVE);
+  const score = Math.max(
+    0,
+    finalHits * SCORE_PER_HIT -
+      finalFalsePositives *
+        SCORE_PENALTY_PER_FALSE_POSITIVE
+  );
 
-    const payload = {
-      assessmentId: localStorage.getItem("assessmentId"),
-      gameId: "multi_switch",
-      accuracy,
-      avgTimeMs,
-      metrics: {
-        score,
-        roundsCompleted: ROUNDS_TOTAL,
-        questionsPerRound: QUESTIONS_PER_ROUND,
-        hits: finalHits,
-        misses: finalMisses,
-        falsePositives: finalFalsePositives,
-        switchCostMs,
-        avgFirstQuestionRT,
-        avgOtherQuestionsRT,
-        questionLog: log,
-        startedAt: startedAtRef.current,
-        endedAt: new Date().toISOString(),
-      },
-      completed: true,
-    };
+  const payload = {
+    assessmentId: localStorage.getItem("assessmentId"),
+    gameId: "multi_switch",
+    accuracy,
+    avgTimeMs,
+    metrics: {
+      score,
+      roundsCompleted: ROUNDS_TOTAL,
+      questionsPerRound: QUESTIONS_PER_ROUND,
+      hits: finalHits,
+      misses: finalMisses,
+      falsePositives: finalFalsePositives,
+      switchCostMs,
+      avgFirstQuestionRT,
+      avgOtherQuestionsRT,
+      questionLog: log,
+      startedAt: startedAtRef.current,
+      endedAt: new Date().toISOString(),
+    },
+    completed: true,
+  };
 
-    console.log("Assessment ID:", localStorage.getItem("assessmentId"));
-    console.log("Payload being sent:", payload);
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+  console.log("Payload being sent:", payload);
 
-    try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/sessions",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
         },
         body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("assessmentId");
-        alert("Your login session expired. Please log in again.");
-        window.location.href = "/";
-        return;
       }
+    );
 
-      if (!res.ok) {
-        console.error("Failed to save session:", res.status, data);
-      } else {
-        console.log("Session saved successfully:", data);
-      }
-      const nextPath = getNextGamePath("multi_switch");
+    const data = await res.json();
 
-      if (nextPath) {
-      navigate(nextPath);
-      }
-    } catch (err) {
-      console.error("Failed to save session:", err);
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
+
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
     }
 
-    if (onComplete) onComplete(payload);
+    if (!res.ok) {
+      console.error(
+        "Failed to save session:",
+        res.status,
+        data
+      );
+      return;
+    }
+
+    console.log(
+      "Session saved successfully:",
+      data
+    );
+
     setPhase("done");
+
+    const nextPath =
+      getNextGamePath("multi_switch");
+
+    if (nextPath) {
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 4000);
+    }
+  } catch (err) {
+    console.error(
+      "Failed to save session:",
+      err
+    );
   }
+}
 
   const currentQuestion = rounds.length ? rounds[roundIndex]?.[questionIndex] : null;
 

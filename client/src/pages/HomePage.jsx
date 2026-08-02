@@ -1024,6 +1024,10 @@ export default function HomePage() {
   }, []);
 
   async function handleStart() {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     setStarting(true);
     try {
       await startAssessment();
@@ -1062,33 +1066,41 @@ export default function HomePage() {
           <Link to="/about">About</Link>
         </div>
 
-        <button className="hp-nav-cta" onClick={handleStart} disabled={starting}>
-          {starting ? "Starting…" : "Start Assessment"}
-        </button>
+        {user && (
+          <button className="hp-nav-cta" onClick={handleStart} disabled={starting}>
+            {starting ? "Starting…" : "Start Assessment"}
+          </button>
+        )}
 
         <div className="hp-nav-right" ref={menuRef}>
-          <button className={`hp-menu-btn ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen((o) => !o)}>
-            <span className="hp-menu-avatar">{initial}</span>
-            <span className="hp-menu-hamburger">
-              <span />
-              <span />
-              <span />
-            </span>
-          </button>
+          {user ? (
+            <>
+              <button className={`hp-menu-btn ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen((o) => !o)}>
+                <span className="hp-menu-avatar">{initial}</span>
+                <span className="hp-menu-hamburger">
+                  <span />
+                  <span />
+                  <span />
+                </span>
+              </button>
 
-          <div className={`hp-dropdown ${menuOpen ? "open" : ""}`}>
-            {user && (
-              <div className="hp-dropdown-user">
-                <div className="name">{user.name}</div>
-                <div className="email">{user.email}</div>
+              <div className={`hp-dropdown ${menuOpen ? "open" : ""}`}>
+                <div className="hp-dropdown-user">
+                  <div className="name">{user.name}</div>
+                  <div className="email">{user.email}</div>
+                </div>
+                <Link to="/profile" onClick={() => setMenuOpen(false)}>My Profile</Link>
+                <Link to="/performances" onClick={() => setMenuOpen(false)}>My Performances</Link>
+                <Link to="/analysis" onClick={() => setMenuOpen(false)}>My Analysis</Link>
+                <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
+                <button className="logout" onClick={handleLogout}>Log Out</button>
               </div>
-            )}
-            <Link to="/profile" onClick={() => setMenuOpen(false)}>My Profile</Link>
-            <Link to="/performances" onClick={() => setMenuOpen(false)}>My Performances</Link>
-            <Link to="/analysis" onClick={() => setMenuOpen(false)}>My Analysis</Link>
-            <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
-            <button className="logout" onClick={handleLogout}>Log Out</button>
-          </div>
+            </>
+          ) : (
+            <Link to="/login">
+              <button className="hp-nav-cta" type="button">Log in / Sign up</button>
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -1199,7 +1211,7 @@ export default function HomePage() {
       <section className="hp-section hp-reveal">
         <div className="hp-mid-cta">
           <h3>Your mind, measured properly.</h3>
-          <p>Takes about half an hour. Results are ready the moment you finish.</p>
+          <p>Takes about 20 minutes. Results are ready the moment you finish.</p>
           <button className="hp-btn-primary" onClick={handleStart} disabled={starting}>
             {starting ? "Starting…" : "Start Assessment"}
           </button>
@@ -1225,13 +1237,11 @@ export default function HomePage() {
               <a href="#">Assessments</a>
               <a href="#">Cognitive Modules</a>
               <a href="#">Reports</a>
-              <a href="#">Pricing</a>
             </div>
             <div className="hp-footer-col">
               <h5>Company</h5>
               <Link to="/about">About Us</Link>
               <a href="#">Careers</a>
-              <a href="#">Blog</a>
               <a href="#">Contact Us</a>
             </div>
             <div className="hp-footer-col">
@@ -1244,7 +1254,6 @@ export default function HomePage() {
           <div className="hp-footer-bottom">
             <span>© {new Date().getFullYear()} MindMetrics. All rights reserved.</span>
             <div>
-              <a href="#">Twitter</a>
               <a href="#">LinkedIn</a>
               <a href="#">GitHub</a>
             </div>

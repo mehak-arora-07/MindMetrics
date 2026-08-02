@@ -822,99 +822,139 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
     startedAtRef.current = new Date().toISOString();
     beginRound(0);
   }
+async function endGame() {
+  clearInterval(roundTickRef.current);
+  clearInterval(ruleFlashTickRef.current);
+  clearTimeout(trialTimeoutRef.current);
+  clearTimeout(hideTimeoutRef.current);
+  currentTrialRef.current = null;
 
-  async function endGame() {
-    clearInterval(roundTickRef.current);
-    clearInterval(ruleFlashTickRef.current);
-    clearTimeout(trialTimeoutRef.current);
-    clearTimeout(hideTimeoutRef.current);
-    currentTrialRef.current = null;
+  const finalScore = scoreRef.current;
+  const finalCorrect = correctCountRef.current;
+  const finalFalseClicks = falseClicksRef.current;
+  const finalMissed = missedResponsesRef.current;
+  const finalCorrectRejections = correctRejectionsRef.current;
+  const finalReactionTimes = reactionTimesMsRef.current;
 
-    const finalScore = scoreRef.current;
-    const finalCorrect = correctCountRef.current;
-    const finalFalseClicks = falseClicksRef.current;
-    const finalMissed = missedResponsesRef.current;
-    const finalCorrectRejections = correctRejectionsRef.current;
-    const finalReactionTimes = reactionTimesMsRef.current;
+  const totalGoTrials = finalCorrect + finalMissed;
+  const totalNoGoTrials =
+    finalFalseClicks + finalCorrectRejections;
+  const totalTrials = totalGoTrials + totalNoGoTrials;
 
-    const totalGoTrials = finalCorrect + finalMissed;
-    const totalNoGoTrials = finalFalseClicks + finalCorrectRejections;
-    const totalTrials = totalGoTrials + totalNoGoTrials;
-    const accuracy =
-      totalTrials > 0
-        ? Math.round(((finalCorrect + finalCorrectRejections) / totalTrials) * 100)
-        : 0;
-
-    const avgReactionTimeMs = finalReactionTimes.length
-      ? Math.round(finalReactionTimes.reduce((a, b) => a + b, 0) / finalReactionTimes.length)
+  const accuracy =
+    totalTrials > 0
+      ? Math.round(
+          ((finalCorrect + finalCorrectRejections) /
+            totalTrials) *
+            100
+        )
       : 0;
 
-    const payload = {
-      assessmentId: localStorage.getItem("assessmentId"),
-      gameId: "color_number_reaction",
-      accuracy,
-      avgTimeMs: avgReactionTimeMs,
-      metrics: {
-        score: finalScore,
-        maxPossibleScore: MAX_POSSIBLE_SCORE,
-        roundsCompleted: roundsCompletedRef.current,
-        totalRounds: ROUNDS.length,
-        rulesUsed: rulesUsedRef.current,
-        questionSource: bankSource,
-        correctResponses: finalCorrect,
-        falseClicks: finalFalseClicks,
-        missedResponses: finalMissed,
-        correctRejections: finalCorrectRejections,
-        goTrials: totalGoTrials,
-        noGoTrials: totalNoGoTrials,
-        totalTrials,
-        avgReactionTimeMs,
-        reactionTimesMs: finalReactionTimes,
-      },
-      completed: true,
-    };
+  const avgReactionTimeMs = finalReactionTimes.length
+    ? Math.round(
+        finalReactionTimes.reduce(
+          (a, b) => a + b,
+          0
+        ) / finalReactionTimes.length
+      )
+    : 0;
 
-    console.log("Assessment ID:", localStorage.getItem("assessmentId"));
-    console.log("Payload being sent:", payload);
+  const payload = {
+    assessmentId:
+      localStorage.getItem("assessmentId"),
+    gameId: "color_number_reaction",
+    accuracy,
+    avgTimeMs: avgReactionTimeMs,
+    metrics: {
+      score: finalScore,
+      maxPossibleScore: MAX_POSSIBLE_SCORE,
+      roundsCompleted:
+        roundsCompletedRef.current,
+      totalRounds: ROUNDS.length,
+      rulesUsed: rulesUsedRef.current,
+      questionSource: bankSource,
+      correctResponses: finalCorrect,
+      falseClicks: finalFalseClicks,
+      missedResponses: finalMissed,
+      correctRejections:
+        finalCorrectRejections,
+      goTrials: totalGoTrials,
+      noGoTrials: totalNoGoTrials,
+      totalTrials,
+      avgReactionTimeMs,
+      reactionTimesMs: finalReactionTimes,
+    },
+    completed: true,
+  };
 
-    try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+  console.log("Payload being sent:", payload);
+
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/sessions",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
         },
         body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("assessmentId");
-
-        alert("Your login session expired. Please log in again.");
-        window.location.href = "/";
-        return;
       }
-      if (!res.ok) {
-        console.error("Failed to save session:", res.status, data);
-      } else {
-        console.log("Session saved successfully:", data);
-      }
-       const nextPath = getNextGamePath("color_number_reaction");
+    );
 
-        if (nextPath) {
-          navigate(nextPath);
-             }
-    } catch (err) {
-      console.error("Failed to save session:", err);
+    const data = await res.json();
+
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
+
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
     }
 
-    if (onComplete) onComplete(payload);
+    if (!res.ok) {
+      console.error(
+        "Failed to save session:",
+        res.status,
+        data
+      );
+      return;
+    }
+
+    console.log(
+      "Session saved successfully:",
+      data
+    );
 
     setPhase("done");
+
+    const nextPath = getNextGamePath(
+      "color_number_reaction"
+    );
+
+    if (nextPath) {
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 4000);
+    }
+  } catch (err) {
+    console.error(
+      "Failed to save session:",
+      err
+    );
   }
+}
 
   const round = ROUNDS[Math.min(roundIndex, ROUNDS.length - 1)];
   const avgReactionTimeMs = reactionTimesMs.length

@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
+
+import { completeAssessment } from "../utils/session";
 // Drop into client/src/games/RuleDiscovery.jsx
 // Same visual family as MultiSwitch/CPT — grid layout (arena + sidebar),
 // dark cards, mint/gold/red accents.
@@ -692,7 +694,7 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
     setTimeout(() => {
       if (endedRef.current) return;
       finishRound();
-    }, 1400);
+    }, 5000);
   }
 
   function finishRound() {
@@ -719,109 +721,180 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
     setTimeout(() => setFlash(false), 350);
   }
 
-  async function endGame() {
-    clearInterval(sessionTickRef.current);
+ async function endGame() {
+  clearInterval(sessionTickRef.current);
 
-    const finalScore = scoreRef.current;
-    const finalRulesSolved = rulesSolvedRef.current;
-    const finalClassificationCorrect = classificationCorrectRef.current;
-    const finalClassificationTotal = classificationTotalRef.current;
-    const finalTotalRuleGuesses = totalRuleGuessesRef.current;
-    const finalSolveTimesMs = solveTimesMsRef.current;
-    const finalClassifyReactionTimesMs = classifyReactionTimesMsRef.current;
+  const finalScore = scoreRef.current;
+  const finalRulesSolved = rulesSolvedRef.current;
+  const finalClassificationCorrect =
+    classificationCorrectRef.current;
+  const finalClassificationTotal =
+    classificationTotalRef.current;
+  const finalTotalRuleGuesses =
+    totalRuleGuessesRef.current;
+  const finalSolveTimesMs =
+    solveTimesMsRef.current;
+  const finalClassifyReactionTimesMs =
+    classifyReactionTimesMsRef.current;
 
-    const ruleDiscoveryAccuracy = Math.round((finalRulesSolved / ROUNDS_TOTAL) * 100);
-    const averageRuleGuesses = finalRulesSolved > 0 ? +(finalTotalRuleGuesses / finalRulesSolved).toFixed(2) : 0;
-    const averageDiscoveryTimeMs = finalSolveTimesMs.length
-      ? Math.round(finalSolveTimesMs.reduce((sum, t) => sum + t, 0) / finalSolveTimesMs.length)
+  const ruleDiscoveryAccuracy = Math.round(
+    (finalRulesSolved / ROUNDS_TOTAL) * 100
+  );
+
+  const averageRuleGuesses =
+    finalRulesSolved > 0
+      ? +(
+          finalTotalRuleGuesses / finalRulesSolved
+        ).toFixed(2)
       : 0;
-    const classificationAccuracy =
-      finalClassificationTotal > 0 ? Math.round((finalClassificationCorrect / finalClassificationTotal) * 100) : 0;
-    const avgClassifyReactionTimeMs = finalClassifyReactionTimesMs.length
+
+  const averageDiscoveryTimeMs =
+    finalSolveTimesMs.length
       ? Math.round(
-          finalClassifyReactionTimesMs.reduce((sum, t) => sum + t, 0) / finalClassifyReactionTimesMs.length
+          finalSolveTimesMs.reduce(
+            (sum, time) => sum + time,
+            0
+          ) / finalSolveTimesMs.length
         )
       : 0;
 
-    const payload = {
-      assessmentId: localStorage.getItem("assessmentId"),
-      gameId: "rule_discovery",
-      accuracy: ruleDiscoveryAccuracy,
-      avgTimeMs: averageDiscoveryTimeMs,
-      metrics: {
-        roundsTotal: ROUNDS_TOTAL,
-        rulesSolved: finalRulesSolved,
-        ruleDiscoveryAccuracy,
-        averageRuleGuesses,
-        averageDiscoveryTimeMs,
-        classificationCorrect: finalClassificationCorrect,
-        classificationTotal: finalClassificationTotal,
-        classificationAccuracy,
-        avgClassifyReactionTimeMs,
-        classifyReactionTimesMs: finalClassifyReactionTimesMs,
-        totalRuleGuesses: finalTotalRuleGuesses,
-        score: finalScore,
-        solveTimesMs: finalSolveTimesMs,
-        startedAt: startedAtRef.current,
-        endedAt: new Date().toISOString(),
-      },
-      completed: true,
-    };
+  const classificationAccuracy =
+    finalClassificationTotal > 0
+      ? Math.round(
+          (finalClassificationCorrect /
+            finalClassificationTotal) *
+            100
+        )
+      : 0;
 
-    console.log("Assessment ID:", localStorage.getItem("assessmentId"));
-    console.log("Payload being sent:", payload);
+  const avgClassifyReactionTimeMs =
+    finalClassifyReactionTimesMs.length
+      ? Math.round(
+          finalClassifyReactionTimesMs.reduce(
+            (sum, time) => sum + time,
+            0
+          ) /
+            finalClassifyReactionTimesMs.length
+        )
+      : 0;
 
-    try {
-      const res = await fetch("http://localhost:5000/api/sessions", {
+  const payload = {
+    assessmentId:
+      localStorage.getItem("assessmentId"),
+    gameId: "rule_discovery",
+    accuracy: ruleDiscoveryAccuracy,
+    avgTimeMs: averageDiscoveryTimeMs,
+    metrics: {
+      roundsTotal: ROUNDS_TOTAL,
+      rulesSolved: finalRulesSolved,
+      ruleDiscoveryAccuracy,
+      averageRuleGuesses,
+      averageDiscoveryTimeMs,
+      classificationCorrect:
+        finalClassificationCorrect,
+      classificationTotal:
+        finalClassificationTotal,
+      classificationAccuracy,
+      avgClassifyReactionTimeMs,
+      classifyReactionTimesMs:
+        finalClassifyReactionTimesMs,
+      totalRuleGuesses:
+        finalTotalRuleGuesses,
+      score: finalScore,
+      solveTimesMs: finalSolveTimesMs,
+      startedAt: startedAtRef.current,
+      endedAt: new Date().toISOString(),
+    },
+    completed: true,
+  };
+
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+  console.log("Payload being sent:", payload);
+
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/sessions",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
         },
         body: JSON.stringify(payload),
-      });
+      }
+    );
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("assessmentId");
-        alert("Your login session expired. Please log in again.");
-        window.location.href = "/";
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
+
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
+    }
+
+    if (!res.ok) {
+      console.error(
+        "Failed to save session:",
+        res.status,
+        data
+      );
+      return;
+    }
+
+    console.log(
+      "Session saved successfully:",
+      data
+    );
+
+    setPhase("done");
+
+    setTimeout(async () => {
+      const assessmentId =
+        localStorage.getItem("assessmentId");
+
+      if (!assessmentId) {
+        console.error(
+          "Assessment ID is missing."
+        );
         return;
       }
 
-     if (!res.ok) {
-  console.error("Failed to save session:", res.status, data);
-} else {
-  console.log("Session saved successfully:", data);
+      try {
+        await completeAssessment(assessmentId);
 
-  const assessmentId = localStorage.getItem("assessmentId");
+        console.log(
+          "Assessment completed successfully"
+        );
 
-  if (assessmentId) {
-    try {
-      await completeAssessment(assessmentId);
+        localStorage.removeItem("assessmentId");
 
-      console.log("Assessment completed successfully");
-
-      localStorage.removeItem("assessmentId");
-
-      navigate("/"); // Change this later if your results page has another route
-
-    } catch (err) {
-      console.error("Failed to complete assessment:", err);
-    }
+        navigate("/");
+      } catch (err) {
+        console.error(
+          "Failed to complete assessment:",
+          err
+        );
+      }
+    }, 10000);
+  } catch (err) {
+    console.error(
+      "Failed to save session:",
+      err
+    );
   }
 }
-       
-    } catch (err) {
-      console.error("Failed to save session:", err);
-    }
-
-    if (onComplete) onComplete(payload);
-    setPhase("done");
-  }
 
   const canGuess = testedLog.length >= MIN_TESTED_BEFORE_GUESS;
   const avgReactionTimeMs = classifyReactionTimesMs.length

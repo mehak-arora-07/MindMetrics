@@ -582,42 +582,53 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
   }
 
   async function endGame() {
-    const endedAt = new Date().toISOString();
-    const finalCorrectCount = correctCountRef.current;
-    const finalAttempts = attemptsRef.current;
-    const finalQuestionTimesMs = questionTimesMsRef.current;
-    const finalHighestLvl = highestLvlRef.current;
-    const finalScore = scoreRef.current;
+  const endedAt = new Date().toISOString();
 
-    const avgTimePerQuestionMs = finalQuestionTimesMs.length
-      ? Math.round(finalQuestionTimesMs.reduce((a, b) => a + b, 0) / finalQuestionTimesMs.length)
+  const finalCorrectCount = correctCountRef.current;
+  const finalAttempts = attemptsRef.current;
+  const finalQuestionTimesMs = questionTimesMsRef.current;
+  const finalHighestLvl = highestLvlRef.current;
+  const finalScore = scoreRef.current;
+
+  const avgTimePerQuestionMs = finalQuestionTimesMs.length
+    ? Math.round(
+        finalQuestionTimesMs.reduce((a, b) => a + b, 0) /
+          finalQuestionTimesMs.length
+      )
+    : 0;
+
+  const accuracy =
+    TOTAL_QUESTIONS > 0
+      ? Math.round(
+          (finalCorrectCount / TOTAL_QUESTIONS) * 100
+        )
       : 0;
-    const accuracy = TOTAL_QUESTIONS > 0 ? +(finalCorrectCount / TOTAL_QUESTIONS).toFixed(2) : 0;
 
-    // sessionData here is intentionally NOT the full API payload —
-    // saveGameSession() (in utils/session.js) attaches assessmentId and
-    // the auth token itself, reading them from the same localStorage
-    // App.jsx already manages. This keeps every game consistent instead
-    // of each one reimplementing the fetch/token/assessmentId logic.
-    const payload = {
-      assessmentId: localStorage.getItem("assessmentId"),
-      gameId: "pattern_sequence",
-      accuracy,
-      avgTimeMs: avgTimePerQuestionMs,
-      completed: true,
-      metrics: {
-        score: finalScore,
-        questionsTotal: TOTAL_QUESTIONS,
-        attempts: finalAttempts,
-        correct: finalCorrectCount,
-        avgTimePerQuestionMs,
-        highestLvl: finalHighestLvl,
-        startedAt: startedAtRef.current,
-        endedAt,
-      },
-    };
-    console.log("Assessment ID:", localStorage.getItem("assessmentId"));
-console.log("Payload being sent:", payload);
+  const payload = {
+    assessmentId: localStorage.getItem("assessmentId"),
+    gameId: "pattern_sequence",
+    accuracy,
+    avgTimeMs: avgTimePerQuestionMs,
+    completed: true,
+    metrics: {
+      score: finalScore,
+      questionsTotal: TOTAL_QUESTIONS,
+      attempts: finalAttempts,
+      correct: finalCorrectCount,
+      avgTimePerQuestionMs,
+      highestLvl: finalHighestLvl,
+      startedAt: startedAtRef.current,
+      endedAt,
+    },
+  };
+
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+
+  console.log("Payload being sent:", payload);
+
   try {
     const res = await fetch(
       "http://localhost:5000/api/sessions",
@@ -632,41 +643,53 @@ console.log("Payload being sent:", payload);
         body: JSON.stringify(payload),
       }
     );
-     const data = await res.json();
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          localStorage.removeItem("assessmentId");
 
-          alert("Your login session expired. Please log in again.");
-          window.location.href = "/";
-          return;
-        }
+    const data = await res.json();
+
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
+
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
+    }
+
     if (!res.ok) {
       console.error(
         "Failed to save session:",
         res.status,
         data
       );
-    } else {
-      console.log(
-        "Session saved successfully:",
-        data
-      )
-       const nextPath = getNextGamePath("pattern_sequence");
+      return;
+    }
 
-        if (nextPath) {
-          navigate(nextPath);
-        }
+    console.log(
+      "Session saved successfully:",
+      data
+    );
+
+    setPhase("done");
+
+    const nextPath =
+      getNextGamePath("pattern_sequence");
+
+    if (nextPath) {
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 4000);
     }
   } catch (err) {
-    console.error("Failed to save session:", err);
+    console.error(
+      "Failed to save session:",
+      err
+    );
   }
-
-  if (onComplete) onComplete(payload);
-
-  setPhase("done");
-  }
+}
 
   const avgTimePerQuestionMs = questionTimesMs.length
     ? Math.round(questionTimesMs.reduce((a, b) => a + b, 0) / questionTimesMs.length)

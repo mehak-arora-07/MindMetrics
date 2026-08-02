@@ -672,48 +672,57 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
   }
 
   async function endGame() {
-    clearInterval(sessionTickRef.current);
-    const endedAt = new Date().toISOString();
-    // Read from refs, not state — see the comment on the ref declarations
-    // above for why the state values here can't be trusted at this point.
-    const finalHits = hitsRef.current;
-    const finalMisses = missesRef.current;
-    const finalFalsePositives = falsePositivesRef.current;
-    const finalReactionTimesMs = reactionTimesMsRef.current;
-    const finalTotalTrueTargets = totalTrueTargetsRef.current;
-    const finalScore = scoreRef.current;
+  clearInterval(sessionTickRef.current);
 
-    const avgReactionMs = finalReactionTimesMs.length
-      ? Math.round(finalReactionTimesMs.reduce((a, b) => a + b, 0) / finalReactionTimesMs.length)
+  const endedAt = new Date().toISOString();
+
+  const finalHits = hitsRef.current;
+  const finalMisses = missesRef.current;
+  const finalFalsePositives = falsePositivesRef.current;
+  const finalReactionTimesMs = reactionTimesMsRef.current;
+  const finalTotalTrueTargets = totalTrueTargetsRef.current;
+  const finalScore = scoreRef.current;
+
+  const avgReactionMs = finalReactionTimesMs.length
+    ? Math.round(
+        finalReactionTimesMs.reduce((a, b) => a + b, 0) /
+          finalReactionTimesMs.length
+      )
+    : 0;
+
+  const accuracy =
+    finalTotalTrueTargets > 0
+      ? Math.round(
+          (finalHits / finalTotalTrueTargets) * 100
+        )
       : 0;
-    const accuracy = finalTotalTrueTargets > 0 ? +(finalHits / finalTotalTrueTargets).toFixed(2) : 0;
 
-    // sessionData here is intentionally NOT the full API payload —
-    // saveGameSession() (in utils/session.js) attaches assessmentId and
-    // the auth token itself, reading them from the same localStorage
-    // App.jsx already manages. This keeps every game consistent instead
-    // of each one reimplementing the fetch/token/assessmentId logic.
-    const payload = {
-      assessmentId: localStorage.getItem("assessmentId"),
-      gameId: "cpt",
-      accuracy,
-      avgTimeMs: avgReactionMs,
-      metrics: {
-        score: finalScore,
-        roundsCompleted: TOTAL_ROUNDS,
-        totalTrueTargets: finalTotalTrueTargets,
-        hits: finalHits,
-        misses: finalMisses,
-        falsePositives: finalFalsePositives,
-        avgReactionMs,
-        reactionTimesMs: finalReactionTimesMs,
-        startedAt: startedAtRef.current,
-        endedAt,
-      },
-            completed: true,
-    };
-console.log("Assessment ID:", localStorage.getItem("assessmentId"));
-console.log("Payload being sent:", payload);
+  const payload = {
+    assessmentId: localStorage.getItem("assessmentId"),
+    gameId: "cpt",
+    accuracy,
+    avgTimeMs: avgReactionMs,
+    metrics: {
+      score: finalScore,
+      roundsCompleted: TOTAL_ROUNDS,
+      totalTrueTargets: finalTotalTrueTargets,
+      hits: finalHits,
+      misses: finalMisses,
+      falsePositives: finalFalsePositives,
+      avgReactionMs,
+      reactionTimesMs: finalReactionTimesMs,
+      startedAt: startedAtRef.current,
+      endedAt,
+    },
+    completed: true,
+  };
+
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+  console.log("Payload being sent:", payload);
+
   try {
     const res = await fetch(
       "http://localhost:5000/api/sessions",
@@ -729,41 +738,51 @@ console.log("Payload being sent:", payload);
       }
     );
 
-     const data = await res.json();
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          localStorage.removeItem("assessmentId");
+    const data = await res.json();
 
-          alert("Your login session expired. Please log in again.");
-          window.location.href = "/";
-          return;
-        }
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
+
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
+    }
+
     if (!res.ok) {
       console.error(
         "Failed to save session:",
         res.status,
         data
       );
-    } else {
-      console.log(
-        "Session saved successfully:",
-        data
-      )
-       const nextPath = getNextGamePath("cpt");
+      return;
+    }
 
-  if (nextPath) {
-    navigate(nextPath);
-  }
+    console.log(
+      "Session saved successfully:",
+      data
+    );
+
+    setPhase("done");
+
+    const nextPath = getNextGamePath("cpt");
+
+    if (nextPath) {
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 4000);
     }
   } catch (err) {
-    console.error("Failed to save session:", err);
+    console.error(
+      "Failed to save session:",
+      err
+    );
   }
-
-  if (onComplete) onComplete(payload);
-
-  setPhase("done");
-  }
+}
 
   const avgReactionMs = reactionTimesMs.length
     ? Math.round(reactionTimesMs.reduce((a, b) => a + b, 0) / reactionTimesMs.length)

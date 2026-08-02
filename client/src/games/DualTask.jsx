@@ -734,27 +734,32 @@ export default function DualTask({ onComplete, userId, assessmentId, onNextGame 
     : 0;
 
   const payload = {
-  assessmentId: localStorage.getItem("assessmentId"),
-  gameId: "dual_task",
-  accuracy,
-  avgTimeMs,
-  metrics: {
-    score,
-    maxPossibleScore: MAX_POSSIBLE_SCORE,
-    roundsPlayed: totalRoundsPlayed,
-    highestRoundReached: highestLevelReached,
-    maxSequenceLength,
-    memoryAccuracy,
-    mathAccuracy,
-    memoryCorrect: memoryCorrectCount,
-    mathCorrect: mathCorrectCount,
-    mathAnswered: mathTotalAnswered,
-    roundTimesMs: roundTimes,
-  },
-  completed: true,
-};
-console.log("Assessment ID:", localStorage.getItem("assessmentId"));
-console.log("Payload being sent:", payload);
+    assessmentId: localStorage.getItem("assessmentId"),
+    gameId: "dual_task",
+    accuracy,
+    avgTimeMs,
+    metrics: {
+      score,
+      maxPossibleScore: MAX_POSSIBLE_SCORE,
+      roundsPlayed: totalRoundsPlayed,
+      highestRoundReached: highestLevelReached,
+      maxSequenceLength,
+      memoryAccuracy,
+      mathAccuracy,
+      memoryCorrect: memoryCorrectCount,
+      mathCorrect: mathCorrectCount,
+      mathAnswered: mathTotalAnswered,
+      roundTimesMs: roundTimes,
+    },
+    completed: true,
+  };
+
+  console.log(
+    "Assessment ID:",
+    localStorage.getItem("assessmentId")
+  );
+  console.log("Payload being sent:", payload);
+
   try {
     const res = await fetch(
       "http://localhost:5000/api/sessions",
@@ -770,40 +775,50 @@ console.log("Payload being sent:", payload);
       }
     );
 
-     const data = await res.json();
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          localStorage.removeItem("assessmentId");
+    const data = await res.json();
 
-          alert("Your login session expired. Please log in again.");
-          window.location.href = "/";
-          return;
-        }
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("assessmentId");
+
+      alert(
+        "Your login session expired. Please log in again."
+      );
+
+      window.location.href = "/";
+      return;
+    }
+
     if (!res.ok) {
       console.error(
         "Failed to save session:",
         res.status,
         data
       );
-    } else {
-      console.log(
-        "Session saved successfully:",
-        data
-      )
-       const nextPath = getNextGamePath("dual_task");
+      return;
+    }
 
-  if (nextPath) {
-    navigate(nextPath);
-  }
+    console.log(
+      "Session saved successfully:",
+      data
+    );
+
+    setPhase("done");
+
+    const nextPath = getNextGamePath("dual_task");
+
+    if (nextPath) {
+      setTimeout(() => {
+        navigate(nextPath);
+      }, 4000);
     }
   } catch (err) {
-    console.error("Failed to save session:", err);
+    console.error(
+      "Failed to save session:",
+      err
+    );
   }
-
-  if (onComplete) onComplete(payload);
-
-  setPhase("done");
 }
 
   const round = ROUNDS[Math.min(roundIndex, ROUNDS.length - 1)];
