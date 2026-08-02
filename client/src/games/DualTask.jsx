@@ -951,7 +951,7 @@ console.log("Payload being sent:", payload);
               {memorySelected === memoryQuestion?.correctAnswer ? "Correct!" : "Not quite"}
             </div>
             <div className="cs-phase-label">
-              {round.label} round complete — next round starting…
+              {round.label} round complete
             </div>
           </div>
         )}

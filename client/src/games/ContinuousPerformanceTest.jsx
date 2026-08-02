@@ -906,7 +906,6 @@ console.log("Payload being sent:", payload);
           {phase === "roundEnd" && (
             <div className="cpt-center-msg">
               <h3>Round {roundIndex + 1} complete</h3>
-              <p>Next Round…</p>
             </div>
           )}
         </div>

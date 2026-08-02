@@ -1187,7 +1187,6 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
                 {set.label} complete
               </div>
             </div>
-            <div className="os-phase-label">Next Round…</div>
           </div>
         )}
 

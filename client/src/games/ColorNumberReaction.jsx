@@ -1025,7 +1025,6 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
           <div className="sr-board-area">
             <div className="sr-phase-label">{round.label} complete</div>
             <div className="sr-info-card sr-info-round">
-              <div className="sr-info-card-text">Nice work — next round starting…</div>
             </div>
           </div>
         )}

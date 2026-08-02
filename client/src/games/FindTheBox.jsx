@@ -844,7 +844,7 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
               {selected === question?.answer ? "Correct!" : "Not quite"}
             </div>
             <div className="fb-phase-label">
-              {round.label} complete — next round starting…
+              {round.label} complete
             </div>
           </div>
         )}

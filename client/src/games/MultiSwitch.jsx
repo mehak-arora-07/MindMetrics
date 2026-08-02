@@ -760,7 +760,7 @@ export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGa
         </button>
         {bankLoaded && (
           <p style={{ color: "#4B5468", fontSize: 11 }}>
-            {bankSource === "api" ? "Question bank loaded from database" : "Using offline question set"}
+            {bankSource === "api" ? "" : "Using offline question set"}
           </p>
         )}
       </div>
