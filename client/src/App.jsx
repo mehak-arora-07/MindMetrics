@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { getUser, getAssessmentId, startAssessment } from "./utils/session";
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
 import PatternSequence from "./games/PatternSequence";
@@ -8,7 +9,6 @@ import DualTask from "./games/DualTask";
 import CPT from "./games/ContinuousPerformanceTest";
 import KeepTrackTask from "./games/KeepTrackTask";
 import MultiSwitch from "./games/MultiSwitch";
-import { getUser, getAssessmentId, startAssessment } from "./utils/session";
 import FindTheBox from "./games/FindTheBox";
 import OperationSpanTask from "./games/OperationSpanTask"
 import RuleDiscovery from "./games/RuleDiscovery";

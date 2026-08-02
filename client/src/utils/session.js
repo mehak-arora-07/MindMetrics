@@ -103,3 +103,28 @@ export async function saveGameSession(sessionData) {
 
   return data.session;
 }
+
+export async function completeAssessment(assessmentId) {
+  const res = await fetch(
+    `${API_BASE}/api/assessments/${assessmentId}/complete`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(
+      data.message ||
+      data.error ||
+      "Failed to complete assessment"
+    );
+  }
+
+  return data.assessment;
+}
