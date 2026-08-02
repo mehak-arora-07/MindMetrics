@@ -407,6 +407,11 @@ html, body, #root {
   cursor: default;
 }
 
+.fb-btn-row {
+  display: flex;
+  gap: 12px;
+}
+
 .fb-results-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -433,7 +438,7 @@ function getResultCopy(score) {
   return { title: "Sharp eye, sharp mind 🔎" };
 }
 
-export default function FindTheBox({ onComplete, userId, assessmentId }) {
+export default function FindTheBox({ onComplete, onNextGame, userId, assessmentId }) {
   const [phase, setPhase] = useState("instructions"); // instructions | question | reveal | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [question, setQuestion] = useState(null);
@@ -475,22 +480,15 @@ export default function FindTheBox({ onComplete, userId, assessmentId }) {
   // shown, with a retry) until this actually succeeds.
   function loadQuestionBank() {
     setBankError(null);
-    fetch("http://localhost:5000/api/questions/find_the_box", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Bad status ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (!Array.isArray(data) || data.length === 0) {
-          throw new Error("Question bank came back empty");
+    fetch("http://localhost:5000/api/questions/find_the_box")
+      .then((res) => res.json())
+      .then((result) => {
+        if (!result.success || !result.questions || result.questions.length === 0) {
+          throw new Error("Bank empty or request unsuccessful");
         }
         // DB shape: { questionId, gameId, difficulty, data: { prompt, hint, answer } }
         // Internal shape the game logic already uses: { id, tier, prompt, hint, answer }
-        const mapped = data.map((q) => ({
+        const mapped = result.questions.map((q) => ({
           id: q.questionId,
           tier: q.difficulty,
           prompt: q.data.prompt,
@@ -855,9 +853,13 @@ export default function FindTheBox({ onComplete, userId, assessmentId }) {
                 <div className="value">{wrongCount + timeoutCount}</div>
               </div>
             </div>
-            <button className="fb-btn" onClick={() => setPhase("instructions")}>
-              Play Again
-            </button>
+            <div className="fb-btn-row">
+              {onNextGame && (
+                <button className="fb-btn" onClick={onNextGame}>
+                  Next Game →
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -530,19 +530,24 @@ html, body, #root {
   cursor: pointer;
 }
 
+.kt-btn-row {
+  display: flex;
+  gap: 12px;
+}
+
 .kt-results-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   width: 100%;
-  max-width: 320px;
+  max-width: 420px;
 }
 
 .kt-results-grid div {
   background: #0B0F19;
   border: 1px solid #232A3D;
   border-radius: 8px;
-  padding: 10px;
+  padding: 12px;
 }
 
 .kt-results-grid .label { color: #8B93A7; font-size: 11px; }
@@ -560,7 +565,7 @@ function getResultCopy(score) {
   return { title: "Sharp memomry" };
 }
 
-export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
+export default function KeepTrackTask({ onComplete, onNextGame, userId, assessmentId }) {
   const [phase, setPhase] = useState("instructions"); // instructions | streaming | question | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [categories, setCategories] = useState([]);
@@ -842,11 +847,19 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
           <div className="kt-arena-header">
             <div>
               <h2>Keep Track Task</h2>
-              <p>Watch the stream, keep track, then recall.</p>
             </div>
             <div className={`kt-badge ${phase === "streaming" ? "" : "warn"}`}>
-              Round {roundIndex + 1}/{ROUNDS.length} • {round.label}
+              Round {roundIndex + 1} of {ROUNDS.length}
             </div>
+          </div>
+        )}
+
+        {phase !== "done" && (
+          <div className="kt-progress-bar" style={{ margin: "4px 24px 0" }}>
+            <div
+              className="kt-progress-fill"
+              style={{ width: `${(roundIndex / ROUNDS.length) * 100}%` }}
+            />
           </div>
         )}
 
@@ -911,9 +924,13 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
                 <div className="value">{avgTime}ms</div>
               </div>
             </div>
-            <button className="kt-btn" onClick={() => setPhase("instructions")}>
-              Play Again
-            </button>
+            <div className="kt-btn-row">
+              {onNextGame && (
+                <button className="kt-btn" onClick={onNextGame}>
+                  Next Game →
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -930,20 +947,12 @@ export default function KeepTrackTask({ onComplete, userId, assessmentId }) {
           </div>
         </div>
         <div className="kt-stat">
-          <div className="label">Round</div>
-          <div className="value level">{Math.min(roundIndex + 1, ROUNDS.length)}/{ROUNDS.length}</div>
-        </div>
-        <div className="kt-stat">
           <div className="label">Score</div>
           <div className="value score">{score}</div>
         </div>
         <div className="kt-stat">
-          <div className="label">Recall Accuracy</div>
-          <div className="value">{recallAccuracy || 0}%</div>
-        </div>
-        <div className="kt-stat">
-          <div className="label">Incorrect Recalls</div>
-          <div className="value wrong">{incorrectCount}</div>
+          <div className="label">Avg Reaction Time</div>
+          <div className="value">{avgTime || 0}ms</div>
         </div>
       </div>
     </div>

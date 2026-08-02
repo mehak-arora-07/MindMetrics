@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import CNR_QUESTIONS_FALLBACK from "./cnr_questions.json";
 
 // Drop into client/src/games/ColorNumberReaction.jsx
 // Same visual family as DualTask/KeepTrackTask/OperationSpanTask/ContinuousPerformanceTest — dark arena, mint/gold/red accents.
@@ -12,21 +11,33 @@ import CNR_QUESTIONS_FALLBACK from "./cnr_questions.json";
 // only when both parts of the rule are true. No button, no click target —
 // same as the CPT game, response is keyboard-only.
 //
+// Two fast rounds. A fresh rule flashes before each round (2s), then trials
+// run until the round's timer runs out, then a brief round-break before the
+// next one starts.
+//
 // Matches the Sessions mongoose schema:
 //   { sessionId, userId, assessmentId, gameId, accuracy, avgTimeMs, metrics, completed }
 
-const SESSION_DURATION_MS = 30000; // ~30 seconds per the spec
-const RULE_FLASH_MS = 2500; // how long the rule is shown, alone, before trials start
-const STIMULUS_ON_MS = 900; // how long the color/number is visible
-const ISI_MS = 500; // blank gap between stimuli
-const TRIAL_SLOT_MS = STIMULUS_ON_MS + ISI_MS; // total time a trial "owns" for response purposes
-const TOTAL_TRIALS = Math.floor(SESSION_DURATION_MS / TRIAL_SLOT_MS);
+const ROUNDS = [
+  { label: "Round 1", durationMs: 14000, stimulusOnMs: 700, isiMs: 400 },
+  { label: "Round 2", durationMs: 13000, stimulusOnMs: 550, isiMs: 350 },
+];
+// how many trials each round gets through at its own pace
+ROUNDS.forEach((r) => {
+  r.trialSlotMs = r.stimulusOnMs + r.isiMs;
+  r.totalTrials = Math.floor(r.durationMs / r.trialSlotMs);
+});
+
+const RULE_FLASH_MS = 2000; // how long the rule is shown, alone, before trials start
+const ROUND_BREAK_MS = 800; // pause between rounds
 const GO_TRIAL_RATE = 0.3; // most trials should be no-go, so impulsive spacebar-mashing gets punished
 
 const CORRECT_POINTS = 10;
 const FALSE_CLICK_PENALTY = 5;
-const EXPECTED_GO_TRIALS = Math.round(TOTAL_TRIALS * GO_TRIAL_RATE);
-const MAX_POSSIBLE_SCORE = EXPECTED_GO_TRIALS * CORRECT_POINTS;
+const MAX_POSSIBLE_SCORE = ROUNDS.reduce(
+  (sum, r) => sum + Math.round(r.totalTrials * GO_TRIAL_RATE) * CORRECT_POINTS,
+  0
+);
 
 const COLORS = [
   { name: "RED", hex: "#F87171" },
@@ -36,9 +47,9 @@ const COLORS = [
   { name: "PURPLE", hex: "#A78BFA" },
 ];
 
-// The rule is picked once per playthrough for variety across sessions, but
-// stays fixed for the whole 30 seconds — same as a real Stroop/go-no-go
-// block, the rule doesn't change mid-run.
+// The rule is re-picked at the start of every round, so it can (but doesn't
+// have to) change round to round — same "stay sharp, the rule can move"
+// pressure the CPT game uses across its rounds.
 const RULES = COLORS.flatMap((c) => [
   { targetColor: c.name, parity: "even", label: `Color is ${c.name} AND Number is EVEN` },
   { targetColor: c.name, parity: "odd", label: `Color is ${c.name} AND Number is ODD` },
@@ -62,10 +73,12 @@ function pickNumberWithParity(parity) {
   const n = randInt(0, 9);
   const isEven = n % 2 === 0;
   if ((parity === "even") === isEven) return n;
-  // nudge to the other parity, staying in 0-9
   return n === 9 ? 8 : n + 1;
 }
 
+// Fallback ONLY — used if GET /api/questions/color_number_reaction can't be
+// reached or returns no questions. The real stimulus bank (word, inkColor,
+// number, congruent) is fetched from the DB in the component below.
 function buildStimulusProcedural(rule, forceGo) {
   let inkColor, number;
 
@@ -73,7 +86,6 @@ function buildStimulusProcedural(rule, forceGo) {
     inkColor = COLORS.find((c) => c.name === rule.targetColor);
     number = pickNumberWithParity(rule.parity);
   } else {
-    // build a random stimulus, then nudge it off-rule if it accidentally matches
     inkColor = randomColor();
     number = randInt(0, 9);
     if (matchesRule(rule, inkColor.name, number)) {
@@ -82,42 +94,9 @@ function buildStimulusProcedural(rule, forceGo) {
     }
   }
 
-  const word = randomColor().name; // the printed word — a distractor, independent of ink color
+  const word = randomColor().name;
   const isGo = matchesRule(rule, inkColor.name, number);
   return { word, inkColor, number, isGo };
-}
-
-// Picks a stimulus straight from the loaded question bank (DB-backed, with
-// the local JSON as a fallback — see the loadQuestionBank effect below).
-// Every bank entry already has word/inkColor/number fixed; whether it's a
-// go or no-go trial still depends on whichever rule got picked for this
-// playthrough, so that's evaluated here rather than stored in the bank.
-function pickStimulusFromBank(rule, forceGo, bank) {
-  const candidates = bank.filter((entry) => {
-    const isGo = matchesRule(rule, entry.data.inkColor, entry.data.number);
-    return forceGo ? isGo : !isGo;
-  });
-  if (candidates.length === 0) return null;
-
-  const chosen = candidates[randInt(0, candidates.length - 1)];
-  const inkColor = COLORS.find((c) => c.name === chosen.data.inkColor);
-  return {
-    word: chosen.data.word,
-    inkColor,
-    number: chosen.data.number,
-    isGo: forceGo,
-  };
-}
-
-function buildStimulus(rule, forceGo, bank) {
-  if (bank && bank.length) {
-    const fromBank = pickStimulusFromBank(rule, forceGo, bank);
-    if (fromBank) return fromBank;
-    // that exact color+parity combo wasn't in the bank (e.g. a sparsely
-    // sampled Hard-tier one) — fall back to generating it on the fly so
-    // the go/no-go ratio still holds.
-  }
-  return buildStimulusProcedural(rule, forceGo);
 }
 
 const styles = `
@@ -164,17 +143,6 @@ html, body, #root {
   max-width: 460px;
   margin: 0;
   line-height: 1.6;
-}
-
-.sr-rule-callout {
-  background: rgba(52, 211, 153, 0.1);
-  border: 1px solid rgba(52, 211, 153, 0.35);
-  color: #34D399;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 10px 18px;
-  border-radius: 10px;
-  max-width: 420px;
 }
 
 .sr-intro-cards {
@@ -293,6 +261,13 @@ html, body, #root {
   max-width: 340px;
 }
 
+.sr-badge-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
 .sr-badge {
   background: rgba(52, 211, 153, 0.12);
   border: 1px solid rgba(52, 211, 153, 0.35);
@@ -302,6 +277,12 @@ html, body, #root {
   padding: 6px 12px;
   border-radius: 20px;
   white-space: nowrap;
+}
+
+.sr-badge.round {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: #60A5FA;
 }
 
 .sr-board-area {
@@ -376,7 +357,7 @@ html, body, #root {
   pointer-events: none;
 }
 
-.sr-rule-flash-card {
+.sr-info-card {
   max-width: 440px;
   background: rgba(52, 211, 153, 0.08);
   border: 1px solid rgba(52, 211, 153, 0.4);
@@ -384,11 +365,21 @@ html, body, #root {
   padding: 32px 36px;
 }
 
-.sr-rule-flash-text {
+.sr-info-card.sr-info-round {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.sr-info-card-text {
   color: #34D399;
   font-size: 24px;
   font-weight: 800;
   line-height: 1.4;
+}
+
+.sr-info-round .sr-info-card-text {
+  color: #60A5FA;
+  font-size: 20px;
 }
 
 .sr-sidebar {
@@ -473,6 +464,23 @@ html, body, #root {
   cursor: default;
 }
 
+.sr-btn-secondary {
+  background: transparent;
+  color: #E5E7EB;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.sr-btn-row {
+  display: flex;
+  gap: 12px;
+}
+
 .sr-results-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -503,13 +511,12 @@ function getResultCopy(score) {
   return { title: "Razor-sharp focus ⚡" };
 }
 
-export default function ColorNumberReaction({ onComplete, userId, assessmentId }) {
-  const [phase, setPhase] = useState("instructions"); // instructions | ruleFlash | playing | done
+export default function ColorNumberReaction({ onComplete, onNextGame, userId, assessmentId }) {
+  const [phase, setPhase] = useState("instructions"); // instructions | ruleFlash | playing | roundBreak | done
+  const [roundIndex, setRoundIndex] = useState(0);
   const [rule, setRule] = useState(null);
   const [ruleFlashMsLeft, setRuleFlashMsLeft] = useState(RULE_FLASH_MS);
   const [stimulus, setStimulus] = useState(null); // null while blank (ISI)
-  const [bankLoaded, setBankLoaded] = useState(false);
-  const [bankSource, setBankSource] = useState(null); // "api" | "local"
   const [flashGood, setFlashGood] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [falseClicks, setFalseClicks] = useState(0);
@@ -518,69 +525,95 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
   const [score, setScore] = useState(0);
   const [shake, setShake] = useState(false);
   const [flash, setFlash] = useState(false);
-  const [timeLeftMs, setTimeLeftMs] = useState(SESSION_DURATION_MS);
+  const [roundTimeLeftMs, setRoundTimeLeftMs] = useState(ROUNDS[0].durationMs);
+  const [bankLoaded, setBankLoaded] = useState(false);
+  const [bankSource, setBankSource] = useState(null); // "api" | "local"
 
   const ruleRef = useRef(null);
-  const questionBankRef = useRef([]);
+  const roundIndexRef = useRef(0);
   const trialCountRef = useRef(0);
   const currentTrialRef = useRef(null); // { isGo, responded, startTime }
   const endedRef = useRef(false);
+  const roundEndingRef = useRef(false);
   const startedAtRef = useRef(null);
-  const sessionTickRef = useRef(null);
+  const roundTickRef = useRef(null);
   const ruleFlashTickRef = useRef(null);
   const trialTimeoutRef = useRef(null);
   const hideTimeoutRef = useRef(null);
 
-  // Mirrors of the metric state — trials are driven by a setTimeout chain,
-  // so endGame() (reached from inside that chain, or from the separate
-  // session-tick interval) can't trust React state to be current. Same
-  // ref-mirror pattern as OperationSpanTask/KeepTrackTask.
+  // Question bank (fetched from the DB). Mirrored into a ref so
+  // pickStimulus() — called from deep inside setTimeout chains — always
+  // reads the latest pool instead of whatever it was when that particular
+  // closure was created. Same pattern as OperationSpanTask.
+  const masterStimulusPoolRef = useRef([]);
+  const usedQuestionIdsRef = useRef(new Set());
+
+  // Mirrors of the metric state, for the same reason.
   const scoreRef = useRef(0);
   const correctCountRef = useRef(0);
   const falseClicksRef = useRef(0);
   const missedResponsesRef = useRef(0);
   const correctRejectionsRef = useRef(0);
   const reactionTimesMsRef = useRef([]);
+  const roundsCompletedRef = useRef(0);
+  const rulesUsedRef = useRef([]);
 
-  // Load the stimulus bank once on mount. Tries the DB-backed endpoint
-  // first; if that's unreachable, missing, or empty, falls back to the
-  // local cnr_questions.json bundled with the component so the game is
-  // never blocked by a network hiccup.
+  // ---- Load real stimuli from the DB on mount ----
   useEffect(() => {
-    let cancelled = false;
-
     async function loadQuestionBank() {
       try {
-        const res = await fetch("http://localhost:5000/api/questions/color_number_reaction", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        if (!res.ok) throw new Error(`Bad status ${res.status}`);
-        const data = await res.json();
-        if (!Array.isArray(data) || data.length === 0) throw new Error("Empty question bank");
+        const res = await fetch("http://localhost:5000/api/questions/color_number_reaction");
+        const result = await res.json();
 
-        if (!cancelled) {
-          questionBankRef.current = data;
-          setBankSource("api");
-          console.log(`Loaded ${data.length} Color & Number stimuli from the API.`);
+        if (!result.success || !result.questions || result.questions.length === 0) {
+          throw new Error("Bank empty or request unsuccessful");
         }
+
+        const normalized = result.questions.map((q) => ({
+          questionId: q.questionId,
+          word: q.data.word,
+          inkColor: q.data.inkColor,
+          number: q.data.number,
+        }));
+
+        masterStimulusPoolRef.current = normalized;
+        setBankSource("api");
       } catch (err) {
-        console.warn("Falling back to the local question bank:", err.message);
-        if (!cancelled) {
-          questionBankRef.current = CNR_QUESTIONS_FALLBACK;
-          setBankSource("local");
-        }
+        console.warn("Falling back to the local stimulus generator — bank fetch failed:", err.message);
+        masterStimulusPoolRef.current = [];
+        setBankSource("local");
       } finally {
-        if (!cancelled) setBankLoaded(true);
+        setBankLoaded(true);
+      }
+    }
+    loadQuestionBank();
+  }, []);
+
+  // Picks the next stimulus for a trial. Prefers unused DB entries that
+  // satisfy the go/no-go requirement for this trial; falls back to any DB
+  // entry that satisfies it once the unused ones run out; falls back to the
+  // local generator only if nothing in the bank fits (or the bank is empty).
+  function pickStimulus(currentRule, forceGo) {
+    const pool = masterStimulusPoolRef.current;
+
+    if (pool.length > 0) {
+      const matching = pool.filter((q) => {
+        const isGo = matchesRule(currentRule, q.inkColor, q.number);
+        return forceGo ? isGo : !isGo;
+      });
+      const unused = matching.filter((q) => !usedQuestionIdsRef.current.has(q.questionId));
+      const candidates = unused.length > 0 ? unused : matching;
+
+      if (candidates.length > 0) {
+        const chosen = candidates[randInt(0, candidates.length - 1)];
+        usedQuestionIdsRef.current.add(chosen.questionId);
+        const inkColor = COLORS.find((c) => c.name === chosen.inkColor);
+        return { word: chosen.word, inkColor, number: chosen.number, isGo: forceGo };
       }
     }
 
-    loadQuestionBank();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    return buildStimulusProcedural(currentRule, forceGo);
+  }
 
   const triggerShake = () => {
     setShake(true);
@@ -595,17 +628,18 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
     setTimeout(() => setFlashGood(false), 250);
   };
 
-  function scheduleNextTrial() {
-    if (endedRef.current) return;
-    if (trialCountRef.current >= TOTAL_TRIALS) {
-      endedRef.current = true;
-      endGame();
+  function scheduleNextTrial(roundIdx) {
+    if (endedRef.current || roundEndingRef.current) return;
+    const round = ROUNDS[roundIdx];
+
+    if (trialCountRef.current >= round.totalTrials) {
+      endRound(roundIdx);
       return;
     }
 
     trialCountRef.current += 1;
     const forceGo = Math.random() < GO_TRIAL_RATE;
-    const stim = buildStimulus(ruleRef.current, forceGo, questionBankRef.current);
+    const stim = pickStimulus(ruleRef.current, forceGo);
 
     currentTrialRef.current = {
       isGo: stim.isGo,
@@ -616,12 +650,12 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
     setFlashGood(false);
 
     hideTimeoutRef.current = setTimeout(() => {
-      if (endedRef.current) return;
+      if (endedRef.current || roundEndingRef.current) return;
       setStimulus(null);
-    }, STIMULUS_ON_MS);
+    }, round.stimulusOnMs);
 
     trialTimeoutRef.current = setTimeout(() => {
-      if (endedRef.current) return;
+      if (endedRef.current || roundEndingRef.current) return;
       const trial = currentTrialRef.current;
       if (trial && !trial.responded) {
         if (trial.isGo) {
@@ -634,8 +668,8 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
         }
       }
       currentTrialRef.current = null;
-      scheduleNextTrial();
-    }, TRIAL_SLOT_MS);
+      scheduleNextTrial(roundIdx);
+    }, round.trialSlotMs);
   }
 
   function handleRespond() {
@@ -688,31 +722,86 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
-  // overall session countdown (backstop in case the trial chain runs long)
+  // per-round countdown (backstop — the trial-count loop above ends the
+  // round on its own; this just covers any drift and drives the sidebar)
   useEffect(() => {
     if (phase !== "playing") return;
-    sessionTickRef.current = setInterval(() => {
-      setTimeLeftMs((t) => {
+    roundTickRef.current = setInterval(() => {
+      setRoundTimeLeftMs((t) => {
         const next = t - 200;
         if (next <= 0) {
-          clearInterval(sessionTickRef.current);
-          if (!endedRef.current) {
-            endedRef.current = true;
-            endGame();
-          }
+          clearInterval(roundTickRef.current);
+          if (!endedRef.current) endRound(roundIndexRef.current);
           return 0;
         }
         return next;
       });
     }, 200);
-    return () => clearInterval(sessionTickRef.current);
+    return () => clearInterval(roundTickRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
-  function startGame() {
-    endedRef.current = false;
+  function beginRound(idx) {
+    roundIndexRef.current = idx;
+    roundEndingRef.current = false;
     trialCountRef.current = 0;
     currentTrialRef.current = null;
+    setStimulus(null);
+    setRoundIndex(idx);
+    setRoundTimeLeftMs(ROUNDS[idx].durationMs);
+
+    const chosenRule = RULES[randInt(0, RULES.length - 1)];
+    ruleRef.current = chosenRule;
+    setRule(chosenRule);
+    rulesUsedRef.current = [...rulesUsedRef.current, chosenRule.label];
+
+    setPhase("ruleFlash");
+    setRuleFlashMsLeft(RULE_FLASH_MS);
+
+    ruleFlashTickRef.current = setInterval(() => {
+      setRuleFlashMsLeft((t) => {
+        const next = t - 100;
+        if (next <= 0) {
+          clearInterval(ruleFlashTickRef.current);
+          setPhase("playing");
+          scheduleNextTrial(idx);
+          return 0;
+        }
+        return next;
+      });
+    }, 100);
+  }
+
+  function endRound(roundIdx) {
+    if (roundEndingRef.current) return;
+    roundEndingRef.current = true;
+    clearInterval(roundTickRef.current);
+    clearTimeout(trialTimeoutRef.current);
+    clearTimeout(hideTimeoutRef.current);
+    currentTrialRef.current = null;
+    setStimulus(null);
+    roundsCompletedRef.current += 1;
+
+    const nextIdx = roundIdx + 1;
+    if (nextIdx >= ROUNDS.length) {
+      endedRef.current = true;
+      endGame();
+      return;
+    }
+
+    setPhase("roundBreak");
+    setTimeout(() => {
+      if (endedRef.current) return;
+      beginRound(nextIdx);
+    }, ROUND_BREAK_MS);
+  }
+
+  function startGame() {
+    endedRef.current = false;
+    roundsCompletedRef.current = 0;
+    rulesUsedRef.current = [];
+    usedQuestionIdsRef.current = new Set();
+
     scoreRef.current = 0;
     correctCountRef.current = 0;
     falseClicksRef.current = 0;
@@ -725,32 +814,13 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
     setFalseClicks(0);
     setMissedResponses(0);
     setReactionTimesMs([]);
-    setTimeLeftMs(SESSION_DURATION_MS);
-
-    const chosenRule = RULES[randInt(0, RULES.length - 1)];
-    ruleRef.current = chosenRule;
-    setRule(chosenRule);
 
     startedAtRef.current = new Date().toISOString();
-    setPhase("ruleFlash");
-    setRuleFlashMsLeft(RULE_FLASH_MS);
-
-    ruleFlashTickRef.current = setInterval(() => {
-      setRuleFlashMsLeft((t) => {
-        const next = t - 100;
-        if (next <= 0) {
-          clearInterval(ruleFlashTickRef.current);
-          setPhase("playing");
-          scheduleNextTrial();
-          return 0;
-        }
-        return next;
-      });
-    }, 100);
+    beginRound(0);
   }
 
   async function endGame() {
-    clearInterval(sessionTickRef.current);
+    clearInterval(roundTickRef.current);
     clearInterval(ruleFlashTickRef.current);
     clearTimeout(trialTimeoutRef.current);
     clearTimeout(hideTimeoutRef.current);
@@ -783,7 +853,9 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
       metrics: {
         score: finalScore,
         maxPossibleScore: MAX_POSSIBLE_SCORE,
-        rule: ruleRef.current ? ruleRef.current.label : null,
+        roundsCompleted: roundsCompletedRef.current,
+        totalRounds: ROUNDS.length,
+        rulesUsed: rulesUsedRef.current,
         questionSource: bankSource,
         correctResponses: finalCorrect,
         falseClicks: finalFalseClicks,
@@ -835,9 +907,14 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
     setPhase("done");
   }
 
+  const round = ROUNDS[Math.min(roundIndex, ROUNDS.length - 1)];
   const avgReactionTimeMs = reactionTimesMs.length
     ? Math.round(reactionTimesMs.reduce((a, b) => a + b, 0) / reactionTimesMs.length)
     : 0;
+  const accuracyLive = (() => {
+    const total = correctCount + falseClicks + missedResponses;
+    return total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  })();
 
   if (phase === "instructions") {
     return (
@@ -847,9 +924,8 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
         <p className="sub">
           A color word and a number appear together. The word's text can be
           misleading — a trap. What matters is the ink color you see and the
-          number's parity. Press SPACE only when the rule is true. It's a
-          {" "}
-          {Math.round(SESSION_DURATION_MS / 1000)}-second sprint.
+          number's parity. Press SPACE only when the rule is true. Two fast
+          rounds, a fresh rule flashes before each one.
         </p>
         <div className="sr-intro-cards">
           <div className="sr-intro-card">
@@ -888,15 +964,18 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
               <h2>Color &amp; Number Reaction</h2>
               <p>Press SPACE only when the rule is true.</p>
             </div>
-            {rule && phase === "playing" && <div className="sr-badge">{rule.label}</div>}
+            <div className="sr-badge-row">
+              <div className="sr-badge round">Round {roundIndex + 1}/{ROUNDS.length}</div>
+              {rule && phase === "playing" && <div className="sr-badge">{rule.label}</div>}
+            </div>
           </div>
         )}
 
         {phase === "ruleFlash" && rule && (
           <div className="sr-board-area">
             <div className="sr-phase-label">Remember this rule</div>
-            <div className="sr-rule-flash-card">
-              <div className="sr-rule-flash-text">{rule.label}</div>
+            <div className="sr-info-card">
+              <div className="sr-info-card-text">{rule.label}</div>
             </div>
             <div className="sr-progress-bar" style={{ maxWidth: 320, width: "100%" }}>
               <div
@@ -925,6 +1004,15 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
           </div>
         )}
 
+        {phase === "roundBreak" && (
+          <div className="sr-board-area">
+            <div className="sr-phase-label">{round.label} complete</div>
+            <div className="sr-info-card sr-info-round">
+              <div className="sr-info-card-text">Nice work — next round starting…</div>
+            </div>
+          </div>
+        )}
+
         {phase === "done" && (
           <div className="sr-center-msg">
             <h2>{getResultCopy(score).title}</h2>
@@ -932,6 +1020,10 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
               <div>
                 <div className="label">Score</div>
                 <div className="value">{score}</div>
+              </div>
+              <div>
+                <div className="label">Accuracy</div>
+                <div className="value">{accuracyLive}%</div>
               </div>
               <div>
                 <div className="label">Correct Responses</div>
@@ -949,48 +1041,40 @@ export default function ColorNumberReaction({ onComplete, userId, assessmentId }
                 <div className="label">Avg Reaction Time</div>
                 <div className="value">{avgReactionTimeMs}ms</div>
               </div>
-              <div>
-                <div className="label">Rule Used</div>
-                <div className="value" style={{ fontSize: 12 }}>
-                  {rule ? rule.label : "—"}
-                </div>
-              </div>
             </div>
-            <button className="sr-btn" onClick={() => setPhase("instructions")}>
-              Play Again
-            </button>
+            <div className="sr-btn-row">
+              {onNextGame && (
+                <button className="sr-btn" onClick={onNextGame}>
+                  Next Game →
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
 
-      <div className="sr-sidebar">
-        <div className="sr-stat">
-          <div className="label">Time Left</div>
-          <div className="value">{Math.ceil(timeLeftMs / 1000)}s</div>
-          <div className="sr-progress-bar">
-            <div
-              className="sr-progress-fill timer"
-              style={{ width: `${(timeLeftMs / SESSION_DURATION_MS) * 100}%` }}
-            />
+      {phase !== "done" && (
+        <div className="sr-sidebar">
+          <div className="sr-stat">
+            <div className="label">Time Left</div>
+            <div className="value">{Math.ceil(roundTimeLeftMs / 1000)}s</div>
+            <div className="sr-progress-bar">
+              <div
+                className="sr-progress-fill timer"
+                style={{ width: `${(roundTimeLeftMs / round.durationMs) * 100}%` }}
+              />
+            </div>
+          </div>
+          <div className="sr-stat">
+            <div className="label">Score</div>
+            <div className="value score">{score}</div>
+          </div>
+          <div className="sr-stat">
+            <div className="label">Avg Reaction Time</div>
+            <div className="value">{avgReactionTimeMs || 0}ms</div>
           </div>
         </div>
-        <div className="sr-stat">
-          <div className="label">Score</div>
-          <div className="value score">{score}</div>
-        </div>
-        <div className="sr-stat">
-          <div className="label">Correct</div>
-          <div className="value good">{correctCount}</div>
-        </div>
-        <div className="sr-stat">
-          <div className="label">False Clicks</div>
-          <div className="value wrong">{falseClicks}</div>
-        </div>
-        <div className="sr-stat">
-          <div className="label">Missed</div>
-          <div className="value">{missedResponses}</div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

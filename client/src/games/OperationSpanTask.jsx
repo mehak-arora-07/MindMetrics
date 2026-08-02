@@ -533,18 +533,23 @@ html, body, #root {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   width: 100%;
-  max-width: 320px;
+  max-width: 420px;
 }
 
 .os-results-grid div {
   background: #0B0F19;
   border: 1px solid #232A3D;
   border-radius: 8px;
-  padding: 10px;
+  padding: 12px;
 }
 
 .os-results-grid .label { color: #8B93A7; font-size: 11px; }
 .os-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+
+.os-btn-row {
+  display: flex;
+  gap: 12px;
+}
 `;
 
 function getResultCopy(score) {
@@ -558,7 +563,7 @@ function getResultCopy(score) {
   return { title: "Exceptional working memory 🧠" };
 }
 
-export default function OperationSpanTask({ onComplete, userId, assessmentId }) {
+export default function OperationSpanTask({ onComplete, onNextGame, userId, assessmentId }) {
   const [phase, setPhase] = useState("instructions"); // instructions | math | letterFlash | recall | setBreak | done
   const [setIndex, setSetIndex] = useState(0);
   const [trialIndex, setTrialIndex] = useState(0);
@@ -735,7 +740,7 @@ export default function OperationSpanTask({ onComplete, userId, assessmentId }) 
 
     setTimeout(() => {
       if (endedRef.current) return;
-      flashLetter(setIndex, trialIdx);
+      flashLetter(setIndex, trialIndex);
     }, MATH_FEEDBACK_MS);
   }
 
@@ -1017,8 +1022,17 @@ export default function OperationSpanTask({ onComplete, userId, assessmentId }) 
               <p>Solve, remember, then recall the order.</p>
             </div>
             <div className={`os-badge ${set.mathDifficulty === "hard" ? "warn" : ""}`}>
-              Set {setIndex + 1}/{SETS.length} • {set.label}
+              Set {setIndex + 1} of {SETS.length}
             </div>
+          </div>
+        )}
+
+        {phase !== "done" && (
+          <div className="os-progress-bar" style={{ marginTop: 4, marginLeft: 24, marginRight: 24 }}>
+            <div
+              className="os-progress-fill"
+              style={{ width: `${(setIndex / SETS.length) * 100}%` }}
+            />
           </div>
         )}
 
@@ -1116,7 +1130,7 @@ export default function OperationSpanTask({ onComplete, userId, assessmentId }) 
                 {set.label} complete
               </div>
             </div>
-            <div className="os-phase-label">Next set starting…</div>
+            <div className="os-phase-label">Next Round starting…</div>
           </div>
         )}
 
@@ -1149,9 +1163,13 @@ export default function OperationSpanTask({ onComplete, userId, assessmentId }) 
                 <div className="value">{avgMathReactionMs}ms</div>
               </div>
             </div>
-            <button className="os-btn" onClick={() => setPhase("instructions")}>
-              Play Again
-            </button>
+            <div className="os-btn-row">
+              {onNextGame && (
+                <button className="os-btn" onClick={onNextGame}>
+                  Next Game →
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -1168,20 +1186,12 @@ export default function OperationSpanTask({ onComplete, userId, assessmentId }) 
           </div>
         </div>
         <div className="os-stat">
-          <div className="label">Set</div>
-          <div className="value level">{Math.min(setIndex + 1, SETS.length)}/{SETS.length}</div>
-        </div>
-        <div className="os-stat">
           <div className="label">Score</div>
           <div className="value score">{score}</div>
         </div>
         <div className="os-stat">
-          <div className="label">Processing Accuracy</div>
-          <div className="value">{processingAccuracy || 0}%</div>
-        </div>
-        <div className="os-stat">
-          <div className="label">Storage Accuracy</div>
-          <div className="value">{storageAccuracy || 0}%</div>
+          <div className="label">Avg Reaction Time</div>
+          <div className="value">{avgMathReactionMs || 0}ms</div>
         </div>
       </div>
     </div>

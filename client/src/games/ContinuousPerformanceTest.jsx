@@ -9,6 +9,10 @@ import { saveGameSession } from "../utils/session";
 // source is actually active ("loaded from database" vs "offline set").
 
 const TOTAL_ROUNDS = 5;
+const HIT_POINTS = 10;
+const MISS_PENALTY = -3;
+const FALSE_POSITIVE_PENALTY = -5;
+const SESSION_TIME_LIMIT_MS = 90000;
 
 // ---- Local rule bank (swap for a fetch once the backend endpoint exists) ----
 const RULE_BANK = [
@@ -185,6 +189,12 @@ html, body, #root {
 .cpt-btn:active { transform: scale(0.97); }
 .cpt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.cpt-btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
 .cpt-wrap {
   display: grid;
   grid-template-columns: 1fr 220px;
@@ -311,12 +321,18 @@ html, body, #root {
   background: #232A3D;
   border-radius: 5px;
   overflow: hidden;
+  margin-top: 8px;
 }
 
 .cpt-progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #34D399, #3B82F6);
   transition: width 0.15s linear;
+}
+
+.cpt-progress-fill.timer {
+  background: linear-gradient(90deg, #F59E0B, #F87171);
+  transition: width 1s linear;
 }
 
 .cpt-stat {
@@ -369,7 +385,7 @@ html, body, #root {
 .cpt-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
 `;
 
-export default function CPT({ onComplete, userId, assessmentId }) {
+export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | playing | roundEnd | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [rulesForRound, setRulesForRound] = useState([]);
@@ -389,6 +405,8 @@ export default function CPT({ onComplete, userId, assessmentId }) {
   const [falsePositives, setFalsePositives] = useState(0);
   const [reactionTimesMs, setReactionTimesMs] = useState([]);
   const [totalTrueTargets, setTotalTrueTargets] = useState(0);
+  const [score, setScore] = useState(0);
+  const [timeLeftMs, setTimeLeftMs] = useState(SESSION_TIME_LIMIT_MS);
 
   const startedAtRef = useRef(null);
   const streamRef = useRef([]);
@@ -411,6 +429,9 @@ export default function CPT({ onComplete, userId, assessmentId }) {
   const falsePositivesRef = useRef(0);
   const reactionTimesMsRef = useRef([]);
   const totalTrueTargetsRef = useRef(0);
+  const scoreRef = useRef(0);
+  const sessionTickRef = useRef(null);
+  const endedRef = useRef(false);
 
   // ---- Loading rules from the real question bank ----
   useEffect(() => {
@@ -451,11 +472,15 @@ export default function CPT({ onComplete, userId, assessmentId }) {
     setFalsePositives(0);
     setReactionTimesMs([]);
     setTotalTrueTargets(0);
+    setScore(0);
+    setTimeLeftMs(SESSION_TIME_LIMIT_MS);
+    endedRef.current = false;
     hitsRef.current = 0;
     missesRef.current = 0;
     falsePositivesRef.current = 0;
     reactionTimesMsRef.current = [];
     totalTrueTargetsRef.current = 0;
+    scoreRef.current = 0;
     const freshPool = [...masterPool];
     setRuleBankPool(freshPool);
     startedAtRef.current = new Date().toISOString();
@@ -519,6 +544,10 @@ export default function CPT({ onComplete, userId, assessmentId }) {
         hitsRef.current = h + 1;
         return h + 1;
       });
+      setScore((s) => {
+        scoreRef.current = s + HIT_POINTS;
+        return s + HIT_POINTS;
+      });
       setFlash("hit");
       spawnBurst("#34D399");
     } else if (wasTrueTarget && !clicked) {
@@ -526,11 +555,19 @@ export default function CPT({ onComplete, userId, assessmentId }) {
         missesRef.current = m + 1;
         return m + 1;
       });
+      setScore((s) => {
+        scoreRef.current = s + MISS_PENALTY;
+        return s + MISS_PENALTY;
+      });
       setFlash("miss");
     } else if (!wasTrueTarget && clicked) {
       setFalsePositives((f) => {
         falsePositivesRef.current = f + 1;
         return f + 1;
+      });
+      setScore((s) => {
+        scoreRef.current = s + FALSE_POSITIVE_PENALTY;
+        return s + FALSE_POSITIVE_PENALTY;
       });
       setFlash("fp");
       triggerShake();
@@ -565,7 +602,10 @@ export default function CPT({ onComplete, userId, assessmentId }) {
     setTimeout(() => {
       const next = justFinishedIdx + 1;
       if (next >= TOTAL_ROUNDS) {
-        endGame();
+        if (!endedRef.current) {
+          endedRef.current = true;
+          endGame();
+        }
       } else {
         setRoundIndex(next);
         beginRound(next, poolAfterThisRound.length ? poolAfterThisRound : masterPool);
@@ -590,6 +630,26 @@ export default function CPT({ onComplete, userId, assessmentId }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
+  useEffect(() => {
+    if (phase === "instructions" || phase === "done") return;
+    sessionTickRef.current = setInterval(() => {
+      setTimeLeftMs((t) => {
+        const next = t - 200;
+        if (next <= 0) {
+          clearInterval(sessionTickRef.current);
+          if (!endedRef.current) {
+            endedRef.current = true;
+            endGame();
+          }
+          return 0;
+        }
+        return next;
+      });
+    }, 200);
+    return () => clearInterval(sessionTickRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
   function triggerShake() {
     setShake(true);
     setTimeout(() => setShake(false), 300);
@@ -602,6 +662,7 @@ export default function CPT({ onComplete, userId, assessmentId }) {
   }
 
   async function endGame() {
+    clearInterval(sessionTickRef.current);
     const endedAt = new Date().toISOString();
     // Read from refs, not state — see the comment on the ref declarations
     // above for why the state values here can't be trusted at this point.
@@ -610,6 +671,7 @@ export default function CPT({ onComplete, userId, assessmentId }) {
     const finalFalsePositives = falsePositivesRef.current;
     const finalReactionTimesMs = reactionTimesMsRef.current;
     const finalTotalTrueTargets = totalTrueTargetsRef.current;
+    const finalScore = scoreRef.current;
 
     const avgReactionMs = finalReactionTimesMs.length
       ? Math.round(finalReactionTimesMs.reduce((a, b) => a + b, 0) / finalReactionTimesMs.length)
@@ -627,6 +689,7 @@ export default function CPT({ onComplete, userId, assessmentId }) {
       accuracy,
       avgTimeMs: avgReactionMs,
       metrics: {
+        score: finalScore,
         roundsCompleted: TOTAL_ROUNDS,
         totalTrueTargets: finalTotalTrueTargets,
         hits: finalHits,
@@ -726,9 +789,13 @@ console.log("Payload being sent:", payload);
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
           <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>
-            Test complete
+            Session complete
           </h2>
           <div className="cpt-results-grid">
+            <div>
+              <div className="label">Score</div>
+              <div className="value">{score}</div>
+            </div>
             <div>
               <div className="label">Hits</div>
               <div className="value">
@@ -748,9 +815,13 @@ console.log("Payload being sent:", payload);
               <div className="value">{avgReactionMs}ms</div>
             </div>
           </div>
-          <button className="cpt-btn" style={{ marginTop: 24 }} onClick={startGame}>
-            Try Again
-          </button>
+          <div className="cpt-btn-row" style={{ marginTop: 24 }}>
+            {onNextGame && (
+              <button className="cpt-btn" onClick={onNextGame}>
+                Next Game →
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -836,16 +907,18 @@ console.log("Payload being sent:", payload);
 
       <div className="cpt-sidebar">
         <div className="cpt-stat">
-          <div className="label">Hits</div>
-          <div className="value hits">{hits}</div>
+          <div className="label">Time Left</div>
+          <div className="value">{Math.ceil(timeLeftMs / 1000)}s</div>
+          <div className="cpt-progress-bar">
+            <div
+              className="cpt-progress-fill timer"
+              style={{ width: `${(timeLeftMs / SESSION_TIME_LIMIT_MS) * 100}%` }}
+            />
+          </div>
         </div>
         <div className="cpt-stat">
-          <div className="label">Misses</div>
-          <div className="value misses">{misses}</div>
-        </div>
-        <div className="cpt-stat">
-          <div className="label">False Pos.</div>
-          <div className="value fp">{falsePositives}</div>
+          <div className="label">Score</div>
+          <div className="value score">{score}</div>
         </div>
         <div className="cpt-stat">
           <div className="label">Avg Reaction</div>

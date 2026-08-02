@@ -264,11 +264,18 @@ html, body, #root {
   margin: 0 0 4px;
 }
 
-.cs-arena-header p {
-  color: #8B93A7;
-  font-size: 13px;
-  margin: 0;
-  max-width: 340px;
+.cs-round-progress-bar {
+  height: 5px;
+  background: #232A3D;
+  margin: 0 24px 8px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.cs-round-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #34D399, #3B82F6);
+  transition: width 0.3s ease;
 }
 
 .cs-badge {
@@ -472,6 +479,15 @@ html, body, #root {
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.cs-btn:active { transform: scale(0.97); }
+.cs-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.cs-btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 
 .cs-results-grid {
@@ -504,7 +520,7 @@ function getResultCopy(score) {
   return { title: "Woah, unshakeable memory 🧠" };
 }
 
-export default function DualTask({ onComplete, userId, assessmentId }) {
+export default function DualTask({ onComplete, userId, assessmentId, onNextGame }) {
   const [phase, setPhase] = useState("instructions"); // instructions | sequence | math | memory | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [sequence, setSequence] = useState([]);
@@ -834,17 +850,25 @@ console.log("Payload being sent:", payload);
       <div className={`cs-arena ${shake ? "shake" : ""}`}>
         <div className={`cs-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
 
-        <div className="cs-arena-header">
-          <div>
-            <h2>Dual Task</h2>
-            <p>Watch, calculate, then recall.</p>
-          </div>
-          {phase !== "done" && (
-            <div className={`cs-badge ${phase === "sequence" ? "" : "warn"}`}>
-              Round {roundIndex + 1}/{ROUNDS.length} • {round.label}
+        {phase !== "done" && (
+          <div className="cs-arena-header">
+            <div>
+              <h2>Dual Task</h2>
             </div>
-          )}
-        </div>
+            <div className={`cs-badge ${phase === "sequence" ? "" : "warn"}`}>
+              Round {roundIndex + 1} of {ROUNDS.length}
+            </div>
+          </div>
+        )}
+
+        {phase !== "done" && (
+          <div className="cs-round-progress-bar">
+            <div
+              className="cs-round-progress-fill"
+              style={{ width: `${(roundIndex / ROUNDS.length) * 100}%` }}
+            />
+          </div>
+        )}
 
         {phase === "sequence" && (
           <div className="cs-board-area">
@@ -925,7 +949,10 @@ console.log("Payload being sent:", payload);
 
         {phase === "done" && (
           <div className="cs-center-msg">
-            <h2>{getResultCopy(score).title}</h2>
+            <h2>Session complete</h2>
+            <p style={{ color: "#8B93A7", fontSize: 14, margin: "-10px 0 4px" }}>
+              {getResultCopy(score).title}
+            </p>
             <div className="cs-results-grid">
               <div>
                 <div className="label">Score</div>
@@ -952,9 +979,13 @@ console.log("Payload being sent:", payload);
                 <div className="value">{mathAccuracy}%</div>
               </div>
             </div>
-            <button className="cs-btn" onClick={() => setPhase("instructions")}>
-              Play Again
-            </button>
+            <div className="cs-btn-row" style={{ marginTop: 24 }}>
+              {onNextGame && (
+                <button className="cs-btn" onClick={onNextGame}>
+                  Next Game →
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -971,20 +1002,12 @@ console.log("Payload being sent:", payload);
           </div>
         </div>
         <div className="cs-stat">
-          <div className="label">Round</div>
-          <div className="value level">{Math.min(roundIndex + 1, ROUNDS.length)}/{ROUNDS.length}</div>
-        </div>
-        <div className="cs-stat">
           <div className="label">Score</div>
           <div className="value score">{score}</div>
         </div>
         <div className="cs-stat">
-          <div className="label">Memory Accuracy</div>
-          <div className="value">{memoryAccuracy || 0}%</div>
-        </div>
-        <div className="cs-stat">
-          <div className="label">Math Accuracy</div>
-          <div className="value">{mathAccuracy || 0}%</div>
+          <div className="label">Avg Reaction Time</div>
+          <div className="value">{avgTime || 0}ms</div>
         </div>
       </div>
     </div>

@@ -19,6 +19,8 @@ import { useState, useRef, useEffect } from "react";
 const ROUNDS_TOTAL = 5;
 const QUESTIONS_PER_ROUND = 1;
 const SESSION_TIME_LIMIT_MS = 60000;
+const SCORE_PER_HIT = 10;
+const SCORE_PENALTY_PER_FALSE_POSITIVE = 5;
 
 // ---- Local question bank (swap for the real fetch once the backend endpoint exists) ----
 // Same shape as the real question_bank docs: { questionId, difficulty, data: { set, rule, answer } }
@@ -132,6 +134,12 @@ html, body, #root {
 }
 .ms-btn:active { transform: scale(0.97); }
 .ms-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ms-btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
 
 .ms-wrap {
   display: grid;
@@ -357,9 +365,17 @@ html, body, #root {
 .ms-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
 `;
 
-// Groups question docs by their rule text, then hands back ROUNDS_TOTAL
-// rounds of QUESTIONS_PER_ROUND questions each (same rule within a round,
-// cycling through that rule's docs if the bank has fewer than needed).
+function getResultCopy(accuracy) {
+  if (accuracy < 40) return { title: "Room to grow" };
+  if (accuracy < 75) return { title: "Solid focus!" };
+  return { title: "Sharp switching 🔀" };
+}
+
+// Groups question docs by their rule text, then hands back exactly
+// ROUNDS_TOTAL rounds of QUESTIONS_PER_ROUND questions each. If the pool
+// has fewer than ROUNDS_TOTAL distinct rules (e.g. the local fallback
+// bank only has 3), it cycles back through the available rules rather
+// than leaving later rounds empty.
 function buildSession(pool) {
   const byRule = new Map();
   pool.forEach((q) => {
@@ -368,14 +384,20 @@ function buildSession(pool) {
     byRule.get(key).push(q);
   });
 
-  const ruleGroups = [...byRule.values()].sort(() => Math.random() - 0.5).slice(0, ROUNDS_TOTAL);
+  const allGroups = [...byRule.values()].sort(() => Math.random() - 0.5);
+  if (allGroups.length === 0) return [];
+
+  const ruleGroups = Array.from(
+    { length: ROUNDS_TOTAL },
+    (_, i) => allGroups[i % allGroups.length]
+  );
 
   return ruleGroups.map((group) =>
     Array.from({ length: QUESTIONS_PER_ROUND }, (_, i) => group[i % group.length])
   );
 }
 
-export default function MultiSwitch({ onComplete, userId, assessmentId }) {
+export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGame }) {
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | question | questionEnd | roundEnd | done
   const [bankLoaded, setBankLoaded] = useState(false);
   const [bankSource, setBankSource] = useState(null); // "api" | "local"
@@ -597,6 +619,7 @@ export default function MultiSwitch({ onComplete, userId, assessmentId }) {
     const avgTimeMs = allRTs.length ? Math.round(allRTs.reduce((a, b) => a + b, 0) / allRTs.length) : 0;
     const totalJudged = finalHits + finalMisses + finalFalsePositives;
     const accuracy = totalJudged > 0 ? Math.round((finalHits / totalJudged) * 100) : 0;
+    const score = Math.max(0, finalHits * SCORE_PER_HIT - finalFalsePositives * SCORE_PENALTY_PER_FALSE_POSITIVE);
 
     const payload = {
       assessmentId: localStorage.getItem("assessmentId"),
@@ -604,6 +627,7 @@ export default function MultiSwitch({ onComplete, userId, assessmentId }) {
       accuracy,
       avgTimeMs,
       metrics: {
+        score,
         roundsCompleted: ROUNDS_TOTAL,
         questionsPerRound: QUESTIONS_PER_ROUND,
         hits: finalHits,
@@ -720,19 +744,28 @@ export default function MultiSwitch({ onComplete, userId, assessmentId }) {
     const totalJudged = hits + misses + falsePositives;
     const accuracy = totalJudged > 0 ? Math.round((hits / totalJudged) * 100) : 0;
 
+    const score = Math.max(0, hits * SCORE_PER_HIT - falsePositives * SCORE_PENALTY_PER_FALSE_POSITIVE);
+
     return (
       <div className="ms-intro-screen ms-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Test complete</h2>
+          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 4 }}>Session complete</h2>
+          <p style={{ color: "#8B93A7", fontSize: 14, margin: "0 0 20px" }}>
+            {getResultCopy(accuracy).title}
+          </p>
           <div className="ms-results-grid">
             <div>
-              <div className="label">Hits</div>
-              <div className="value">{hits}</div>
+              <div className="label">Score</div>
+              <div className="value">{score}</div>
             </div>
             <div>
               <div className="label">Accuracy</div>
               <div className="value">{accuracy}%</div>
+            </div>
+            <div>
+              <div className="label">Hits</div>
+              <div className="value">{hits}</div>
             </div>
             <div>
               <div className="label">Misses</div>
@@ -746,14 +779,14 @@ export default function MultiSwitch({ onComplete, userId, assessmentId }) {
               <div className="label">Switch Cost</div>
               <div className="value">{switchCostMs}ms</div>
             </div>
-            <div>
-              <div className="label">Avg Other-Question RT</div>
-              <div className="value">{avgOtherQuestionsRT}ms</div>
-            </div>
           </div>
-          <button className="ms-btn" style={{ marginTop: 24 }} onClick={startGame}>
-            Try Again
-          </button>
+          <div className="ms-btn-row" style={{ marginTop: 24 }}>
+            {onNextGame && (
+              <button className="ms-btn" onClick={onNextGame}>
+                Next Game →
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -824,16 +857,21 @@ export default function MultiSwitch({ onComplete, userId, assessmentId }) {
           </div>
         </div>
         <div className="ms-stat">
-          <div className="label">Hits</div>
-          <div className="value hits">{hits}</div>
+          <div className="label">Score</div>
+          <div className="value hits">
+            {Math.max(0, hits * SCORE_PER_HIT - falsePositives * SCORE_PENALTY_PER_FALSE_POSITIVE)}
+          </div>
         </div>
         <div className="ms-stat">
-          <div className="label">Misses</div>
-          <div className="value misses">{misses}</div>
-        </div>
-        <div className="ms-stat">
-          <div className="label">False Pos.</div>
-          <div className="value fp">{falsePositives}</div>
+          <div className="label">Avg Reaction Time</div>
+          <div className="value">
+            {(() => {
+              const log = questionLogRef.current;
+              if (!log.length) return "0ms";
+              const avg = Math.round(log.reduce((a, b) => a + b.rtMs, 0) / log.length);
+              return `${avg}ms`;
+            })()}
+          </div>
         </div>
       </div>
     </div>

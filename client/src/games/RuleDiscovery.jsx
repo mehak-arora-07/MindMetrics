@@ -160,6 +160,12 @@ html, body, #root {
 .rd-btn:active { transform: scale(0.97); }
 .rd-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.rd-btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
 .rd-wrap {
   display: grid;
   grid-template-columns: 1fr 220px;
@@ -323,11 +329,16 @@ html, body, #root {
 .rd-guess-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .rd-log-col {
-  width: 200px;
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  bottom: 24px;
+  width: 190px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
+  z-index: 2;
 }
 
 .rd-log-title {
@@ -453,7 +464,7 @@ html, body, #root {
 .rd-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
 `;
 
-export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
+export default function RuleDiscovery({ onComplete, onNextGame, userId, assessmentId }) {
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | classify | guessing | guessResult | roundEnd | done
   const [bankLoaded, setBankLoaded] = useState(false);
   const [bankSource, setBankSource] = useState(null); // "api" | "local"
@@ -477,9 +488,11 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
   const [classificationTotal, setClassificationTotal] = useState(0);
   const [totalRuleGuesses, setTotalRuleGuesses] = useState(0);
   const [solveTimesMs, setSolveTimesMs] = useState([]);
+  const [classifyReactionTimesMs, setClassifyReactionTimesMs] = useState([]);
 
   const startedAtRef = useRef(null);
   const roundStartRef = useRef(null);
+  const itemShownAtRef = useRef(null);
   const endedRef = useRef(false);
   const sessionTickRef = useRef(null);
 
@@ -492,6 +505,7 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
   const classificationTotalRef = useRef(0);
   const totalRuleGuessesRef = useRef(0);
   const solveTimesMsRef = useRef([]);
+  const classifyReactionTimesMsRef = useRef([]);
 
   useEffect(() => {
     async function loadQuestionBank() {
@@ -527,12 +541,14 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
     setClassificationTotal(0);
     setTotalRuleGuesses(0);
     setSolveTimesMs([]);
+    setClassifyReactionTimesMs([]);
     scoreRef.current = 0;
     rulesSolvedRef.current = 0;
     classificationCorrectRef.current = 0;
     classificationTotalRef.current = 0;
     totalRuleGuessesRef.current = 0;
     solveTimesMsRef.current = [];
+    classifyReactionTimesMsRef.current = [];
     setTimeLeftMs(SESSION_TIME_LIMIT_MS);
     startedAtRef.current = new Date().toISOString();
     beginRound(0);
@@ -571,6 +587,7 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
       const shuffled = [...question.data.set].sort(() => Math.random() - 0.5);
       setItemQueue(shuffled.slice(1));
       setCurrentItem(shuffled[0]);
+      itemShownAtRef.current = performance.now();
       setPhase("classify");
     }, 1400);
   }
@@ -581,6 +598,13 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
     const actuallyAccepted = question.data.answer.includes(currentItem);
     const playerCorrect =
       (playerChoice === "accept" && actuallyAccepted) || (playerChoice === "reject" && !actuallyAccepted);
+
+    const rt = Math.round(performance.now() - itemShownAtRef.current);
+    setClassifyReactionTimesMs((prev) => {
+      const next = [...prev, rt];
+      classifyReactionTimesMsRef.current = next;
+      return next;
+    });
 
     setTestedLog((prev) => [...prev, { item: currentItem, playerChoice, actuallyAccepted, playerCorrect }]);
     setClassificationTotal((c) => {
@@ -609,6 +633,7 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
       const [next, ...rest] = itemQueue;
       setItemQueue(rest);
       setCurrentItem(next);
+      itemShownAtRef.current = performance.now();
     } else {
       openGuessScreen();
     }
@@ -700,6 +725,7 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
     const finalClassificationTotal = classificationTotalRef.current;
     const finalTotalRuleGuesses = totalRuleGuessesRef.current;
     const finalSolveTimesMs = solveTimesMsRef.current;
+    const finalClassifyReactionTimesMs = classifyReactionTimesMsRef.current;
 
     const ruleDiscoveryAccuracy = Math.round((finalRulesSolved / ROUNDS_TOTAL) * 100);
     const averageRuleGuesses = finalRulesSolved > 0 ? +(finalTotalRuleGuesses / finalRulesSolved).toFixed(2) : 0;
@@ -708,6 +734,11 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
       : 0;
     const classificationAccuracy =
       finalClassificationTotal > 0 ? Math.round((finalClassificationCorrect / finalClassificationTotal) * 100) : 0;
+    const avgClassifyReactionTimeMs = finalClassifyReactionTimesMs.length
+      ? Math.round(
+          finalClassifyReactionTimesMs.reduce((sum, t) => sum + t, 0) / finalClassifyReactionTimesMs.length
+        )
+      : 0;
 
     const payload = {
       assessmentId: localStorage.getItem("assessmentId"),
@@ -723,6 +754,8 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
         classificationCorrect: finalClassificationCorrect,
         classificationTotal: finalClassificationTotal,
         classificationAccuracy,
+        avgClassifyReactionTimeMs,
+        classifyReactionTimesMs: finalClassifyReactionTimesMs,
         totalRuleGuesses: finalTotalRuleGuesses,
         score: finalScore,
         solveTimesMs: finalSolveTimesMs,
@@ -770,6 +803,11 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
   }
 
   const canGuess = testedLog.length >= MIN_TESTED_BEFORE_GUESS;
+  const avgReactionTimeMs = classifyReactionTimesMs.length
+    ? Math.round(
+        classifyReactionTimesMs.reduce((sum, t) => sum + t, 0) / classifyReactionTimesMs.length
+      )
+    : 0;
 
   if (phase === "instructions") {
     return (
@@ -845,9 +883,13 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
               <div className="value">{averageDiscoveryTimeMs}ms</div>
             </div>
           </div>
-          <button className="rd-btn" style={{ marginTop: 24 }} onClick={startGame}>
-            Try Again
-          </button>
+          <div className="rd-btn-row" style={{ marginTop: 24 }}>
+            {onNextGame && (
+              <button className="rd-btn" onClick={onNextGame}>
+                Next Game →
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -965,14 +1007,8 @@ export default function RuleDiscovery({ onComplete, userId, assessmentId }) {
           <div className="value score">{score}</div>
         </div>
         <div className="rd-stat">
-          <div className="label">Rules Solved</div>
-          <div className="value solved">{rulesSolved}/{ROUNDS_TOTAL}</div>
-        </div>
-        <div className="rd-stat">
-          <div className="label">Classification Acc.</div>
-          <div className="value">
-            {classificationTotal > 0 ? Math.round((classificationCorrect / classificationTotal) * 100) : 0}%
-          </div>
+          <div className="label">Avg Reaction Time</div>
+          <div className="value">{avgReactionTimeMs}ms</div>
         </div>
       </div>
     </div>
