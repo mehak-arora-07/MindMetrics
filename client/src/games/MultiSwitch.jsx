@@ -372,14 +372,40 @@ function getResultCopy(accuracy) {
   return { title: "Sharp switching 🔀" };
 }
 
+function isValidQuestion(q) {
+  return (
+    q &&
+    q.data &&
+    typeof q.data.rule === "string" &&
+    q.data.rule.trim().length > 0 &&
+    Array.isArray(q.data.set) &&
+    q.data.set.length > 0 &&
+    Array.isArray(q.data.answer)
+  );
+}
+
 // Groups question docs by their rule text, then hands back exactly
 // ROUNDS_TOTAL rounds of QUESTIONS_PER_ROUND questions each. If the pool
 // has fewer than ROUNDS_TOTAL distinct rules (e.g. the local fallback
 // bank only has 3), it cycles back through the available rules rather
 // than leaving later rounds empty.
 function buildSession(pool) {
+  // Drop anything malformed BEFORE grouping — a single bad document
+  // anywhere in the DB collection (missing `set`, a non-array `answer`,
+  // etc.) would otherwise silently end up assigned to whichever round's
+  // slot it happens to land in and either render an empty board (looks
+  // like the round flew by instantly) or throw when submitQuestion()
+  // calls .forEach()/.includes() on something that isn't actually an
+  // array — an uncaught crash.
+  const validPool = pool.filter(isValidQuestion);
+  if (validPool.length < pool.length) {
+    console.warn(
+      `MultiSwitch: dropped ${pool.length - validPool.length} malformed question(s) from the bank.`
+    );
+  }
+
   const byRule = new Map();
-  pool.forEach((q) => {
+  validPool.forEach((q) => {
     const key = q.data.rule;
     if (!byRule.has(key)) byRule.set(key, []);
     byRule.get(key).push(q);
@@ -526,12 +552,15 @@ export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGa
     const question = rounds[roundIndex][questionIndex];
     const rt = Math.round((firstClickRef.current ?? performance.now()) - questionStartRef.current);
 
+    const stimSet = Array.isArray(question?.data?.set) ? question.data.set : [];
+    const answerSet = Array.isArray(question?.data?.answer) ? question.data.answer : [];
+
     const correct = new Set();
     const wrong = new Set();
     const missed = new Set();
 
-    question.data.set.forEach((v) => {
-      const shouldMatch = question.data.answer.includes(v);
+    stimSet.forEach((v) => {
+      const shouldMatch = answerSet.includes(v);
       const wasSelected = selectedValues.has(v);
       if (shouldMatch && wasSelected) correct.add(v);
       else if (shouldMatch && !wasSelected) missed.add(v);
@@ -727,7 +756,7 @@ export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGa
           <span style={{ color: "#8B93A7", fontWeight: 500 }}>= click only multiples of 4</span>
         </div>
         <button className="ms-btn" onClick={startGame} disabled={!bankLoaded}>
-          {bankLoaded ? "Start the Test" : "Loading questions…"}
+          {bankLoaded ? "Start the Game" : ""}
         </button>
         {bankLoaded && (
           <p style={{ color: "#4B5468", fontSize: 11 }}>
@@ -758,7 +787,7 @@ export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGa
       <div className="ms-intro-screen ms-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 4 }}>Session complete</h2>
+          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 4 }}>Scores</h2>
           <p style={{ color: "#8B93A7", fontSize: 14, margin: "0 0 20px" }}>
             {getResultCopy(accuracy).title}
           </p>
@@ -820,7 +849,9 @@ export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGa
 
           {currentQuestion && (phase === "question" || phase === "questionEnd") && (
             <>
-              <div className="ms-stimuli-grid">{currentQuestion.data.set.map(renderStim)}</div>
+              <div className="ms-stimuli-grid">
+                {(Array.isArray(currentQuestion.data.set) ? currentQuestion.data.set : []).map(renderStim)}
+              </div>
               {phase === "question" && (
                 <button className="ms-submit-btn" onClick={submitQuestion}>
                   Submit

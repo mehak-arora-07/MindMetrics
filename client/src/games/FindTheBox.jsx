@@ -388,8 +388,9 @@ html, body, #root {
 
 .fb-center-msg h2 {
   color: #E5E7EB;
-  font-size: 24px;
-  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px;
 }
 
 .fb-btn {
@@ -417,20 +418,38 @@ html, body, #root {
 .fb-results-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 16px;
   width: 100%;
-  max-width: 320px;
+  max-width: 620px;
 }
 
-.fb-results-grid div {
-  background: #0B0F19;
+.fb-result-card {
+  border: 1px solid #232A3D;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fb-result-label {
   border: 1px solid #232A3D;
   border-radius: 8px;
-  padding: 10px;
+  padding: 10px 14px;
+  color: #8B93A7;
+  font-size: 13px;
+  text-align: center;
 }
 
-.fb-results-grid .label { color: #8B93A7; font-size: 11px; }
-.fb-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+.fb-result-value {
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 14px;
+  color: #E5E7EB;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
 `;
 
 function getResultCopy(score) {
@@ -727,16 +746,8 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
           </div>
         </div>
         <button className="fb-btn" onClick={startGame} disabled={!bankLoaded}>
-          {bankLoaded ? "Start the Game" : bankError ? "Questions unavailable" : "Loading questions…"}
+          {bankLoaded ? "Start the Game" : bankError ? "Questions unavailable" : ""}
         </button>
-        {bankError && (
-          <>
-            <p className="sub" style={{ color: "#F87171", fontSize: 13 }}>{bankError}</p>
-            <button className="fb-btn" onClick={loadQuestionBank} style={{ background: "#232A3D", color: "#E5E7EB" }}>
-              Retry
-            </button>
-          </>
-        )}
       </div>
     );
   }
@@ -752,11 +763,19 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
           <div className="fb-arena-header">
             <div>
               <h2>Find the Box</h2>
-              <p>Read carefully, then click the right box.</p>
             </div>
-            <div className={`fb-badge ${round.tier === "Hard" ? "warn" : ""}`}>
-              Round {roundIndex + 1}/{ROUNDS.length} • {round.tier}
+            <div className="fb-badge">
+              Round {roundIndex + 1} of {ROUNDS.length}
             </div>
+          </div>
+        )}
+
+        {phase !== "done" && (
+          <div className="fb-progress-bar" style={{ marginTop: 4, marginLeft: 24, marginRight: 24 }}>
+            <div
+              className="fb-progress-fill"
+              style={{ width: `${(roundIndex / ROUNDS.length) * 100}%` }}
+            />
           </div>
         )}
 
@@ -832,37 +851,36 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
 
         {phase === "done" && (
           <div className="fb-center-msg">
-            <h2>Find the Box</h2>
-            <p style={{ color: "#8B93A7", fontSize: 14, margin: "-8px 0 4px" }}>
-              {getResultCopy(score).title}
-            </p>
+            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
             <div className="fb-results-grid">
-              <div>
-                <div className="label">Score</div>
-                <div className="value">{score}</div>
+              <div className="fb-result-card">
+                <div className="fb-result-label">Score</div>
+                <div className="fb-result-value">{score}</div>
               </div>
-              <div>
-                <div className="label">Accuracy</div>
-                <div className="value">{accuracy}%</div>
+              <div className="fb-result-card">
+                <div className="fb-result-label">Accuracy</div>
+                <div className="fb-result-value">{accuracy}%</div>
               </div>
-              <div>
-                <div className="label">Highest Round</div>
-                <div className="value">{highestLevelReached}/{ROUNDS.length}</div>
+              <div className="fb-result-card">
+                <div className="fb-result-label">Highest Round</div>
+                <div className="fb-result-value">{highestLevelReached}/{ROUNDS.length}</div>
               </div>
-              <div>
-                <div className="label">Avg Response</div>
-                <div className="value">{avgTime}ms</div>
+              <div className="fb-result-card">
+                <div className="fb-result-label">Avg Response</div>
+                <div className="fb-result-value">{avgTime}ms</div>
               </div>
-              <div>
-                <div className="label">Correct</div>
-                <div className="value">{correctCount}</div>
+              <div className="fb-result-card">
+                <div className="fb-result-label">Correct</div>
+                <div className="fb-result-value">{correctCount}</div>
               </div>
-              <div>
-                <div className="label">Wrong / Timeout</div>
-                <div className="value">{wrongCount + timeoutCount}</div>
+              <div className="fb-result-card">
+                <div className="fb-result-label">Wrong / Timeout</div>
+                <div className="fb-result-value">{wrongCount + timeoutCount}</div>
               </div>
             </div>
-           
+            <button className="fb-btn" onClick={() => setPhase("instructions")}>
+              Try Again
+            </button>
           </div>
         )}
       </div>
@@ -879,20 +897,12 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
           </div>
         </div>
         <div className="fb-stat">
-          <div className="label">Round</div>
-          <div className="value level">{Math.min(roundIndex + 1, ROUNDS.length)}/{ROUNDS.length}</div>
-        </div>
-        <div className="fb-stat">
           <div className="label">Score</div>
           <div className="value score">{score}</div>
         </div>
         <div className="fb-stat">
-          <div className="label">Correct</div>
-          <div className="value">{correctCount}</div>
-        </div>
-        <div className="fb-stat">
-          <div className="label">Wrong</div>
-          <div className="value wrong">{wrongCount + timeoutCount}</div>
+          <div className="label">Avg Reaction Time</div>
+          <div className="value">{avgTime}ms</div>
         </div>
       </div>
     </div>

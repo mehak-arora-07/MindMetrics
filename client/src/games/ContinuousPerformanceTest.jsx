@@ -624,13 +624,19 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
 
   useEffect(() => {
     function onKey(e) {
-      if (e.code === "Backspace") {
+      if (e.code === "Backspace" || e.key === "Backspace") {
         e.preventDefault();
+        e.stopPropagation();
         handleRespond();
       }
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // capture: true makes this fire before any bubble-phase listener
+    // elsewhere in the app (e.g. a global "Backspace = go back" shortcut,
+    // which would make sense to exist given useNavigate/getNextGamePath
+    // are in play here) gets a chance to intercept or stopPropagation() it
+    // first.
+    window.addEventListener("keydown", onKey, { capture: true });
+    return () => window.removeEventListener("keydown", onKey, { capture: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
@@ -781,11 +787,11 @@ console.log("Payload being sent:", payload);
           <span style={{ color: "#8B93A7", fontWeight: 500 }}>= press BACKSPACE</span>
         </div>
         <button className="cpt-btn" onClick={startGame} disabled={!bankLoaded}>
-          {bankLoaded ? "Start the Test" : "Loading questions…"}
+          {bankLoaded ? "Start the Game" : ""}
         </button>
         {bankLoaded && (
           <p style={{ color: "#4B5468", fontSize: 11 }}>
-            {bankSource === "api" ? "Question bank loaded from database" : "Using offline question set"}
+            {bankSource === "api" ? "" : "Using offline question set"}
           </p>
         )}
       </div>
@@ -797,9 +803,7 @@ console.log("Payload being sent:", payload);
       <div className="cpt-intro-screen cpt-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>
-            Session complete
-          </h2>
+        <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
           <div className="cpt-results-grid">
             <div>
               <div className="label">Score</div>
@@ -902,7 +906,7 @@ console.log("Payload being sent:", payload);
           {phase === "roundEnd" && (
             <div className="cpt-center-msg">
               <h3>Round {roundIndex + 1} complete</h3>
-              <p>Next rule loading…</p>
+              <p>Next Round…</p>
             </div>
           )}
         </div>

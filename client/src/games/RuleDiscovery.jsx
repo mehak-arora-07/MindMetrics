@@ -853,11 +853,11 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
           <span className="chip reject">Rejected</span>
         </div>
         <button className="rd-btn" onClick={startGame} disabled={!bankLoaded}>
-          {bankLoaded ? "Start the Game" : "Loading questions…"}
+          {bankLoaded ? "Start the Game" : ""}
         </button>
         {bankLoaded && (
           <p style={{ color: "#4B5468", fontSize: 11 }}>
-            {bankSource === "api" ? "Question bank loaded from database" : "Using offline question set"}
+            {bankSource === "api" ? "" : "Using offline question set"}
           </p>
         )}
       </div>
@@ -877,7 +877,7 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
       <div className="rd-intro-screen rd-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Session complete</h2>
+          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
           <div className="rd-results-grid">
             <div>
               <div className="label">Score</div>
@@ -999,7 +999,7 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
           {phase === "roundEnd" && (
             <div className="rd-center-msg">
               <h3>Round {roundIndex + 1} complete</h3>
-              <p>Next round loading…</p>
+              <p>Next round…</p>
             </div>
           )}
         </div>

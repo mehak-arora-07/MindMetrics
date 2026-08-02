@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getUser, clearSession, startAssessment } from "../utils/session";
 
+
 // Drop into client/src/pages/HomePage.jsx
 // Route it at "/" in App.jsx: <Route path="/" element={<HomePage />} />
 //
@@ -1026,7 +1027,7 @@ export default function HomePage() {
     setStarting(true);
     try {
       await startAssessment();
-      navigate("/play/pattern-sequence");
+      navigate("/play/memory-matrix");
     } catch (err) {
       console.error("Could not start assessment:", err);
       alert("Couldn't start the assessment — please try again.");

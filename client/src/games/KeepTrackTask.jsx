@@ -874,7 +874,7 @@ export default function KeepTrackTask({ onComplete, onNextGame, userId, assessme
 
         {phase === "streaming" && currentStreamEntry && (
           <div className="kt-board-area">
-            <div className="kt-phase-label">Watch</div>
+            <div className="kt-phase-label">Watch and Memorize</div>
             <div className="kt-item-box">
               <div className="cat">{currentStreamEntry.category}</div>
               <div className="item">{currentStreamEntry.item}</div>
@@ -906,7 +906,8 @@ export default function KeepTrackTask({ onComplete, onNextGame, userId, assessme
 
         {phase === "done" && (
           <div className="kt-center-msg">
-            <h2>{getResultCopy(score).title}</h2>
+            {/* <h2>{getResultCopy(score).title}</h2> */}
+            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
             <div className="kt-results-grid">
               <div>
                 <div className="label">Score</div>

@@ -15,6 +15,7 @@ import { getNextGamePath } from "../utils/gameSequence";
 // assessmentId, gameId, accuracy, avgTimeMs, metrics, completed).
 
 const TOTAL_QUESTIONS = 10;
+const CORRECT_POINTS = 10;
 const BASE_TIME_LIMIT_MS = 12000;
 const MIN_TIME_LIMIT_MS = 6000;
 
@@ -256,11 +257,16 @@ html, body, #root {
   background: #232A3D;
   border-radius: 5px;
   overflow: hidden;
+  margin-top: 8px;
 }
 .ps-progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #34D399, #3B82F6);
   transition: width 0.15s linear;
+}
+
+.ps-progress-fill.timer {
+  background: linear-gradient(90deg, #F59E0B, #F87171);
 }
 
 .ps-prompt-banner {
@@ -400,6 +406,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
   const [attempts, setAttempts] = useState(0);
   const [questionTimesMs, setQuestionTimesMs] = useState([]);
   const [highestLvl, setHighestLvl] = useState(1);
+  const [score, setScore] = useState(0);
 
   const questionStartRef = useRef(null);
   const startedAtRef = useRef(null);
@@ -415,6 +422,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
   const attemptsRef = useRef(0);
   const questionTimesMsRef = useRef([]);
   const highestLvlRef = useRef(1);
+  const scoreRef = useRef(0);
 
   // ---- Load real questions from the bank on mount ----
   useEffect(() => {
@@ -503,10 +511,12 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
     setAttempts(0);
     setQuestionTimesMs([]);
     setHighestLvl(1);
+    setScore(0);
     correctCountRef.current = 0;
     attemptsRef.current = 0;
     questionTimesMsRef.current = [];
     highestLvlRef.current = 1;
+    scoreRef.current = 0;
     startedAtRef.current = new Date().toISOString();
     const freshPool = [...masterPool];
     setWorkingPool(freshPool);
@@ -535,6 +545,10 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
       setCorrectCount((c) => {
         correctCountRef.current = c + 1;
         return c + 1;
+      });
+      setScore((s) => {
+        scoreRef.current = s + CORRECT_POINTS;
+        return s + CORRECT_POINTS;
       });
       setStreak((s) => {
         const ns = s + 1;
@@ -573,6 +587,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
     const finalAttempts = attemptsRef.current;
     const finalQuestionTimesMs = questionTimesMsRef.current;
     const finalHighestLvl = highestLvlRef.current;
+    const finalScore = scoreRef.current;
 
     const avgTimePerQuestionMs = finalQuestionTimesMs.length
       ? Math.round(finalQuestionTimesMs.reduce((a, b) => a + b, 0) / finalQuestionTimesMs.length)
@@ -591,6 +606,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
       avgTimeMs: avgTimePerQuestionMs,
       completed: true,
       metrics: {
+        score: finalScore,
         questionsTotal: TOTAL_QUESTIONS,
         attempts: finalAttempts,
         correct: finalCorrectCount,
@@ -678,11 +694,11 @@ console.log("Payload being sent:", payload);
           2 &nbsp; 4 &nbsp; 6 &nbsp; 8 &nbsp; <span>?</span>
         </div>
         <button className="ps-btn" onClick={startGame} disabled={!bankLoaded}>
-          {bankLoaded ? "Begin Assessment" : "Loading questions…"}
+          {bankLoaded ? "Start the Game" : ""}
         </button>
         {bankLoaded && (
           <p style={{ color: "#4B5468", fontSize: 11 }}>
-            {bankSource === "api" ? "Question bank loaded from database" : "Using offline question set"}
+            {bankSource === "api" ? "" : "Using offline question set"}
           </p>
         )}
       </div>
@@ -694,10 +710,12 @@ console.log("Payload being sent:", payload);
       <div className="ps-intro-screen ps-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>
-            Assessment complete
-          </h2>
+          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
           <div className="ps-results-grid">
+            <div>
+              <div className="label">Score</div>
+              <div className="value">{score}</div>
+            </div>
             <div>
               <div className="label">Correct</div>
               <div className="value">
@@ -737,7 +755,7 @@ console.log("Payload being sent:", payload);
                 <span className="icon">🔥</span> {streak}
               </div>
             )}
-            <div className="ps-round-badge">{tierName(level)}</div>
+            <div className="ps-round-badge">Round {questionIndex + 1} of {TOTAL_QUESTIONS}</div>
           </div>
         </div>
 
@@ -805,20 +823,22 @@ console.log("Payload being sent:", payload);
 
       <div className="ps-sidebar">
         <div className="ps-stat">
-          <div className="label">Correct</div>
-          <div className="value correct">{correctCount}</div>
+          <div className="label">Time Left</div>
+          <div className="value">{Math.ceil(timeLeft / 1000)}s</div>
+          <div className="ps-progress-bar">
+            <div
+              className="ps-progress-fill timer"
+              style={{ width: `${(timeLeft / timeLimitRef.current) * 100}%` }}
+            />
+          </div>
         </div>
         <div className="ps-stat">
-          <div className="label">Attempts</div>
-          <div className="value">{attempts}</div>
+          <div className="label">Score</div>
+          <div className="value score">{score}</div>
         </div>
         <div className="ps-stat">
-          <div className="label">Tier</div>
-          <div className="value">{tierName(level)}</div>
-        </div>
-        <div className="ps-stat">
-          <div className="label">Avg Time</div>
-          <div className="value">{avgTimePerQuestionMs || "--"} ms</div>
+          <div className="label">Avg Reaction Time</div>
+          <div className="value">{avgTimePerQuestionMs || 0}ms</div>
         </div>
       </div>
     </div>

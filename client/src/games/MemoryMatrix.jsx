@@ -347,14 +347,14 @@ html, body, #root {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   width: 100%;
-  max-width: 320px;
+  max-width: 420px;
 }
 
 .mm-results-grid div {
   background: #0B0F19;
   border: 1px solid #232A3D;
   border-radius: 8px;
-  padding: 10px;
+  padding: 12px;
 }
 
 .mm-results-grid .label { color: #8B93A7; font-size: 11px; }
@@ -616,20 +616,27 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
       <div className={`mm-arena ${shake ? "shake" : ""}`}>
         <div className={`mm-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
 
-        <div className="mm-arena-header">
-          <div>
-            <h2>Memory Matrix</h2>
-            <p>
-              Memorize the mint cells, then click them back from memory.
-              Grid grows and the pattern gets bigger each level.
-            </p>
-          </div>
-          {(phase === "showing" || phase === "input" || phase === "levelBreak") && (
-            <div className={`mm-badge ${phase === "showing" ? "" : "warn"}`}>
-              {phase === "showing" ? "Memorize" : "Level " + (levelIndex + 1) + "/" + LEVELS.length}
+        {phase !== "done" && (
+          <div className="mm-arena-header">
+            <div>
+              <h2>Memory Matrix</h2>
             </div>
-          )}
-        </div>
+            {(phase === "showing" || phase === "input" || phase === "levelBreak") && (
+              <div className={`mm-badge ${phase === "showing" ? "" : "warn"}`}>
+                {phase === "showing" ? "Memorize" : `Round ${levelIndex + 1} of ${LEVELS.length}`}
+              </div>
+            )}
+          </div>
+        )}
+
+        {phase !== "done" && (
+          <div className="mm-progress-bar" style={{ marginTop: 4 }}>
+            <div
+              className="mm-progress-fill"
+              style={{ width: `${(levelIndex / LEVELS.length) * 100}%` }}
+            />
+          </div>
+        )}
 
         {(phase === "showing" || phase === "input" || phase === "levelBreak") && (
           <div className="mm-board-area">
@@ -660,8 +667,9 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
 
         {phase === "done" && (
           <div className="mm-center-msg">
-            <h2>{getResultCopy(score).title}</h2>
-            <p>{getResultCopy(score).subtitle}</p>
+            {/* <h2>{getResultCopy(score).title}</h2>
+            <p>{getResultCopy(score).subtitle}</p> */}
+            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
             <div className="mm-results-grid">
               <div>
                 <div className="label">Score</div>
@@ -704,20 +712,12 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
           </div>
         </div>
         <div className="mm-stat">
-          <div className="label">Level</div>
-          <div className="value level">{Math.min(levelIndex + 1, LEVELS.length)}/{LEVELS.length}</div>
-        </div>
-        <div className="mm-stat">
           <div className="label">Score</div>
           <div className="value score">{score}</div>
         </div>
         <div className="mm-stat">
-          <div className="label">Wrong Cells</div>
-          <div className="value wrong">{wrongCellsTotal}</div>
-        </div>
-        <div className="mm-stat">
-          <div className="label">Accuracy</div>
-          <div className="value">{accuracy || 0}%</div>
+          <div className="label">Avg Reaction Time</div>
+          <div className="value">{avgTime || 0}ms</div>
         </div>
       </div>
     </div>

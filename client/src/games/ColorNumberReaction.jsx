@@ -929,7 +929,7 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
     return (
       <div className="sr-intro-screen">
         <style>{styles}</style>
-        <h1>Color &amp; Number Reaction</h1>
+        <h1>Color-Number Reaction</h1>
         <p className="sub">
           A color word and a number appear together. The word's text can be
           misleading — a trap. What matters is the ink color you see and the
@@ -954,7 +954,7 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
           </div>
         </div>
         <button className="sr-btn" onClick={startGame} disabled={!bankLoaded}>
-          {bankLoaded ? "Start the Game" : "Loading questions…"}
+          {bankLoaded ? "Start the Game" : ""}
         </button>
       </div>
     );
@@ -970,13 +970,21 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
         {phase !== "done" && (
           <div className="sr-arena-header">
             <div>
-              <h2>Color &amp; Number Reaction</h2>
-              <p>Press SPACE only when the rule is true.</p>
+              <h2>Color-Number Reaction</h2>
             </div>
             <div className="sr-badge-row">
               <div className="sr-badge round">Round {roundIndex + 1}/{ROUNDS.length}</div>
               {rule && phase === "playing" && <div className="sr-badge">{rule.label}</div>}
             </div>
+          </div>
+        )}
+
+        {phase !== "done" && (
+          <div className="sr-progress-bar" style={{ marginTop: 4 }}>
+            <div
+              className="sr-progress-fill"
+              style={{ width: `${(roundIndex / ROUNDS.length) * 100}%` }}
+            />
           </div>
         )}
 
@@ -1024,7 +1032,8 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
 
         {phase === "done" && (
           <div className="sr-center-msg">
-            <h2>{getResultCopy(score).title}</h2>
+            {/* <h2>{getResultCopy(score).title}</h2> */}
+            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
             <div className="sr-results-grid">
               <div>
                 <div className="label">Score</div>

@@ -24,11 +24,11 @@ import { getNextGamePath } from "../utils/gameSequence";
 const SESSION_TIME_LIMIT_MS = 150000; // 5 sets, each with its own math+letter trials, so a long clock
 
 const SETS = [
-  { label: "Set 1", setSize: 3, mathDifficulty: "easy", mathTimeLimitMs: 6000, letterDisplayMs: 900 },
-  { label: "Set 2", setSize: 4, mathDifficulty: "easy", mathTimeLimitMs: 5500, letterDisplayMs: 900 },
-  { label: "Set 3", setSize: 5, mathDifficulty: "medium", mathTimeLimitMs: 5000, letterDisplayMs: 850 },
-  { label: "Set 4", setSize: 6, mathDifficulty: "medium", mathTimeLimitMs: 4500, letterDisplayMs: 850 },
-  { label: "Set 5", setSize: 6, mathDifficulty: "hard", mathTimeLimitMs: 4000, letterDisplayMs: 800 },
+  { label: "Round 1", setSize: 3, mathDifficulty: "easy", mathTimeLimitMs: 6000, letterDisplayMs: 900 },
+  { label: "Round 2", setSize: 4, mathDifficulty: "easy", mathTimeLimitMs: 5500, letterDisplayMs: 900 },
+  { label: "Round 3", setSize: 5, mathDifficulty: "medium", mathTimeLimitMs: 5000, letterDisplayMs: 850 },
+  { label: "Round 4", setSize: 6, mathDifficulty: "medium", mathTimeLimitMs: 4500, letterDisplayMs: 850 },
+  { label: "Round 5", setSize: 6, mathDifficulty: "hard", mathTimeLimitMs: 4000, letterDisplayMs: 800 },
 ];
 
 const MATH_POINTS = 5; // per correct true/false judgment
@@ -454,6 +454,23 @@ html, body, #root {
   opacity: 0.35;
 }
 
+.os-backspace-btn {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  color: #F87171;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.os-backspace-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .os-sidebar {
   display: flex;
   flex-direction: column;
@@ -594,6 +611,7 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
   const trialStartRef = useRef(null);
   const setStartRef = useRef(null);
   const letterSequenceRef = useRef([]);
+  const recallRevealedRef = useRef(false);
   const endedRef = useRef(false);
   const sessionTickRef = useRef(null);
   const mathTickRef = useRef(null);
@@ -766,6 +784,7 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
       } else {
         setRecallInput([]);
         setRecallRevealed(false);
+        recallRevealedRef.current = false;
         setPhase("recall");
       }
     }, set.letterDisplayMs);
@@ -864,6 +883,7 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
 
       if (correctPositions < set.setSize) triggerShake();
       setRecallRevealed(true);
+      recallRevealedRef.current = true;
 
       setTimeout(() => {
         if (endedRef.current) return;
@@ -883,6 +903,27 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
       }, RECALL_REVEAL_MS);
     }
   }
+
+  function removeLastRecallLetter() {
+    if (phase !== "recall" || recallRevealedRef.current || endedRef.current) return;
+    setRecallInput((prev) => prev.slice(0, -1));
+  }
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.code === "Backspace" || e.key === "Backspace") {
+        e.preventDefault();
+        e.stopPropagation();
+        removeLastRecallLetter();
+      }
+    }
+    // capture: true so this reliably fires even if something else in the
+    // app also listens for Backspace (e.g. a global back-navigation
+    // shortcut) — same fix applied to the CPT game.
+    window.addEventListener("keydown", onKey, { capture: true });
+    return () => window.removeEventListener("keydown", onKey, { capture: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   async function endGame() {
     clearInterval(sessionTickRef.current);
@@ -991,8 +1032,8 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
         <p className="sub">
           Solve a quick math check — say whether the equation shown is
           correct — then a letter flashes on screen. Repeat that for a whole
-          set, then recall every letter in the exact order it appeared. Sets
-          get bigger as you go. You've got {Math.round(SESSION_TIME_LIMIT_MS / 1000)} seconds total.
+          round, then recall every letter in the exact order it appeared.
+          Rounds get bigger as you go. You've got {Math.round(SESSION_TIME_LIMIT_MS / 1000)} seconds total.
         </p>
         <div className="os-intro-cards">
           <div className="os-intro-card">
@@ -1012,7 +1053,7 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
           </div>
         </div>
         <button className="os-btn" onClick={startGame} disabled={!bankLoaded}>
-          {bankLoaded ? "Start the Game" : "Loading questions…"}
+          {bankLoaded ? "Start the Game" : ""}
         </button>
       </div>
     );
@@ -1029,10 +1070,9 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
           <div className="os-arena-header">
             <div>
               <h2>Operation Span</h2>
-              <p>Solve, remember, then recall the order.</p>
             </div>
             <div className={`os-badge ${set.mathDifficulty === "hard" ? "warn" : ""}`}>
-              Set {setIndex + 1} of {SETS.length}
+              Round {setIndex + 1} of {SETS.length}
             </div>
           </div>
         )}
@@ -1130,6 +1170,13 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
                 );
               })}
             </div>
+            <button
+              className="os-backspace-btn"
+              onClick={removeLastRecallLetter}
+              disabled={recallInput.length === 0 || recallRevealed}
+            >
+              ⌫ Backspace
+            </button>
           </div>
         )}
 
@@ -1140,13 +1187,14 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
                 {set.label} complete
               </div>
             </div>
-            <div className="os-phase-label">Next Round starting…</div>
+            <div className="os-phase-label">Next Round…</div>
           </div>
         )}
 
         {phase === "done" && (
           <div className="os-center-msg">
-            <h2>{getResultCopy(score).title}</h2>
+            {/* <h2>{getResultCopy(score).title}</h2> */}
+            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
             <div className="os-results-grid">
               <div>
                 <div className="label">Score</div>

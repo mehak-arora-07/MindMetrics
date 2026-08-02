@@ -958,10 +958,10 @@ console.log("Payload being sent:", payload);
 
         {phase === "done" && (
           <div className="cs-center-msg">
-            <h2>Session complete</h2>
-            <p style={{ color: "#8B93A7", fontSize: 14, margin: "-10px 0 4px" }}>
+            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
+            {/* <p style={{ color: "#8B93A7", fontSize: 14, margin: "-10px 0 4px" }}>
               {getResultCopy(score).title}
-            </p>
+            </p> */}
             <div className="cs-results-grid">
               <div>
                 <div className="label">Score</div>
