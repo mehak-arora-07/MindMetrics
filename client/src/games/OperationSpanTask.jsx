@@ -1,4 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
+
 
 // Drop into client/src/games/OperationSpanTask.jsx
 // Same visual family as DualTask/KeepTrackTask/MemoryMatrix/HiddenSymbol — dark arena, mint/gold/red accents.
@@ -564,6 +567,8 @@ function getResultCopy(score) {
 }
 
 export default function OperationSpanTask({ onComplete, onNextGame, userId, assessmentId }) {
+    const navigate = useNavigate();
+
   const [phase, setPhase] = useState("instructions"); // instructions | math | letterFlash | recall | setBreak | done
   const [setIndex, setSetIndex] = useState(0);
   const [trialIndex, setTrialIndex] = useState(0);
@@ -955,6 +960,11 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
       } else {
         console.log("Session saved successfully:", data);
       }
+      const nextPath = getNextGamePath("operation_span");
+
+      if (nextPath) {
+       navigate(nextPath);
+       }
     } catch (err) {
       console.error("Failed to save session:", err);
     }
@@ -1162,13 +1172,6 @@ export default function OperationSpanTask({ onComplete, onNextGame, userId, asse
                 <div className="label">Avg Math Reaction</div>
                 <div className="value">{avgMathReactionMs}ms</div>
               </div>
-            </div>
-            <div className="os-btn-row">
-              {onNextGame && (
-                <button className="os-btn" onClick={onNextGame}>
-                  Next Game →
-                </button>
-              )}
             </div>
           </div>
         )}

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
 // Drop into client/src/games/RuleDiscovery.jsx
 // Same visual family as MultiSwitch/CPT — grid layout (arena + sidebar),
 // dark cards, mint/gold/red accents.
@@ -465,6 +466,8 @@ html, body, #root {
 `;
 
 export default function RuleDiscovery({ onComplete, onNextGame, userId, assessmentId }) {
+    const navigate = useNavigate();
+
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | classify | guessing | guessResult | roundEnd | done
   const [bankLoaded, setBankLoaded] = useState(false);
   const [bankSource, setBankSource] = useState(null); // "api" | "local"
@@ -789,11 +792,29 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
         return;
       }
 
-      if (!res.ok) {
-        console.error("Failed to save session:", res.status, data);
-      } else {
-        console.log("Session saved successfully:", data);
-      }
+     if (!res.ok) {
+  console.error("Failed to save session:", res.status, data);
+} else {
+  console.log("Session saved successfully:", data);
+
+  const assessmentId = localStorage.getItem("assessmentId");
+
+  if (assessmentId) {
+    try {
+      await completeAssessment(assessmentId);
+
+      console.log("Assessment completed successfully");
+
+      localStorage.removeItem("assessmentId");
+
+      navigate("/"); // Change this later if your results page has another route
+
+    } catch (err) {
+      console.error("Failed to complete assessment:", err);
+    }
+  }
+}
+       
     } catch (err) {
       console.error("Failed to save session:", err);
     }
@@ -882,13 +903,6 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
               <div className="label">Avg Discovery Time</div>
               <div className="value">{averageDiscoveryTimeMs}ms</div>
             </div>
-          </div>
-          <div className="rd-btn-row" style={{ marginTop: 24 }}>
-            {onNextGame && (
-              <button className="rd-btn" onClick={onNextGame}>
-                Next Game →
-              </button>
-            )}
           </div>
         </div>
       </div>

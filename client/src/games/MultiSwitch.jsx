@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
 // Drop into client/src/games/MultiSwitch.jsx
 // Same visual family as CPT — grid layout (arena + sidebar), dark cards,
 // mint/gold/red accents.
@@ -398,6 +399,8 @@ function buildSession(pool) {
 }
 
 export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGame }) {
+    const navigate = useNavigate();
+
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | question | questionEnd | roundEnd | done
   const [bankLoaded, setBankLoaded] = useState(false);
   const [bankSource, setBankSource] = useState(null); // "api" | "local"
@@ -672,6 +675,11 @@ export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGa
       } else {
         console.log("Session saved successfully:", data);
       }
+      const nextPath = getNextGamePath("multi_switch");
+
+      if (nextPath) {
+      navigate(nextPath);
+      }
     } catch (err) {
       console.error("Failed to save session:", err);
     }
@@ -779,13 +787,6 @@ export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGa
               <div className="label">Switch Cost</div>
               <div className="value">{switchCostMs}ms</div>
             </div>
-          </div>
-          <div className="ms-btn-row" style={{ marginTop: 24 }}>
-            {onNextGame && (
-              <button className="ms-btn" onClick={onNextGame}>
-                Next Game →
-              </button>
-            )}
           </div>
         </div>
       </div>

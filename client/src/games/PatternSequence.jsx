@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { saveGameSession } from "../utils/session";
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
 
 // Drop into client/src/games/PatternSequence.jsx
 //
@@ -378,6 +380,8 @@ html, body, #root {
 `;
 
 export default function PatternSequence({ onComplete, userId, assessmentId }) {
+    const navigate = useNavigate();
+
   const [phase, setPhase] = useState("instructions"); // instructions | playing | done
   const [level, setLevel] = useState(1);
   const [streak, setStreak] = useState(0);
@@ -632,7 +636,12 @@ console.log("Payload being sent:", payload);
       console.log(
         "Session saved successfully:",
         data
-      );
+      )
+       const nextPath = getNextGamePath("pattern_sequence");
+
+        if (nextPath) {
+          navigate(nextPath);
+        }
     }
   } catch (err) {
     console.error("Failed to save session:", err);
@@ -708,9 +717,6 @@ console.log("Payload being sent:", payload);
               <div className="value">{animatedTime}ms</div>
             </div>
           </div>
-          <button className="ps-btn" style={{ marginTop: 24 }} onClick={startGame}>
-            Try Again
-          </button>
         </div>
       </div>
     );

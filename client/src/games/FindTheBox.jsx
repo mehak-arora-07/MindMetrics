@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
 
 // Drop into client/src/games/FindTheBox.jsx
 // Same visual family as DualTask / MemoryMatrix / HiddenSymbol — dark arena, mint/gold/red accents.
@@ -439,6 +441,8 @@ function getResultCopy(score) {
 }
 
 export default function FindTheBox({ onComplete, onNextGame, userId, assessmentId }) {
+    const navigate = useNavigate();
+
   const [phase, setPhase] = useState("instructions"); // instructions | question | reveal | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [question, setQuestion] = useState(null);
@@ -674,6 +678,11 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
       } else {
         console.log("Session saved successfully:", data);
       }
+       const nextPath = getNextGamePath("find_the_box");
+
+  if (nextPath) {
+    navigate(nextPath);
+  }
     } catch (err) {
       console.error("Failed to save session:", err);
     }
@@ -853,13 +862,7 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
                 <div className="value">{wrongCount + timeoutCount}</div>
               </div>
             </div>
-            <div className="fb-btn-row">
-              {onNextGame && (
-                <button className="fb-btn" onClick={onNextGame}>
-                  Next Game →
-                </button>
-              )}
-            </div>
+           
           </div>
         )}
       </div>

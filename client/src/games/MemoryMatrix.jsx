@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
 
 // Drop into client/src/games/MemoryMatrix.jsx
 // Same visual family as WhackACircle — dark arena, mint/gold/red accents.
@@ -379,6 +381,8 @@ function getResultCopy(score) {
 }
 
 export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
+    const navigate = useNavigate();
+
   const [phase, setPhase] = useState("instructions"); // instructions | showing | input | levelBreak | done
   const [levelIndex, setLevelIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(new Set());
@@ -549,6 +553,11 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
       } else {
         console.log("Session saved successfully:", data);
       }
+       const nextPath = getNextGamePath("memory_matrix");
+
+  if (nextPath) {
+    navigate(nextPath);
+  }
     } catch (err) {
       console.error("Failed to save session:", err);
     }
@@ -679,9 +688,6 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
                 <div className="value">{correctCellsTotal}</div>
               </div>
             </div>
-            <button className="mm-btn" onClick={() => setPhase("instructions")}>
-              Play Again
-            </button>
           </div>
         )}
       </div>

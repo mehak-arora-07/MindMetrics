@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
 
 // Drop into client/src/games/DualTask.jsx
 // Same visual family as MemoryMatrix / HiddenSymbol — dark arena, mint/gold/red accents.
@@ -521,6 +523,8 @@ function getResultCopy(score) {
 }
 
 export default function DualTask({ onComplete, userId, assessmentId, onNextGame }) {
+    const navigate = useNavigate();
+
   const [phase, setPhase] = useState("instructions"); // instructions | sequence | math | memory | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [sequence, setSequence] = useState([]);
@@ -786,7 +790,12 @@ console.log("Payload being sent:", payload);
       console.log(
         "Session saved successfully:",
         data
-      );
+      )
+       const nextPath = getNextGamePath("dual_task");
+
+  if (nextPath) {
+    navigate(nextPath);
+  }
     }
   } catch (err) {
     console.error("Failed to save session:", err);
@@ -979,13 +988,7 @@ console.log("Payload being sent:", payload);
                 <div className="value">{mathAccuracy}%</div>
               </div>
             </div>
-            <div className="cs-btn-row" style={{ marginTop: 24 }}>
-              {onNextGame && (
-                <button className="cs-btn" onClick={onNextGame}>
-                  Next Game →
-                </button>
-              )}
-            </div>
+          
           </div>
         )}
       </div>

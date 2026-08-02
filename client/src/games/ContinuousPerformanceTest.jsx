@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { saveGameSession } from "../utils/session";
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
 
 // Drop into client/src/games/CPT.jsx
 // Fetches rules from the real question bank on load via
@@ -386,6 +388,8 @@ html, body, #root {
 `;
 
 export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
+    const navigate = useNavigate();
+
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | playing | roundEnd | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [rulesForRound, setRulesForRound] = useState([]);
@@ -739,7 +743,12 @@ console.log("Payload being sent:", payload);
       console.log(
         "Session saved successfully:",
         data
-      );
+      )
+       const nextPath = getNextGamePath("cpt");
+
+  if (nextPath) {
+    navigate(nextPath);
+  }
     }
   } catch (err) {
     console.error("Failed to save session:", err);
@@ -815,13 +824,7 @@ console.log("Payload being sent:", payload);
               <div className="value">{avgReactionMs}ms</div>
             </div>
           </div>
-          <div className="cpt-btn-row" style={{ marginTop: 24 }}>
-            {onNextGame && (
-              <button className="cpt-btn" onClick={onNextGame}>
-                Next Game →
-              </button>
-            )}
-          </div>
+          
         </div>
       </div>
     );

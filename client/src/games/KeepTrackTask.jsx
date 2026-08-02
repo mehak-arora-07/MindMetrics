@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
 
 // Drop into client/src/games/KeepTrackTask.jsx
 // Same visual family as DualTask/MemoryMatrix/HiddenSymbol — dark arena, mint/gold/red accents.
@@ -566,6 +568,8 @@ function getResultCopy(score) {
 }
 
 export default function KeepTrackTask({ onComplete, onNextGame, userId, assessmentId }) {
+    const navigate = useNavigate();
+
   const [phase, setPhase] = useState("instructions"); // instructions | streaming | question | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [categories, setCategories] = useState([]);
@@ -784,6 +788,11 @@ export default function KeepTrackTask({ onComplete, onNextGame, userId, assessme
       } else {
         console.log("Session saved successfully:", data);
       }
+       const nextPath = getNextGamePath("keep_track_task");
+
+  if (nextPath) {
+    navigate(nextPath);
+  }
     } catch (err) {
       console.error("Failed to save session:", err);
     }
@@ -923,13 +932,6 @@ export default function KeepTrackTask({ onComplete, onNextGame, userId, assessme
                 <div className="label">Avg Time / Round</div>
                 <div className="value">{avgTime}ms</div>
               </div>
-            </div>
-            <div className="kt-btn-row">
-              {onNextGame && (
-                <button className="kt-btn" onClick={onNextGame}>
-                  Next Game →
-                </button>
-              )}
             </div>
           </div>
         )}

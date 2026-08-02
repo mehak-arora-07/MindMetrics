@@ -1,4 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import { saveGameSession } from "../utils/session";
+import { useNavigate } from "react-router-dom";
+import { getNextGamePath } from "../utils/gameSequence";
 
 // Drop into client/src/games/ColorNumberReaction.jsx
 // Same visual family as DualTask/KeepTrackTask/OperationSpanTask/ContinuousPerformanceTest — dark arena, mint/gold/red accents.
@@ -512,6 +515,7 @@ function getResultCopy(score) {
 }
 
 export default function ColorNumberReaction({ onComplete, onNextGame, userId, assessmentId }) {
+  const navigate = useNavigate();
   const [phase, setPhase] = useState("instructions"); // instructions | ruleFlash | playing | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [rule, setRule] = useState(null);
@@ -898,6 +902,11 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
       } else {
         console.log("Session saved successfully:", data);
       }
+       const nextPath = getNextGamePath("color_number_reaction");
+
+        if (nextPath) {
+          navigate(nextPath);
+             }
     } catch (err) {
       console.error("Failed to save session:", err);
     }
@@ -930,7 +939,7 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
         <div className="sr-intro-cards">
           <div className="sr-intro-card">
             <div className="dot" />
-            <div className="title">Watch</div>
+            <div className="title">Watch</div>  
             <div className="desc">A color and a number flash on screen together.</div>
           </div>
           <div className="sr-intro-card">
@@ -1042,13 +1051,7 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
                 <div className="value">{avgReactionTimeMs}ms</div>
               </div>
             </div>
-            <div className="sr-btn-row">
-              {onNextGame && (
-                <button className="sr-btn" onClick={onNextGame}>
-                  Next Game →
-                </button>
-              )}
-            </div>
+           
           </div>
         )}
       </div>
