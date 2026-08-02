@@ -313,8 +313,8 @@ const STORY = {
   heading: "Why we started building this",
   // Add or remove paragraphs freely — each string becomes its own <p>.
   paragraphs: [
-    "Replace this with how MindMetrics got started — the problem you noticed, and why cognitive assessment felt worth building.",
-    "Replace this with where things stand today — what you've built, who it's for, and what you're working toward next.",
+    "MindMetrics started with a simple idea: understanding your mind shouldn't feel like taking an exam. We wanted to make cognitive assessment more engaging by turning it into a series of interactive games that are both engaging and insightful and meaningful.",
+    "Today, MindMetrics helps users explore skills like memory, attention, reaction time, and problem-solving while giving them insights into their cognitive performance. We're building a platform that makes learning about your mind simple, accessible, and enjoyable.",
   ],
 };
 
@@ -327,7 +327,7 @@ const TEAM = [
     name: "Jainy Pasnani",
     role: "Founder",
     initials: "JP",
-    color: "#785568",
+    color: "#ffa1d2",
     bio: "",
     photo: "",
   },
@@ -335,7 +335,7 @@ const TEAM = [
     name: "Mehak Arora",
     role: "Founder",
     initials: "MA",
-    color: "#c594e8",
+    color:" #76ebfd",
     bio: "",
     photo: "",
   },
@@ -580,11 +580,10 @@ export default function AboutPage() {
           {TEAM.map((member) => (
             <div className="hp-team-card" key={member.name} style={{ "--accent": member.color }}>
               <div className="hp-team-avatar">
-                {member.photo ? <img src={member.photo} alt={member.name} /> : member.initials}
+                {member.initials}
               </div>
-              <h4>{member.name}</h4>
+              <h4 style={{color:"white"}}>{member.name}</h4>
               <div className="role">{member.role}</div>
-              {member.bio && <p className="bio">{member.bio}</p>}
             </div>
           ))}
         </div>

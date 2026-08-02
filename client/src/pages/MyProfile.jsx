@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { getUser, getToken, setUser, clearSession } from "../utils/session";
 
 // Drop into client/src/pages/MyProfile.jsx
@@ -9,6 +9,10 @@ import { getUser, getToken, setUser, clearSession } from "../utils/session";
 // endpoints — no mock data. Editing name/password needs two small backend
 // additions (PATCH /api/auth/profile, POST /api/auth/change-password) — see
 // the accompanying auth.js file for those.
+//
+// Visual language matches HomePage.jsx / AboutPage.jsx (dot-grid + floating
+// blobs + cursor glow, translucent blurred cards). Keep them in sync if you
+// tweak one.
 
 const API_BASE = "http://localhost:5000";
 
@@ -23,39 +27,122 @@ html, body, #root {
   max-width: none !important;
   border: none !important;
   text-align: left !important;
+  overflow-x: hidden;
+}
+
+@keyframes mp-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .mp-page {
   min-height: 100vh;
   width: 100%;
-  background:
-    radial-gradient(circle at 15% 10%, rgba(59, 130, 246, 0.05), transparent 45%),
-    radial-gradient(circle at 85% 90%, rgba(167, 139, 250, 0.05), transparent 45%),
-    #0B0F19;
+  background-color: #0B0F19;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.045) 1px, transparent 0);
+  background-size: 34px 34px;
   font-family: 'Inter', -apple-system, sans-serif;
-  padding: 48px 24px;
+  color: #E5E7EB;
+  position: relative;
+  overflow-x: hidden;
+  padding: 112px 24px 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
+  gap: 20px;
 }
 
-.mp-topbar {
-  width: 100%;
-  max-width: 760px;
+/* ---- Ambient background depth (same system as Home/About) ---- */
+.mp-bg-depth { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+
+.mp-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.18;
+  will-change: transform;
+  animation-name: mp-blob-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+.mp-blob.b1 { width: 460px; height: 460px; top: -140px; left: -100px; background: radial-gradient(circle, rgba(52,211,153,0.5), transparent 70%); animation-duration: 30s; }
+.mp-blob.b2 { width: 420px; height: 420px; top: 18%; right: -140px; background: radial-gradient(circle, rgba(59,130,246,0.45), transparent 70%); animation-duration: 34s; animation-delay: -8s; }
+.mp-blob.b3 { width: 380px; height: 380px; bottom: -140px; left: 10%; background: radial-gradient(circle, rgba(167,139,250,0.4), transparent 70%); animation-duration: 28s; animation-delay: -14s; }
+.mp-blob.b4 { width: 320px; height: 320px; bottom: 6%; right: 8%; background: radial-gradient(circle, rgba(245,158,11,0.35), transparent 70%); animation-duration: 32s; animation-delay: -20s; }
+
+@keyframes mp-blob-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(36px, -26px) scale(1.06); }
+  66% { transform: translate(-24px, 20px) scale(0.96); }
+}
+
+.mp-cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 260px;
+  margin-left: -130px;
+  margin-top: -130px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(52,211,153,0.07), rgba(59,130,246,0.035) 45%, transparent 72%);
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  will-change: transform;
+}
+.mp-cursor-glow.active { opacity: 1; }
+
+/* ---- Nav ---- */
+.mp-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 16px 40px;
+  background: rgba(11, 15, 25, 0.78);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #1a2033;
 }
 
+.mp-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: #E5E7EB;
+  text-decoration: none;
+}
+.mp-nav-logo span { color: #34D399; }
+.mp-nav-logo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34D399;
+  box-shadow: 0 0 6px 1px rgba(52, 211, 153, 0.45);
+  flex-shrink: 0;
+}
+
+.mp-nav-actions { display: flex; align-items: center; gap: 10px; }
+
 .mp-back {
-  background: none;
+  background: #141A2E;
   border: 1px solid #232A3D;
-  color: #8B93A7;
-  border-radius: 8px;
-  padding: 8px 14px;
+  color: #C7CCDB;
+  border-radius: 999px;
+  padding: 9px 16px;
   font-size: 13px;
+  font-weight: 500;
   font-family: inherit;
+  text-decoration: none;
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
@@ -65,51 +152,73 @@ html, body, #root {
   background: rgba(248, 113, 113, 0.1);
   border: 1px solid rgba(248, 113, 113, 0.3);
   color: #F87171;
-  border-radius: 8px;
-  padding: 8px 14px;
+  border-radius: 999px;
+  padding: 9px 16px;
   font-size: 13px;
+  font-weight: 600;
   font-family: inherit;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
-.mp-logout:hover { background: rgba(248, 113, 113, 0.16); }
+.mp-logout:hover { background: rgba(248, 113, 113, 0.18); }
 
+/* ---- Header card ---- */
 .mp-header-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 760px;
-  background: #141A2E;
+  background: rgba(20, 26, 46, 0.75);
+  backdrop-filter: blur(6px);
   border: 1px solid #232A3D;
-  border-radius: 16px;
-  padding: 28px;
+  border-radius: 18px;
+  padding: 30px 30px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 22px;
+  overflow: hidden;
+  animation: mp-fade-up 0.5s ease both;
+}
+
+.mp-header-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.06), rgba(59, 130, 246, 0.05) 60%, transparent);
+  pointer-events: none;
 }
 
 .mp-avatar {
-  width: 64px;
-  height: 64px;
+  position: relative;
+  z-index: 1;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: linear-gradient(135deg, #34D399, #3B82F6);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   color: #05221A;
   flex-shrink: 0;
+  box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.1), 0 8px 24px -8px rgba(52, 211, 153, 0.4);
 }
 
+.mp-header-info { position: relative; z-index: 1; }
+
 .mp-header-info h1 {
-  color: #E5E7EB;
+  color: #F3F5F8;
   font-size: 22px;
   font-weight: 700;
   margin: 0 0 4px;
+  letter-spacing: -0.3px;
 }
 
 .mp-header-info p {
   color: #8B93A7;
   font-size: 13.5px;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
 }
 
 .mp-userid-chip {
@@ -124,35 +233,59 @@ html, body, #root {
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* ---- Stats ---- */
 .mp-stats-grid {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 760px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
+  animation: mp-fade-up 0.5s ease 0.08s both;
 }
 
 .mp-stat {
-  background: #141A2E;
+  position: relative;
+  background: rgba(20, 26, 46, 0.75);
+  backdrop-filter: blur(6px);
   border: 1px solid #232A3D;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 18px;
   text-align: center;
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease;
 }
+.mp-stat::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent, #34D399);
+  opacity: 0.7;
+}
+.mp-stat:hover { transform: translateY(-3px); border-color: var(--accent, #34D399); }
 
+.mp-stat .icon { font-size: 18px; margin-bottom: 8px; }
 .mp-stat .label { color: #8B93A7; font-size: 11.5px; margin-bottom: 6px; }
 .mp-stat .value { color: #E5E7EB; font-size: 24px; font-weight: 700; }
 .mp-stat .value.mint { color: #34D399; }
 .mp-stat .value.amber { color: #F59E0B; }
 .mp-stat .value.purple { color: #A78BFA; }
+.mp-stat .value.blue { color: #3B82F6; }
 
+/* ---- Generic card ---- */
 .mp-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 760px;
-  background: #141A2E;
+  background: rgba(20, 26, 46, 0.75);
+  backdrop-filter: blur(6px);
   border: 1px solid #232A3D;
   border-radius: 16px;
   padding: 26px 28px;
+  animation: mp-fade-up 0.5s ease both;
 }
 
 .mp-card h3 {
@@ -160,6 +293,17 @@ html, body, #root {
   font-size: 15px;
   font-weight: 600;
   margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mp-card h3::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34D399;
+  box-shadow: 0 0 6px 1px rgba(52, 211, 153, 0.5);
 }
 
 .mp-field {
@@ -168,8 +312,11 @@ html, body, #root {
 
 .mp-field label {
   display: block;
-  font-size: 12.5px;
-  color: #8B93A7;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #6B7386;
   margin-bottom: 6px;
 }
 
@@ -183,9 +330,9 @@ html, body, #root {
   font-size: 14px;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.mp-field input:focus { border-color: #34D399; }
+.mp-field input:focus { border-color: #34D399; box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.12); }
 .mp-field input:disabled { color: #6B7284; cursor: not-allowed; }
 
 .mp-row {
@@ -207,11 +354,14 @@ html, body, #root {
   border-radius: 8px;
   padding: 10px 22px;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.12s ease;
 }
-.mp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.mp-btn:hover:not(:disabled) { box-shadow: 0 6px 20px -6px rgba(52, 211, 153, 0.4); }
+.mp-btn:active:not(:disabled) { transform: scale(0.98); }
+.mp-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .mp-btn-ghost {
   background: none;
@@ -222,6 +372,7 @@ html, body, #root {
   font-size: 13.5px;
   font-family: inherit;
   cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 .mp-btn-ghost:hover { border-color: #34D399; color: #E5E7EB; }
 
@@ -254,14 +405,17 @@ html, body, #root {
   align-items: center;
   background: #0B0F19;
   border: 1px solid #232A3D;
+  border-left: 3px solid var(--tier, #34D399);
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 13px;
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
+.mp-recent-item:hover { transform: translateX(2px); border-color: #2c3450; }
 
 .mp-recent-item .game { color: #E5E7EB; font-weight: 600; }
 .mp-recent-item .meta { color: #8B93A7; font-size: 12px; }
-.mp-recent-item .acc { color: #34D399; font-weight: 600; }
+.mp-recent-item .acc { color: var(--tier, #34D399); font-weight: 700; }
 
 .mp-empty {
   color: #4B5468;
@@ -271,6 +425,9 @@ html, body, #root {
 }
 
 @media (max-width: 560px) {
+  .mp-page { padding: 96px 16px 40px; }
+  .mp-nav { padding: 14px 20px; }
+  .mp-header-card { flex-direction: column; text-align: center; }
   .mp-stats-grid { grid-template-columns: 1fr 1fr; }
   .mp-row { grid-template-columns: 1fr; }
 }
@@ -296,6 +453,55 @@ function parseSessionDate(str) {
   const [day, month, year] = datePart.split("/").map(Number);
   const [hour, minute, second] = (timePart || "0:0:0").split(":").map(Number);
   return new Date(year, month - 1, day, hour || 0, minute || 0, second || 0);
+}
+
+// Color tier for an accuracy value, used as a left-border/number accent
+// on recent game rows.
+function accuracyTier(accuracy) {
+  if (accuracy >= 80) return "#34D399";
+  if (accuracy >= 50) return "#F59E0B";
+  return "#F87171";
+}
+
+function BackgroundDepth() {
+  return (
+    <div className="mp-bg-depth" aria-hidden="true">
+      <div className="mp-blob b1" />
+      <div className="mp-blob b2" />
+      <div className="mp-blob b3" />
+      <div className="mp-blob b4" />
+    </div>
+  );
+}
+
+function CursorGlow() {
+  const glowRef = useRef(null);
+  const [active, setActive] = useState(false);
+  const frame = useRef(null);
+
+  useEffect(() => {
+    function onMove(e) {
+      setActive(true);
+      if (frame.current) cancelAnimationFrame(frame.current);
+      frame.current = requestAnimationFrame(() => {
+        if (glowRef.current) {
+          glowRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+        }
+      });
+    }
+    function onLeave() {
+      setActive(false);
+    }
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseleave", onLeave);
+      if (frame.current) cancelAnimationFrame(frame.current);
+    };
+  }, []);
+
+  return <div ref={glowRef} className={`mp-cursor-glow ${active ? "active" : ""}`} aria-hidden="true" />;
 }
 
 export default function MyProfile() {
@@ -437,14 +643,19 @@ export default function MyProfile() {
     <div className="mp-page">
       <style>{styles}</style>
 
-      <div className="mp-topbar">
-        <button className="mp-back" onClick={() => navigate("/")}>
-          ← Back to Home
-        </button>
-        <button className="mp-logout" onClick={handleLogout}>
-          Log Out
-        </button>
-      </div>
+      <BackgroundDepth />
+      <CursorGlow />
+
+      <nav className="mp-nav">
+        <Link to="/" className="mp-nav-logo">
+          <span className="mp-nav-logo-dot" />
+          Mind<span>Metrics</span>
+        </Link>
+        <div className="mp-nav-actions">
+          <Link to="/" className="mp-back">← Back to Home</Link>
+          <button className="mp-logout" onClick={handleLogout}>Log Out</button>
+        </div>
+      </nav>
 
       <div className="mp-header-card">
         <div className="mp-avatar">{initial}</div>
@@ -456,25 +667,29 @@ export default function MyProfile() {
       </div>
 
       <div className="mp-stats-grid">
-        <div className="mp-stat">
+        <div className="mp-stat" style={{ "--accent": "#34D399" }}>
+          <div className="icon">📊</div>
           <div className="label">Assessments</div>
           <div className="value">{statsLoaded ? totalAssessments : "—"}</div>
         </div>
-        <div className="mp-stat">
+        <div className="mp-stat" style={{ "--accent": "#34D399" }}>
+          <div className="icon">✅</div>
           <div className="label">Completed</div>
           <div className="value mint">{statsLoaded ? completedAssessments : "—"}</div>
         </div>
-        <div className="mp-stat">
+        <div className="mp-stat" style={{ "--accent": "#A78BFA" }}>
+          <div className="icon">🎮</div>
           <div className="label">Games Played</div>
           <div className="value purple">{statsLoaded ? totalSessions : "—"}</div>
         </div>
-        <div className="mp-stat">
+        <div className="mp-stat" style={{ "--accent": "#F59E0B" }}>
+          <div className="icon">🎯</div>
           <div className="label">Avg Accuracy</div>
           <div className="value amber">{statsLoaded ? `${avgAccuracy}%` : "—"}</div>
         </div>
       </div>
 
-      <div className="mp-card">
+      <div className="mp-card" style={{ animationDelay: "0.14s" }}>
         <h3>Recent Games</h3>
         {!statsLoaded && <div className="mp-empty">Loading…</div>}
         {statsLoaded && recentSessions.length === 0 && (
@@ -483,7 +698,11 @@ export default function MyProfile() {
         {statsLoaded && recentSessions.length > 0 && (
           <div className="mp-recent-list">
             {recentSessions.map((s) => (
-              <div className="mp-recent-item" key={s.sessionId}>
+              <div
+                className="mp-recent-item"
+                key={s.sessionId}
+                style={{ "--tier": accuracyTier(s.accuracy) }}
+              >
                 <div>
                   <div className="game">{GAME_LABELS[s.gameId] || s.gameId}</div>
                   <div className="meta">{s.createdAt}</div>
@@ -495,7 +714,7 @@ export default function MyProfile() {
         )}
       </div>
 
-      <div className="mp-card">
+      <div className="mp-card" style={{ animationDelay: "0.2s" }}>
         <h3>Profile Details</h3>
         {nameNotice && <div className={`mp-notice ${nameNotice.type}`}>{nameNotice.text}</div>}
         <form onSubmit={handleSaveName}>
@@ -517,7 +736,7 @@ export default function MyProfile() {
         </form>
       </div>
 
-      <div className="mp-card">
+      <div className="mp-card" style={{ animationDelay: "0.26s" }}>
         <h3>Change Password</h3>
         {passwordNotice && <div className={`mp-notice ${passwordNotice.type}`}>{passwordNotice.text}</div>}
         <form onSubmit={handleChangePassword}>

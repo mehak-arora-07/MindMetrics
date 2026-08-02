@@ -1108,7 +1108,7 @@ export default function HomePage() {
         <div className="hp-hero-inner">
           <div className="hp-hero-content">
             <h1>
-              {user ? `Ready, ${user.name.split(" ")[0]}?` : ""}
+              {user ? `Ready, ${user.name.split(" ")[0]}? ` : " "} <br/>
               Your{" "}
               <span className="hp-highlight">
                 mind
