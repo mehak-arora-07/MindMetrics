@@ -30,8 +30,8 @@
 
     app.use("/api/assessments", require("./routes/assessments"));
 
-    
-    console.log('MONGO_URI is:', process.env.MONGO_URI);
+
+    // console.log('MONGO_URI is:', process.env.MONGO_URI);
     mongoose.connect(process.env.MONGO_URI)
         .then(() => console.log('MongoDB connected'))
         .catch(err => console.error(err));

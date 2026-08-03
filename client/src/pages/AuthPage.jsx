@@ -497,7 +497,7 @@ export default function AuthPage() {
                 <input
                   type="text"
                   name="name"
-                  placeholder="Jainy Shah"
+                  placeholder="Jainy"
                   value={form.name}
                   onChange={handleChange}
                   style={{ "--focus-color": "#A78BFA", "--focus-glow": "rgba(167, 139, 250, 0.15)" }}

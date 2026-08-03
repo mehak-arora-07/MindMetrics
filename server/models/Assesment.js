@@ -1,35 +1,44 @@
 const mongoose = require("mongoose");
 
-const assessmentSchema = new mongoose.Schema(
-{
+const assessmentSchema = new mongoose.Schema({
     assessmentId: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
 
     userId: {
         type: String,
-        required: true
+        required: true,
     },
 
     dateTime: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     },
 
-    overallScore: Number,
+    overallScore: {
+        type: Number,
+        default: null,
+    },
 
-    gameplayProfile: String,
+    gameplayProfile: {
+        type: String,
+        default: null,
+    },
+
+    predictionConfidence: {
+        type: Number,
+        default: null,
+    },
 
     status: {
         type: String,
-        enum: ["In Progress","Completed"],
-        default: "In Progress"
-    }
-},
-{
-    collection: "assessments"
+        enum: ["In Progress", "Completed"],
+        default: "In Progress",
+    },
+}, {
+    collection: "assessments",
 });
 
 module.exports = mongoose.model("Assessment", assessmentSchema);

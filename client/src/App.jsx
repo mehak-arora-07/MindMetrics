@@ -15,6 +15,8 @@ import RuleDiscovery from "./games/RuleDiscovery";
 import ColorNumberReaction from "./games/ColorNumberReaction";
 import MyProfile from "./pages/MyProfile";
 import AboutUs from "./pages/AboutUs";
+import PerformancePage from "./pages/Performance";
+import AssessmentReportPage from "./pages/Analytics";
 
 
 function App() {
@@ -93,6 +95,14 @@ function App() {
          <Route
          path="/play/color-number"
          element={<ColorNumberReaction userId={user?.userId} assessmentId={assessmentId} />}      
+         />
+         <Route
+         path="/performance"
+         element={<PerformancePage userId={user?.userId} assessmentId={assessmentId} />}      
+         />
+         <Route
+         path="/analytics"
+         element={<AssessmentReportPage userId={user?.userId} assessmentId={assessmentId} />}      
          />
       </Routes>
     </BrowserRouter>
