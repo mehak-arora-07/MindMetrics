@@ -498,6 +498,7 @@ html, body, #root {
   gap: 10px;
   width: 100%;
   max-width: 320px;
+  margin : 0 auto;
 }
 
 .cs-results-grid div {
@@ -866,7 +867,66 @@ export default function DualTask({ onComplete, userId, assessmentId, onNextGame 
       </div>
     );
   }
+if (phase === "done") {
+  return (
+    <div className="cs-intro-screen">
+      <style>{styles}</style>
 
+      <div
+        style={{
+          maxWidth: 480,
+          width: "100%",
+          margin: "0 auto",
+          textAlign: "center",
+        }}
+      >
+        <h2
+          style={{
+            color: "#E5E7EB",
+            fontSize: 22,
+            marginBottom: 24,
+          }}
+        >
+          Scores
+        </h2>
+
+        <div className="cs-results-grid">
+          <div>
+            <div className="label">Score</div>
+            <div className="value">{score}</div>
+          </div>
+
+          <div>
+            <div className="label">Accuracy</div>
+            <div className="value">{accuracy}%</div>
+          </div>
+
+          <div>
+            <div className="label">Highest Round</div>
+            <div className="value">
+              {highestLevelReached}/{ROUNDS.length}
+            </div>
+          </div>
+
+          <div>
+            <div className="label">Max Sequence</div>
+            <div className="value">{maxSequenceLength}</div>
+          </div>
+
+          <div>
+            <div className="label">Memory Accuracy</div>
+            <div className="value">{memoryAccuracy}%</div>
+          </div>
+
+          <div>
+            <div className="label">Math Accuracy</div>
+            <div className="value">{mathAccuracy}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
   return (
     <div className="cs-wrap">
       <style>{styles}</style>
@@ -971,63 +1031,33 @@ export default function DualTask({ onComplete, userId, assessmentId, onNextGame 
           </div>
         )}
 
-        {phase === "done" && (
-          <div className="cs-center-msg">
-            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
-            {/* <p style={{ color: "#8B93A7", fontSize: 14, margin: "-10px 0 4px" }}>
-              {getResultCopy(score).title}
-            </p> */}
-            <div className="cs-results-grid">
-              <div>
-                <div className="label">Score</div>
-                <div className="value">{score}</div>
-              </div>
-              <div>
-                <div className="label">Accuracy</div>
-                <div className="value">{accuracy}%</div>
-              </div>
-              <div>
-                <div className="label">Highest Round</div>
-                <div className="value">{highestLevelReached}/{ROUNDS.length}</div>
-              </div>
-              <div>
-                <div className="label">Max Sequence</div>
-                <div className="value">{maxSequenceLength}</div>
-              </div>
-              <div>
-                <div className="label">Memory Accuracy</div>
-                <div className="value">{memoryAccuracy}%</div>
-              </div>
-              <div>
-                <div className="label">Math Accuracy</div>
-                <div className="value">{mathAccuracy}%</div>
-              </div>
-            </div>
-          
-          </div>
-        )}
+      
       </div>
 
-      <div className="cs-sidebar">
-        <div className="cs-stat">
-          <div className="label">Time Left</div>
-          <div className="value">{Math.ceil(timeLeftMs / 1000)}s</div>
-          <div className="cs-progress-bar">
-            <div
-              className="cs-progress-fill timer"
-              style={{ width: `${(timeLeftMs / SESSION_TIME_LIMIT_MS) * 100}%` }}
-            />
-          </div>
-        </div>
-        <div className="cs-stat">
-          <div className="label">Score</div>
-          <div className="value score">{score}</div>
-        </div>
-        <div className="cs-stat">
-          <div className="label">Avg Reaction Time</div>
-          <div className="value">{avgTime || 0}ms</div>
-        </div>
+     {phase !== "done" && (
+  <div className="mm-sidebar">
+    <div className="mm-stat">
+      <div className="label">Time Left</div>
+      <div className="value">{Math.ceil(timeLeftMs / 1000)}s</div>
+      <div className="mm-progress-bar">
+        <div
+          className="mm-progress-fill timer"
+          style={{ width: `${(timeLeftMs / SESSION_TIME_LIMIT_MS) * 100}%` }}
+        />
       </div>
+    </div>
+
+    <div className="mm-stat">
+      <div className="label">Score</div>
+      <div className="value score">{score}</div>
+    </div>
+
+    <div className="mm-stat">
+      <div className="label">Avg Reaction Time</div>
+      <div className="value">{avgTime || 0}ms</div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

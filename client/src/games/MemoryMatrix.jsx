@@ -348,6 +348,7 @@ html, body, #root {
   gap: 10px;
   width: 100%;
   max-width: 420px;
+  margin: 0 auto;
 }
 
 .mm-results-grid div {
@@ -646,7 +647,66 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
       </div>
     );
   }
+if (phase === "done") {
+  return (
+    <div className="mm-intro-screen">
+      <style>{styles}</style>
 
+      <div
+        style={{
+          maxWidth: 480,
+          width: "100%",
+          margin: "0 auto",
+          textAlign: "center",
+        }}
+      >
+        <h2
+          style={{
+            color: "#E5E7EB",
+            fontSize: 22,
+            marginBottom: 24,
+          }}
+        >
+          Scores
+        </h2>
+
+        <div className="mm-results-grid">
+          <div>
+            <div className="label">Score</div>
+            <div className="value">{score}</div>
+          </div>
+
+          <div>
+            <div className="label">Accuracy</div>
+            <div className="value">{accuracy}%</div>
+          </div>
+
+          <div>
+            <div className="label">Highest Level</div>
+            <div className="value">
+              {highestLevelReached}/{LEVELS.length}
+            </div>
+          </div>
+
+          <div>
+            <div className="label">Wrong Cells</div>
+            <div className="value">{wrongCellsTotal}</div>
+          </div>
+
+          <div>
+            <div className="label">Avg Time / Level</div>
+            <div className="value">{avgTime}ms</div>
+          </div>
+
+          <div>
+            <div className="label">Correct Cells</div>
+            <div className="value">{correctCellsTotal}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
   return (
     <div className="mm-wrap">
       <style>{styles}</style>
@@ -703,61 +763,32 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
           </div>
         )}
 
-        {phase === "done" && (
-          <div className="mm-center-msg">
-            {/* <h2>{getResultCopy(score).title}</h2>
-            <p>{getResultCopy(score).subtitle}</p> */}
-            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
-            <div className="mm-results-grid">
-              <div>
-                <div className="label">Score</div>
-                <div className="value">{score}</div>
-              </div>
-              <div>
-                <div className="label">Accuracy</div>
-                <div className="value">{accuracy}%</div>
-              </div>
-              <div>
-                <div className="label">Highest Level</div>
-                <div className="value">{highestLevelReached}/{LEVELS.length}</div>
-              </div>
-              <div>
-                <div className="label">Wrong Cells</div>
-                <div className="value">{wrongCellsTotal}</div>
-              </div>
-              <div>
-                <div className="label">Avg Time / Level</div>
-                <div className="value">{avgTime}ms</div>
-              </div>
-              <div>
-                <div className="label">Correct Cells</div>
-                <div className="value">{correctCellsTotal}</div>
-              </div>
-            </div>
-          </div>
-        )}
+       
       </div>
+      {phase !== "done" && (
+          <div className="mm-sidebar">
+    <div className="mm-stat">
+      <div className="label">Time Left</div>
+      <div className="value">{Math.ceil(timeLeftMs / 1000)}s</div>
+      <div className="mm-progress-bar">
+        <div
+          className="mm-progress-fill timer"
+          style={{ width: `${(timeLeftMs / SESSION_TIME_LIMIT_MS) * 100}%` }}
+        />
+      </div>
+    </div>
 
-      <div className="mm-sidebar">
-        <div className="mm-stat">
-          <div className="label">Time Left</div>
-          <div className="value">{Math.ceil(timeLeftMs / 1000)}s</div>
-          <div className="mm-progress-bar">
-            <div
-              className="mm-progress-fill timer"
-              style={{ width: `${(timeLeftMs / SESSION_TIME_LIMIT_MS) * 100}%` }}
-            />
-          </div>
-        </div>
-        <div className="mm-stat">
-          <div className="label">Score</div>
-          <div className="value score">{score}</div>
-        </div>
-        <div className="mm-stat">
-          <div className="label">Avg Reaction Time</div>
-          <div className="value">{avgTime || 0}ms</div>
-        </div>
-      </div>
+    <div className="mm-stat">
+      <div className="label">Score</div>
+      <div className="value score">{score}</div>
+    </div>
+
+    <div className="mm-stat">
+      <div className="label">Avg Reaction Time</div>
+      <div className="value">{avgTime || 0}ms</div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

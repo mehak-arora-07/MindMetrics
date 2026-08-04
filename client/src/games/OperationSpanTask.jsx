@@ -554,6 +554,7 @@ html, body, #root {
   gap: 10px;
   width: 100%;
   max-width: 420px;
+  margin: 0 auto; 
 }
 
 .os-results-grid div {
@@ -1104,7 +1105,68 @@ async function endGame() {
       </div>
     );
   }
+if (phase === "done") {
+  return (
+    <div className="os-intro-screen">
+      <style>{styles}</style>
 
+      <div
+        style={{
+          maxWidth: 480,
+          width: "100%",
+          margin: "0 auto",
+          textAlign: "center",
+        }}
+      >
+        <h2
+          style={{
+            color: "#E5E7EB",
+            fontSize: 22,
+            marginBottom: 24,
+          }}
+        >
+          Scores
+        </h2>
+
+        <div className="os-results-grid">
+          <div>
+            <div className="label">Score</div>
+            <div className="value">{score}</div>
+          </div>
+
+          <div>
+            <div className="label">Processing Accuracy</div>
+            <div className="value">{processingAccuracy}%</div>
+          </div>
+
+          <div>
+            <div className="label">Storage Accuracy</div>
+            <div className="value">{storageAccuracy}%</div>
+          </div>
+
+          <div>
+            <div className="label">Max Set Reached</div>
+            <div className="value">
+              {maxSetReached}/{SETS.length}
+            </div>
+          </div>
+
+          <div>
+            <div className="label">Letters Recalled</div>
+            <div className="value">
+              {recallCorrectLetters}/{recallTotalLetters}
+            </div>
+          </div>
+
+          <div>
+            <div className="label">Avg Math Reaction</div>
+            <div className="value">{avgMathReactionMs}ms</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
   return (
     <div className="os-wrap">
       <style>{styles}</style>
@@ -1236,40 +1298,9 @@ async function endGame() {
           </div>
         )}
 
-        {phase === "done" && (
-          <div className="os-center-msg">
-            {/* <h2>{getResultCopy(score).title}</h2> */}
-            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
-            <div className="os-results-grid">
-              <div>
-                <div className="label">Score</div>
-                <div className="value">{score}</div>
-              </div>
-              <div>
-                <div className="label">Processing Accuracy</div>
-                <div className="value">{processingAccuracy}%</div>
-              </div>
-              <div>
-                <div className="label">Storage Accuracy</div>
-                <div className="value">{storageAccuracy}%</div>
-              </div>
-              <div>
-                <div className="label">Max Set Reached</div>
-                <div className="value">{maxSetReached}/{SETS.length}</div>
-              </div>
-              <div>
-                <div className="label">Letters Recalled</div>
-                <div className="value">{recallCorrectLetters}/{recallTotalLetters}</div>
-              </div>
-              <div>
-                <div className="label">Avg Math Reaction</div>
-                <div className="value">{avgMathReactionMs}ms</div>
-              </div>
-            </div>
-          </div>
-        )}
+      
       </div>
-
+{phase !== "done" && (
       <div className="os-sidebar">
         <div className="os-stat">
           <div className="label">Time Left</div>
@@ -1290,6 +1321,7 @@ async function endGame() {
           <div className="value">{avgMathReactionMs || 0}ms</div>
         </div>
       </div>
+)}
     </div>
   );
 }

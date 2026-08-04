@@ -490,6 +490,7 @@ html, body, #root {
   gap: 10px;
   width: 100%;
   max-width: 320px;
+  margin : 0 auto;
 }
 
 .sr-results-grid div {
@@ -999,7 +1000,64 @@ async function endGame() {
       </div>
     );
   }
+if (phase === "done") {
+  return (
+    <div className="sr-intro-screen">
+      <style>{styles}</style>
 
+      <div
+        style={{
+          maxWidth: 480,
+          width: "100%",
+          margin: "0 auto",
+          textAlign: "center",
+        }}
+      >
+        <h2
+          style={{
+            color: "#E5E7EB",
+            fontSize: 22,
+            marginBottom: 24,
+          }}
+        >
+          Scores
+        </h2>
+
+        <div className="sr-results-grid">
+          <div>
+            <div className="label">Score</div>
+            <div className="value">{score}</div>
+          </div>
+
+          <div>
+            <div className="label">Accuracy</div>
+            <div className="value">{accuracyLive}%</div>
+          </div>
+
+          <div>
+            <div className="label">Correct Responses</div>
+            <div className="value">{correctCount}</div>
+          </div>
+
+          <div>
+            <div className="label">False Clicks</div>
+            <div className="value">{falseClicks}</div>
+          </div>
+
+          <div>
+            <div className="label">Missed Responses</div>
+            <div className="value">{missedResponses}</div>
+          </div>
+
+          <div>
+            <div className="label">Avg Reaction Time</div>
+            <div className="value">{avgReactionTimeMs}ms</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
   return (
     <div className="sr-wrap">
       <style>{styles}</style>
@@ -1069,39 +1127,6 @@ async function endGame() {
           </div>
         )}
 
-        {phase === "done" && (
-          <div className="sr-center-msg">
-            {/* <h2>{getResultCopy(score).title}</h2> */}
-            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
-            <div className="sr-results-grid">
-              <div>
-                <div className="label">Score</div>
-                <div className="value">{score}</div>
-              </div>
-              <div>
-                <div className="label">Accuracy</div>
-                <div className="value">{accuracyLive}%</div>
-              </div>
-              <div>
-                <div className="label">Correct Responses</div>
-                <div className="value">{correctCount}</div>
-              </div>
-              <div>
-                <div className="label">False Clicks</div>
-                <div className="value">{falseClicks}</div>
-              </div>
-              <div>
-                <div className="label">Missed Responses</div>
-                <div className="value">{missedResponses}</div>
-              </div>
-              <div>
-                <div className="label">Avg Reaction Time</div>
-                <div className="value">{avgReactionTimeMs}ms</div>
-              </div>
-            </div>
-           
-          </div>
-        )}
       </div>
 
       {phase !== "done" && (

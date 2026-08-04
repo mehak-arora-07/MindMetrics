@@ -543,6 +543,7 @@ html, body, #root {
   gap: 10px;
   width: 100%;
   max-width: 420px;
+  margin: 0 auto;
 }
 
 .kt-results-grid div {
@@ -874,7 +875,66 @@ async function endGame() {
       </div>
     );
   }
+   if (phase === "done") {
+  return (
+    <div className="kt-intro-screen">
+      <style>{styles}</style>
 
+      <div
+        style={{
+          maxWidth: 480,
+          width: "100%",
+          margin: "0 auto",
+          textAlign: "center",
+        }}
+      >
+        <h2
+          style={{
+            color: "#E5E7EB",
+            fontSize: 22,
+            marginBottom: 24,
+          }}
+        >
+          Scores
+        </h2>
+
+        <div className="kt-results-grid">
+          <div>
+            <div className="label">Score</div>
+            <div className="value">{score}</div>
+          </div>
+
+          <div>
+            <div className="label">Recall Accuracy</div>
+            <div className="value">{recallAccuracy}%</div>
+          </div>
+
+          <div>
+            <div className="label">Max Level</div>
+            <div className="value">
+              {maxLevel}/{ROUNDS.length}
+            </div>
+          </div>
+
+          <div>
+            <div className="label">Incorrect Recalls</div>
+            <div className="value">{incorrectCount}</div>
+          </div>
+
+          <div>
+            <div className="label">Rounds Played</div>
+            <div className="value">{roundsPlayed}</div>
+          </div>
+
+          <div>
+            <div className="label">Avg Time / Round</div>
+            <div className="value">{avgTime}ms</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
   return (
     <div className="kt-wrap">
       <style>{styles}</style>
@@ -934,40 +994,9 @@ async function endGame() {
           </div>
         )}
 
-        {phase === "done" && (
-          <div className="kt-center-msg">
-            {/* <h2>{getResultCopy(score).title}</h2> */}
-            <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
-            <div className="kt-results-grid">
-              <div>
-                <div className="label">Score</div>
-                <div className="value">{score}</div>
-              </div>
-              <div>
-                <div className="label">Recall Accuracy</div>
-                <div className="value">{recallAccuracy}%</div>
-              </div>
-              <div>
-                <div className="label">Max Level</div>
-                <div className="value">{maxLevel}/{ROUNDS.length}</div>
-              </div>
-              <div>
-                <div className="label">Incorrect Recalls</div>
-                <div className="value">{incorrectCount}</div>
-              </div>
-              <div>
-                <div className="label">Rounds Played</div>
-                <div className="value">{roundsPlayed}</div>
-              </div>
-              <div>
-                <div className="label">Avg Time / Round</div>
-                <div className="value">{avgTime}ms</div>
-              </div>
-            </div>
-          </div>
-        )}
+    
       </div>
-
+{phase !== "done" && (
       <div className="kt-sidebar">
         <div className="kt-stat">
           <div className="label">Time Left</div>
@@ -988,6 +1017,7 @@ async function endGame() {
           <div className="value">{avgTime || 0}ms</div>
         </div>
       </div>
+      )}
     </div>
   );
 }
