@@ -641,13 +641,13 @@ export default function AboutPage() {
             </div>
             <div className="hp-footer-col">
               <h5>Product</h5>
-              <a href="/">Assessments</a>
+              <Link to="/">Assessments</Link>
               <a href="/">Cognitive Modules</a>
-              <a href="/analytics">Reports</a>
+              <Link to="/analytics">Reports</Link>
             </div>
             <div className="hp-footer-col">
               <h5>Company</h5>
-              <Link to="/about">About Us</Link>
+              <a href="#">About Us</a>
               {/* <a href="#">Careers</a> */}
               <a href="#">Contact Us</a>
             </div>
