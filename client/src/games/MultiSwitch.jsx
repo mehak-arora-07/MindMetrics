@@ -761,7 +761,7 @@ async function endGame() {
     if (nextPath) {
       setTimeout(() => {
         navigate(nextPath);
-      }, 4000);
+      }, 3000);
     }
   } catch (err) {
     console.error(
@@ -876,9 +876,27 @@ async function endGame() {
     );
   }
 
-  return (
-    <div className="ms-wrap ms-screen">
-      <style>{styles}</style>
+ return (
+  <motion.div
+    className="ms-wrap"
+    initial={{
+      opacity: 0,
+      y: 50,
+      scale: 0.96,
+      filter: "blur(8px)",
+    }}
+    animate={{
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+    }}
+    transition={{
+      duration: 0.8,
+      ease: "easeOut",
+    }}
+  >
+    <style>{styles}</style>
 
       <div className="ms-main">
         <div className="ms-topbar">
@@ -960,6 +978,6 @@ async function endGame() {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

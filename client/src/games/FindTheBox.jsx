@@ -737,7 +737,7 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
     if (nextPath) {
       setTimeout(() => {
         navigate(nextPath);
-      }, 4000);
+      }, 3000);
     }
   } catch (err) {
     console.error(
@@ -853,9 +853,26 @@ if (phase === "done") {
   );
 }
   return (
-    <div className="fb-wrap">
-      <style>{styles}</style>
-
+  <motion.div
+    className="fb-wrap"
+    initial={{
+      opacity: 0,
+      y: 50,
+      scale: 0.96,
+      filter: "blur(8px)",
+    }}
+    animate={{
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+    }}
+    transition={{
+      duration: 0.8,
+      ease: "easeOut",
+    }}
+  >
+    <style>{styles}</style>
       <div className={`fb-arena ${shake ? "shake" : ""}`}>
         <div className={`fb-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
 
@@ -972,6 +989,6 @@ if (phase === "done") {
         </div>
       </div>
 )}
-    </div>
+    </motion.div>
   );
 }

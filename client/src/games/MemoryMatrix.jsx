@@ -596,7 +596,7 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
     if (nextPath) {
       setTimeout(() => {
         navigate(nextPath);
-      }, 4000);
+      }, 3000);
     }
   } catch (err) {
     console.error(
@@ -707,9 +707,26 @@ if (phase === "done") {
   );
 }
   return (
-    <div className="mm-wrap">
-      <style>{styles}</style>
-
+  <motion.div
+    className="mm-wrap"
+    initial={{
+      opacity: 0,
+      y: 50,
+      scale: 0.96,
+      filter: "blur(8px)",
+    }}
+    animate={{
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+    }}
+    transition={{
+      duration: 0.8,
+      ease: "easeOut",
+    }}
+  >
+    <style>{styles}</style>
       <div className={`mm-arena ${shake ? "shake" : ""}`}>
         <div className={`mm-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
 
@@ -788,6 +805,6 @@ if (phase === "done") {
     </div>
   </div>
 )}
-    </div>
+    </motion.div>
   );
 }

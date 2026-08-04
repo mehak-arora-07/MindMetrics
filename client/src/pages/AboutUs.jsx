@@ -489,15 +489,15 @@ export default function AboutPage() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  async function handleStart() {
-    try {
-      await startAssessment();
-      navigate("/play/pattern-sequence");
-    } catch (err) {
-      console.error("Could not start assessment:", err);
-      alert("Couldn't start the assessment — please try again.");
-    }
-  }
+  // async function handleStart() {
+  //   try {
+  //     await startAssessment();
+  //     navigate("/play/pattern-sequence");
+  //   } catch (err) {
+  //     console.error("Could not start assessment:", err);
+  //     alert("Couldn't start the assessment — please try again.");
+  //   }
+  // }
 
   function handleLogout() {
     clearSession();
@@ -619,7 +619,7 @@ export default function AboutPage() {
         <div className="hp-mid-cta">
           <h3>Curious how your mind measures up?</h3>
           <p>Takes about half an hour. Results are ready the moment you finish.</p>
-          <button className="hp-btn-primary" onClick={handleStart}>
+          <button className="hp-btn-primary" onClick={() => (window.location.href = "/")}>
             Start Assessment
           </button>
         </div>
@@ -662,7 +662,7 @@ export default function AboutPage() {
             <span>© {new Date().getFullYear()} MindMetrics. All rights reserved.</span>
             <div>
               <a href="#">LinkedIn</a>
-              <a href="#">GitHub</a>
+              {/* <a href="https://github.com/mehak-arora-07/MindMetrics">GitHub</a> */}
             </div>
           </div>
         </div>

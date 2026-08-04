@@ -1051,7 +1051,7 @@ async function endGame() {
     if (nextPath) {
       setTimeout(() => {
         navigate(nextPath);
-      }, 4000);
+      }, 3000);
     }
   } catch (err) {
     console.error(
@@ -1166,10 +1166,27 @@ if (phase === "done") {
     </div>
   );
 }
-  return (
-    <div className="os-wrap">
-      <style>{styles}</style>
-
+return (
+  <motion.div
+    className="os-wrap"
+    initial={{
+      opacity: 0,
+      y: 50,
+      scale: 0.96,
+      filter: "blur(8px)",
+    }}
+    animate={{
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+    }}
+    transition={{
+      duration: 0.8,
+      ease: "easeOut",
+    }}
+  >
+    <style>{styles}</style>
       <div className={`os-arena ${shake ? "shake" : ""}`}>
         <div className={`os-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
 
@@ -1321,6 +1338,6 @@ if (phase === "done") {
         </div>
       </div>
 )}
-    </div>
+    </motion.div>
   );
 }

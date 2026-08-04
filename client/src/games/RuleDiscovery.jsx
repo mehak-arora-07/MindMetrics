@@ -868,11 +868,11 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
 
     console.log("Assessment completed successfully");
 
-    navigate("/");
+    navigate("/analytics");
   } catch (err) {
     console.error("Failed to complete assessment:", err);
   }
-}, 10000);
+}, 3000);
   } catch (err) {
     console.error(
       "Failed to save session:",
@@ -968,8 +968,26 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
   }
 
   return (
-    <div className="rd-wrap rd-screen">
-      <style>{styles}</style>
+  <motion.div
+    className="rd-wrap"
+    initial={{
+      opacity: 0,
+      y: 50,
+      scale: 0.96,
+      filter: "blur(8px)",
+    }}
+    animate={{
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+    }}
+    transition={{
+      duration: 0.8,
+      ease: "easeOut",
+    }}
+  >
+    <style>{styles}</style>
 
       <div className="rd-main">
         <div className="rd-topbar">
@@ -1083,6 +1101,6 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
           <div className="value">{avgReactionTimeMs}ms</div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

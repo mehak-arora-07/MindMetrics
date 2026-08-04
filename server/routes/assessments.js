@@ -18,6 +18,26 @@ const router = express.Router();
 
 router.post("/", verifyToken, async(req, res) => {
     try {
+        const oldIncomplete = await Assessment.find({
+  userId: req.user.userId,
+  status: "In Progress",
+});
+
+const oldIds = oldIncomplete.map(
+  (assessment) => assessment.assessmentId
+);
+
+if (oldIds.length > 0) {
+  await Session.deleteMany({
+    userId: req.user.userId,
+    assessmentId: { $in: oldIds },
+  });
+
+  await Assessment.deleteMany({
+    userId: req.user.userId,
+    status: "In Progress",
+  });
+}
         const newAssessment = new Assessment({
             assessmentId: "ASM" + Date.now(),
             userId: req.user.userId,
@@ -39,12 +59,50 @@ router.post("/", verifyToken, async(req, res) => {
     }
 });
 
+router.delete("/cleanup/incomplete", verifyToken, async (req, res) => {
+  try {
+    const incompleteAssessments = await Assessment.find({
+      userId: req.user.userId,
+      status: "In Progress",
+    });
+
+    const incompleteIds = incompleteAssessments.map(
+      (assessment) => assessment.assessmentId
+    );
+
+    if (incompleteIds.length > 0) {
+      await Session.deleteMany({
+        userId: req.user.userId,
+        assessmentId: { $in: incompleteIds },
+      });
+
+      await Assessment.deleteMany({
+        userId: req.user.userId,
+        status: "In Progress",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Incomplete assessments removed",
+    });
+  } catch (err) {
+    console.error("Cleanup error:", err);
+
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
+
 // Get one assessment plus every session logged under it so far.
 router.get("/:assessmentId", verifyToken, async(req, res) => {
     try {
         const assessment = await Assessment.findOne({
             assessmentId: req.params.assessmentId,
             userId: req.user.userId,
+             status: "Completed",
         });
 
         if (!assessment) {
@@ -75,8 +133,9 @@ router.get("/:assessmentId", verifyToken, async(req, res) => {
 router.get("/", verifyToken, async(req, res) => {
     try {
         const assessments = await Assessment.find({
-            userId: req.user.userId,
-        }).sort({ dateTime: -1 });
+  userId: req.user.userId,
+  status: "Completed",
+}).sort({ dateTime: -1 });
 
         res.json({
             success: true,

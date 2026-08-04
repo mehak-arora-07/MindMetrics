@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getUser, getToken, setUser, clearSession } from "../utils/session";
-
+import { TiTick } from "react-icons/ti";
+import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar,FaGamepad ,FaTrophy,FaChartLine, FaRobot ,FaRegCalendarAlt
+ } from "react-icons/fa";
+import { GoGoal } from "react-icons/go";
+import { MdOutlineLoop } from "react-icons/md";
+import { TbReportAnalytics } from "react-icons/tb"
 // Drop into client/src/pages/MyProfile.jsx
 // Route it in App.jsx: <Route path="/profile" element={<MyProfile />} />
 //
@@ -668,22 +673,22 @@ export default function MyProfile() {
 
       <div className="mp-stats-grid">
         <div className="mp-stat" style={{ "--accent": "#34D399" }}>
-          <div className="icon">📊</div>
+          <div className="icon"><FaChartBar/></div>
           <div className="label">Assessments</div>
           <div className="value">{statsLoaded ? totalAssessments : "—"}</div>
         </div>
         <div className="mp-stat" style={{ "--accent": "#34D399" }}>
-          <div className="icon">✅</div>
+          <div className="icon"><TiTick/></div>
           <div className="label">Completed</div>
           <div className="value mint">{statsLoaded ? completedAssessments : "—"}</div>
         </div>
         <div className="mp-stat" style={{ "--accent": "#A78BFA" }}>
-          <div className="icon">🎮</div>
+          <div className="icon"><FaGamepad /></div>
           <div className="label">Games Played</div>
           <div className="value purple">{statsLoaded ? totalSessions : "—"}</div>
         </div>
         <div className="mp-stat" style={{ "--accent": "#F59E0B" }}>
-          <div className="icon">🎯</div>
+          <div className="icon"><GoGoal/></div>
           <div className="label">Avg Accuracy</div>
           <div className="value amber">{statsLoaded ? `${avgAccuracy}%` : "—"}</div>
         </div>

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
-
+import { motion } from "framer-motion";
 // Drop into client/src/games/KeepTrackTask.jsx
 // Same visual family as DualTask/MemoryMatrix/HiddenSymbol — dark arena, mint/gold/red accents.
 // POSTs the completed session to POST /api/sessions on game end, same pattern as DualTask.
@@ -823,7 +823,7 @@ async function endGame() {
     if (nextPath) {
       setTimeout(() => {
         navigate(nextPath);
-      }, 4000);
+      }, 3000);
     }
   } catch (err) {
     console.error(
@@ -934,9 +934,28 @@ async function endGame() {
     </div>
   );
 }
-  return (
-    <div className="kt-wrap">
-      <style>{styles}</style>
+ 
+    return (
+  <motion.div
+    className="kt-wrap"
+    initial={{
+      opacity: 0,
+      y: 50,
+      scale: 0.96,
+      filter: "blur(8px)",
+    }}
+    animate={{
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+    }}
+    transition={{
+      duration: 0.8,
+      ease: "easeOut",
+    }}
+  >
+    <style>{styles}</style>
 
       <div className={`kt-arena ${shake ? "shake" : ""}`}>
         <div className={`kt-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
@@ -1017,6 +1036,6 @@ async function endGame() {
         </div>
       </div>
       )}
-    </div>
+    </motion.div>
   );
 }

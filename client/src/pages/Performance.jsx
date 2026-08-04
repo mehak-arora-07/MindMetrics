@@ -1,6 +1,10 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getUser, clearSession, startAssessment } from "../utils/session";
+import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar ,FaTrophy,FaChartLine
+ } from "react-icons/fa";
+import { GoGoal } from "react-icons/go";
+
 
 // Drop into client/src/pages/PerformancePage.jsx
 // Route it at "/performances" in App.jsx: <Route path="/performances" element={<PerformancePage />} />
@@ -638,12 +642,17 @@ html, body, #root {
 // Six cognitive profiles measured by the assessment series — mirrors the
 // "Skills measured" section on the Home Page so terminology stays consistent.
 const PROFILES = [
-  { label: "Memory", hex: "#34D399", icon: "🧠" },
-  { label: "Attention", hex: "#3B82F6", icon: "🎯" },
-  { label: "Observation", hex: "#A78BFA", icon: "👁" },
-  { label: "Planning", hex: "#3B82F6", icon: "🧩" },
-  { label: "Reaction", hex: "#F59E0B", icon: "⚡" },
-  { label: "Decision Making", hex: "#F87171", icon: "⚖" },
+  { label: "Memory", hex: "#34D399", icon:<FaBrain /> },
+  { label: "Attention", hex: "#3B82F6", icon: <GoGoal />
+ },
+  { label: "Observation", hex: "#A78BFA", icon: <FaRegEye />
+ },
+  { label: "Planning", hex: "#3B82F6", icon: <FaPuzzlePiece />
+ },
+  { label: "Reaction", hex: "#F59E0B", icon: <FaBolt />
+ },
+  { label: "Decision Making", hex: "#F87171", icon: <FaBalanceScale />
+ },
 ];
 
 function profileMeta(label) {
@@ -710,22 +719,26 @@ export default function PerformancePage() {
 
   useOutsideClose(menuRef, () => setMenuOpen(false));
 
-  async function handleStart() {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    setStarting(true);
-    try {
-      await startAssessment();
-      navigate("/play/memory-matrix");
-    } catch (err) {
-      console.error("Could not start assessment:", err);
-      alert("Couldn't start the assessment — please try again.");
-    } finally {
-      setStarting(false);
-    }
+
+
+ async function handleStart() {
+  if (!user) {
+    navigate("/login");
+    return;
   }
+
+  setStarting(true);
+
+  try {
+    await startAssessment();
+    navigate("/play/memory-matrix");
+  } catch (err) {
+    console.error("Could not start assessment:", err);
+    alert("Couldn't start the assessment. Please try again.");
+  } finally {
+    setStarting(false);
+  }
+}
 
   function handleLogout() {
     clearSession();
@@ -847,22 +860,22 @@ export default function PerformancePage() {
 
         <div className="pp-stats-grid">
           <div className="pp-stat-card" style={{ "--accent": "#3B82F6" }}>
-            <div className="pp-stat-icon">📊</div>
+            <div className="pp-stat-icon"><FaChartBar/></div>
             <div className="pp-stat-value">{stats.total}</div>
             <div className="pp-stat-label">Total Assessments Taken</div>
           </div>
           <div className="pp-stat-card" style={{ "--accent": "#34D399" }}>
-            <div className="pp-stat-icon">🏆</div>
+            <div className="pp-stat-icon"><FaTrophy /></div>
             <div className="pp-stat-value">{stats.highest != null ? `${stats.highest}` : "—"}</div>
             <div className="pp-stat-label">Highest Overall Score</div>
           </div>
           <div className="pp-stat-card" style={{ "--accent": "#A78BFA" }}>
-            <div className="pp-stat-icon">📈</div>
+            <div className="pp-stat-icon"><FaChartLine /></div>
             <div className="pp-stat-value">{stats.average != null ? `${stats.average}` : "—"}</div>
             <div className="pp-stat-label">Average Overall Score</div>
           </div>
           <div className="pp-stat-card" style={{ "--accent": profileMeta(stats.latestProfile).hex }}>
-            <div className="pp-stat-icon">{stats.latestProfile ? profileMeta(stats.latestProfile).icon : "🧩"}</div>
+            <div className="pp-stat-icon">{stats.latestProfile ? profileMeta(stats.latestProfile).icon : <FaPuzzlePiece/>}</div>
             <div className="pp-stat-value" style={{ fontSize: "19px" }}>{stats.latestProfile || "—"}</div>
             <div className="pp-stat-label">Latest Gameplay Profile</div>
           </div>

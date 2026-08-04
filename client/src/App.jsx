@@ -32,6 +32,7 @@ function App() {
         <Route path="/profile" element={<MyProfile />} />
         <Route path="/about" element={<AboutUs />} />
 
+
         <Route
           path="/play/pattern-sequence"
           element={<PatternSequence userId={user?.userId} assessmentId={assessmentId} />}
@@ -77,9 +78,14 @@ function App() {
          element={<PerformancePage userId={user?.userId} assessmentId={assessmentId} />}      
          />
          <Route
-         path="/analytics"
-         element={<AssessmentReportPage userId={user?.userId} assessmentId={assessmentId} />}      
-         />
+  path="/analytics"
+  element={<AssessmentReportPage />}
+/>
+
+<Route
+  path="/analytics/:id"
+  element={<AssessmentReportPage />}
+/>
       </Routes>
     </BrowserRouter>
   );

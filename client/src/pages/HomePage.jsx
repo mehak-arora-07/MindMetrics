@@ -1,7 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getUser, clearSession, startAssessment,clearAssessmentId } from "../utils/session";
-
+import { TiTick } from "react-icons/ti";
+import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar ,FaTrophy,FaChartLine, FaRobot ,FaRegCalendarAlt
+ } from "react-icons/fa";
+import { GoGoal } from "react-icons/go";
+import { MdOutlineLoop } from "react-icons/md";
+import { TbReportAnalytics } from "react-icons/tb"
 
 // Drop into client/src/pages/HomePage.jsx
 // Route it at "/" in App.jsx: <Route path="/" element={<HomePage />} />
@@ -781,12 +786,12 @@ html, body, #root {
 `;
 
 const SKILLS = [
-  { label: "Memory", color: "52, 211, 153", hex: "#34D399", icon: "🧠", desc: "Recall and working memory" },
-  { label: "Attention", color: "59, 130, 246", hex: "#3B82F6", icon: "🎯", desc: "Focus and sustained attention" },
-  { label: "Observation", color: "167, 139, 250", hex: "#A78BFA", icon: "👁", desc: "Visual perception and awareness" },
-  { label: "Planning", color: "59, 130, 246", hex: "#3B82F6", icon: "🧩", desc: "Strategy and problem solving" },
-  { label: "Reaction", color: "245, 158, 11", hex: "#F59E0B", icon: "⚡", desc: "Speed and response time" },
-  { label: "Decision Making", color: "248, 113, 113", hex: "#F87171", icon: "⚖", desc: "Choices under uncertainty" },
+  { label: "Memory", color: "52, 211, 153", hex: "#34D399", icon: <FaBrain />, desc: "Recall and working memory" },
+  { label: "Attention", color: "59, 130, 246", hex: "#3B82F6", icon:<GoGoal />, desc: "Focus and sustained attention" },
+  { label: "Observation", color: "167, 139, 250", hex: "#A78BFA", icon:<FaRegEye />, desc: "Visual perception and awareness" },
+  { label: "Planning", color: "59, 130, 246", hex: "#3B82F6", icon: <FaPuzzlePiece /> ,desc: "Strategy and problem solving" },
+  { label: "Reaction", color: "245, 158, 11", hex: "#F59E0B", icon: <FaBolt />, desc: "Speed and response time" },
+  { label: "Decision Making", color: "248, 113, 113", hex: "#F87171", icon: <FaBalanceScale />, desc: "Choices under uncertainty" },
 ];
 
 const RULES = [
@@ -1023,23 +1028,53 @@ export default function HomePage() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  async function handleStart() {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    setStarting(true);
+useEffect(() => {
+  if (!user) return;
+
+  async function cleanupIncompleteAssessments() {
     try {
-      clearAssessmentId();
-      await startAssessment();
-      navigate("/play/memory-matrix");
+      const res = await fetch(
+        "http://localhost:5000/api/assessments/cleanup/incomplete",
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        localStorage.removeItem("assessmentId");
+        console.log("Incomplete assessments cleaned");
+      }
     } catch (err) {
-      console.error("Could not start assessment:", err);
-      alert("Couldn't start the assessment — please try again.");
-    } finally {
-      setStarting(false);
+      console.error("Cleanup failed:", err);
     }
   }
+
+  cleanupIncompleteAssessments();
+}, [user]);
+
+  async function handleStart() {
+  if (!user) {
+    navigate("/login");
+    return;
+  }
+
+  setStarting(true);
+
+  try {
+    await startAssessment();
+    navigate("/play/memory-matrix");
+  } catch (err) {
+    console.error("Could not start assessment:", err);
+    alert("Couldn't start the assessment. Please try again.");
+  } finally {
+    setStarting(false);
+  }
+}
 
   function handleLogout() {
     clearSession();
@@ -1064,7 +1099,10 @@ export default function HomePage() {
         <div className="hp-nav-links">
           <a href="#how-it-works">How it works</a>
           <a href="#skills">Skills measured</a>
+          <Link to="/performance">My performances</Link>
+                    <Link to="/analytics">My analysis</Link>
           <Link to="/about">About</Link>
+
         </div>
 
         {user && (
@@ -1091,8 +1129,8 @@ export default function HomePage() {
                   <div className="email">{user.email}</div>
                 </div>
                 <Link to="/profile" onClick={() => setMenuOpen(false)}>My Profile</Link>
-                <Link to="/performances" onClick={() => setMenuOpen(false)}>My Performances</Link>
-                <Link to="/analysis" onClick={() => setMenuOpen(false)}>My Analysis</Link>
+                <Link to="/performance" onClick={() => setMenuOpen(false)}>My Performances</Link>
+                <Link to="/analytics" onClick={() => setMenuOpen(false)}>My Analysis</Link>
                 <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
                 <button className="logout" onClick={handleLogout}>Log Out</button>
               </div>
@@ -1209,7 +1247,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="hp-section hp-reveal">
+      {/* <section className="hp-section hp-reveal">
         <div className="hp-mid-cta">
           <h3>Your mind, measured properly.</h3>
           <p>Takes about 20 minutes. Results are ready the moment you finish.</p>
@@ -1217,7 +1255,7 @@ export default function HomePage() {
             {starting ? "Starting…" : "Start Assessment"}
           </button>
         </div>
-      </section>
+      </section> */}
 
       <footer className="hp-footer">
         <div className="hp-footer-inner">
@@ -1235,15 +1273,12 @@ export default function HomePage() {
             </div>
             <div className="hp-footer-col">
               <h5>Product</h5>
-              <a href="#">Assessments</a>
-              <a href="#">Cognitive Modules</a>
-              <a href="#">Reports</a>
+              <a href="/analytics">Assessments</a>
             </div>
             <div className="hp-footer-col">
               <h5>Company</h5>
               <Link to="/about">About Us</Link>
-              <a href="#">Careers</a>
-              <a href="#">Contact Us</a>
+            
             </div>
             <div className="hp-footer-col">
               <h5>Legal</h5>
@@ -1256,7 +1291,7 @@ export default function HomePage() {
             <span>© {new Date().getFullYear()} MindMetrics. All rights reserved.</span>
             <div>
               <a href="#">LinkedIn</a>
-              <a href="#">GitHub</a>
+              {/* <a href="https://github.com/mehak-arora-07/MindMetrics">GitHub</a> */}
             </div>
           </div>
         </div>

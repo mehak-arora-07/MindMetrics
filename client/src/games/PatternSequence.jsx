@@ -680,7 +680,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
     if (nextPath) {
       setTimeout(() => {
         navigate(nextPath);
-      }, 4000);
+      }, 3000);
     }
   } catch (err) {
     console.error(
@@ -765,9 +765,26 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
   const ringOffset = RING_CIRC * (1 - timeLeft / timeLimitRef.current);
 
   return (
-    <div className="ps-wrap ps-screen">
-      <style>{styles}</style>
-
+  <motion.div
+    className="ps-wrap ps-screen"
+    initial={{
+      opacity: 0,
+      y: 50,
+      scale: 0.96,
+      filter: "blur(8px)",
+    }}
+    animate={{
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+    }}
+    transition={{
+      duration: 0.8,
+      ease: "easeOut",
+    }}
+  >
+    <style>{styles}</style>
       <div className="ps-main">
         <div className="ps-topbar">
           <h2>Pattern Sequence</h2>
@@ -863,6 +880,6 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
           <div className="value">{avgTimePerQuestionMs || 0}ms</div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

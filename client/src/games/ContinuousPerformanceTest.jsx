@@ -773,7 +773,7 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
     if (nextPath) {
       setTimeout(() => {
         navigate(nextPath);
-      }, 4000);
+      }, 3000);
     }
   } catch (err) {
     console.error(
@@ -853,9 +853,26 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
   }
 
   return (
-    <div className="cpt-wrap cpt-screen">
-      <style>{styles}</style>
-
+  <motion.div
+    className="cpt-wrap"
+    initial={{
+      opacity: 0,
+      y: 50,
+      scale: 0.96,
+      filter: "blur(8px)",
+    }}
+    animate={{
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+    }}
+    transition={{
+      duration: 0.8,
+      ease: "easeOut",
+    }}
+  >
+    <style>{styles}</style>
       <div className="cpt-main">
         <div className="cpt-topbar">
           <h2>Continuous Performance Test</h2>
@@ -949,6 +966,6 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
           <div className="value">{avgReactionMs || "--"} ms</div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

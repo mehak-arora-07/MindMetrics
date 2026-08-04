@@ -1,6 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getUser, clearSession, startAssessment } from "../utils/session";
+import { TiTick } from "react-icons/ti";
+import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar ,FaTrophy,FaChartLine, FaRobot ,FaRegCalendarAlt
+ } from "react-icons/fa";
+import { GoGoal } from "react-icons/go";
+import { MdOutlineLoop } from "react-icons/md";
+import { TbReportAnalytics } from "react-icons/tb";
 
 // Drop into client/src/pages/AssessmentReportPage.jsx
 // Route it in App.jsx: <Route path="/performances/:id" element={<AssessmentReportPage />} />
@@ -357,22 +363,22 @@ const REPORT_SEED = {
   summary:
     "Across this session, performance was strongest in memory recall and sustained attention, with the Memory Matrix and Focus Grid rounds both landing well above baseline. Reaction time improved steadily across the session, suggesting good adaptation and warm-up effect. Decision-making tasks showed more variance, with speed occasionally trading off against accuracy under time pressure. Working memory and cognitive flexibility scored in a solid-but-improvable range, pointing to task switching as the main lever for the next session. Overall, the profile reflects a careful, accuracy-oriented player with room to build speed and adaptability.",
   strengths: [
-    { label: "Excellent Memory", icon: "🧠", hex: "#34D399" },
-    { label: "High Attention", icon: "🎯", hex: "#3B82F6" },
-    { label: "Strong Accuracy", icon: "✅", hex: "#34D399" },
-    { label: "Consistent Performance", icon: "📈", hex: "#A78BFA" },
+    { label: "Excellent Memory", icon: <FaBrain />, hex: "#34D399" },
+    { label: "High Attention", icon:<GoGoal />, hex: "#3B82F6" },
+    { label: "Strong Accuracy", icon: <TiTick />, hex: "#34D399" },
+    { label: "Consistent Performance", icon: <FaChartLine />, hex: "#A78BFA" },
   ],
   improvements: [
-    { label: "Reaction Speed", icon: "⚡", hex: "#F59E0B" },
-    { label: "Task Switching", icon: "🔄", hex: "#F59E0B" },
-    { label: "Working Memory", icon: "🧩", hex: "#F87171" },
-    { label: "Decision Speed", icon: "⚖", hex: "#F87171" },
+    { label: "Reaction Speed", icon: <FaBolt />, hex: "#F59E0B" },
+    { label: "Task Switching", icon: <MdOutlineLoop />, hex: "#F59E0B" },
+    { label: "Working Memory", icon: <FaPuzzlePiece />, hex: "#F87171" },
+    { label: "Decision Speed", icon: <FaBalanceScale />, hex: "#F87171" },
   ],
   recommendations: [
-    { icon: "⚡", title: "Speed-focused drills", desc: "Add short, timed reaction exercises 2–3 times a week to build faster response thresholds without sacrificing accuracy." },
-    { icon: "🧩", title: "Dual-task practice", desc: "Try holding one piece of information in mind while completing a second task to strengthen working memory capacity." },
-    { icon: "🔄", title: "Task-switching sets", desc: "Rotate between different rule sets in short bursts to build flexibility and reduce switch-cost over time." },
-    { icon: "⚖", title: "Timed decision drills", desc: "Practice making choices under a soft time limit to build faster judgment while keeping error rates low." },
+    { icon: <FaBolt />, title: "Speed-focused drills", desc: "Add short, timed reaction exercises 2–3 times a week to build faster response thresholds without sacrificing accuracy." },
+    { icon:  <FaPuzzlePiece />, title: "Dual-task practice", desc: "Try holding one piece of information in mind while completing a second task to strengthen working memory capacity." },
+    { icon:<MdOutlineLoop />, title: "Task-switching sets", desc: "Rotate between different rule sets in short bursts to build flexibility and reduce switch-cost over time." },
+    { icon: <FaBalanceScale />  , title: "Timed decision drills", desc: "Practice making choices under a soft time limit to build faster judgment while keeping error rates low." },
   ],
 };
 
@@ -709,34 +715,83 @@ const [loading, setLoading] = useState(true);
   const user = getUser();
 
   useEffect(() => {
+  async function loadAnalytics() {
+    try {
+      const token = localStorage.getItem("token");
 
-    const assessmentId = localStorage.getItem("assessmentId");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
 
-    if (!assessmentId) return;
+      // Use URL ID when opening an old report.
+      let selectedAssessmentId = id;
 
-    fetch(
-        `http://localhost:5000/api/assessments/${assessmentId}/details`,
-        {
-            headers:{
-                Authorization:`Bearer ${localStorage.getItem("token")}`
-            }
+      // If /analytics has no ID, fetch the latest completed assessment.
+      if (!selectedAssessmentId) {
+        const historyRes = await fetch(
+          "http://localhost:5000/api/assessments",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const historyData = await historyRes.json();
+
+        if (!historyRes.ok || !historyData.success) {
+          throw new Error(
+            historyData.message ||
+              "Could not load assessment history"
+          );
         }
-    )
-    .then(res=>res.json())
-    .then(data=>{
 
-        setAssessment(data.assessment);
-        setSessions(data.sessions);
+        const latestCompleted =
+          historyData.assessments?.[0];
 
-        setLoading(false);
+        if (!latestCompleted) {
+          setAssessment(null);
+          setSessions([]);
+          return;
+        }
 
-    })
-    .catch(err=>{
-        console.error(err);
-        setLoading(false);
-    });
+        selectedAssessmentId =
+          latestCompleted.assessmentId;
+      }
 
-},[]);
+      const detailsRes = await fetch(
+        `http://localhost:5000/api/assessments/${selectedAssessmentId}/details`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const detailsData = await detailsRes.json();
+
+      if (!detailsRes.ok || !detailsData.success) {
+        throw new Error(
+          detailsData.message ||
+            "Could not load assessment details"
+        );
+      }
+
+      setAssessment(detailsData.assessment);
+      setSessions(detailsData.sessions || []);
+    } catch (error) {
+      console.error("Analytics loading failed:", error);
+
+      setAssessment(null);
+      setSessions([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadAnalytics();
+}, [id, navigate]);
   const report = assessment
   ? {
       ...REPORT_SEED,
@@ -766,10 +821,35 @@ const incorrect = sessions.length * 100 - correct;
 
   useOutsideClose(menuRef, () => setMenuOpen(false));
 
-if(loading){
+if (loading) {
+  return (
+    <div className="ar-page">
+      <h2 style={{ padding: "150px 30px" }}>
+        Loading analytics...
+      </h2>
+    </div>
+  );
+}
 
-    return <h1>Loading...</h1>;
+if (!assessment) {
+  return (
+    <div className="ar-page">
+      <div style={{ padding: "150px 30px" }}>
+        <h2>No completed assessment found</h2>
 
+        <p>
+          Complete an assessment to view analytics.
+        </p>
+
+        <button
+          className="hp-btn-primary"
+          onClick={() => navigate("/")}
+        >
+          Go Home
+        </button>
+      </div>
+    </div>
+  );
 }
 
 console.log(assessment);
@@ -866,21 +946,23 @@ const radarData = [
 ];
 
   async function handleStart() {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    setStarting(true);
-    try {
-      await startAssessment();
-      navigate("/play/memory-matrix");
-    } catch (err) {
-      console.error("Could not start assessment:", err);
-      alert("Couldn't start the assessment — please try again.");
-    } finally {
-      setStarting(false);
-    }
+  if (!user) {
+    navigate("/login");
+    return;
   }
+
+  setStarting(true);
+
+  try {
+    await startAssessment();
+    navigate("/play/memory-matrix");
+  } catch (err) {
+    console.error("Could not start assessment:", err);
+    alert("Couldn't start the assessment. Please try again.");
+  } finally {
+    setStarting(false);
+  }
+}
 
   function handleLogout() {
     clearSession();
@@ -1014,11 +1096,11 @@ const incorrectResponses = Math.max(
       </nav>
 
       <div className="ar-container">
-        <Link to="/performance" className="ar-back">
+        <Link to="/" className="ar-back">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Back to Performance Page
+          Back to Home
         </Link>
 
         <div className="ar-header">
@@ -1026,7 +1108,7 @@ const incorrectResponses = Math.max(
             {/* <div className="ar-eyebrow"><span className="ar-eyebrow-dot" />AI-Generated Report</div> */}
             <h1>Analytics Dashboard</h1>
             <div className="ar-header-meta">
-              <span className="chip">📅 Assessment Date · <b>{report.date}</b></span>
+              <span className="chip"><FaRegCalendarAlt /> Assessment Date · <b>{report.date}</b></span>
             </div>
           </div>
         </div>
@@ -1041,7 +1123,7 @@ const incorrectResponses = Math.max(
           </div>
 
           <div className="ar-stat-card" style={{ "--accent": "#3B82F6" }}>
-            <div className="ar-stat-icon">🎯</div>
+            <div className="ar-stat-icon"> <GoGoal /></div>
             <div className="ar-stat-body">
               <div className="ar-stat-value" style={{ fontSize: 19 }}>{report.gameplayProfile}</div>
               <div className="ar-stat-label">Gameplay Profile</div>
@@ -1057,7 +1139,7 @@ const incorrectResponses = Math.max(
           </div>
 
           <div className="ar-stat-card" style={{ "--accent": "#34D399" }}>
-            <div className="ar-stat-icon">✅</div>
+            <div className="ar-stat-icon"><TiTick /></div>
             <div className="ar-stat-body">
               <span className="ar-status-pill"><span className="dot" />{report.status}</span>
               <div className="ar-stat-label" style={{ marginTop: 8 }}>Assessment Status</div>
@@ -1105,13 +1187,13 @@ const incorrectResponses = Math.max(
         </div>
 
         <div className="ar-section-head">
-          <h2>AI Generated Assessment Summary</h2>
+          <h2>Assessment Summary</h2>
           <p>A plain-language read on how this session went, generated from your results.</p>
         </div>
 
         <div className="ar-summary-card">
           <div className="ar-summary-head">
-            <div className="ar-summary-badge">🤖</div>
+            <div className="ar-summary-badge"><TbReportAnalytics /></div>
             <h3>Session Report</h3>
           </div>
           <p>
