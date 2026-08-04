@@ -77,15 +77,8 @@ function App() {
          path="/performance"
          element={<PerformancePage userId={user?.userId} assessmentId={assessmentId} />}      
          />
-         <Route
-  path="/analytics"
-  element={<AssessmentReportPage />}
-/>
-
-<Route
-  path="/analytics/:id"
-  element={<AssessmentReportPage />}
-/>
+         <Route path="/analytics/:id" element={<AssessmentReportPage />} />
+         <Route path="/analytics" element={<AssessmentReportPage  userId={user?.userId} assessmentId={assessmentId}/>} />
       </Routes>
     </BrowserRouter>
   );

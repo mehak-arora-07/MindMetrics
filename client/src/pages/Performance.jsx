@@ -672,17 +672,6 @@ function formatDate(iso) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-// Sample seed data — replace with a real fetch from your API.
-const ASSESSMENTS_SEED = [
-  { id: "AS-10538", date: "2026-07-29", overallScore: 88, profile: "Attention", status: "Completed" },
-  { id: "AS-10521", date: "2026-07-22", overallScore: 74, profile: "Planning", status: "Completed" },
-  { id: "AS-10499", date: "2026-07-14", overallScore: null, profile: "Memory", status: "In Progress" },
-  { id: "AS-10462", date: "2026-07-05", overallScore: 91, profile: "Memory", status: "Completed" },
-  { id: "AS-10430", date: "2026-06-27", overallScore: 63, profile: "Decision Making", status: "Completed" },
-  { id: "AS-10388", date: "2026-06-18", overallScore: 79, profile: "Observation", status: "Completed" },
-  { id: "AS-10351", date: "2026-06-09", overallScore: 82, profile: "Reaction", status: "Completed" },
-  { id: "AS-10312", date: "2026-05-30", overallScore: 58, profile: "Attention", status: "Completed" },
-];
 
 function useOutsideClose(ref, onClose) {
   useEffect(() => {
@@ -707,7 +696,8 @@ function EmptyIllustration() {
 export default function PerformancePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [starting, setStarting] = useState(false);
-  const [assessments] = useState(ASSESSMENTS_SEED);
+  const [assessments, setAssessments] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [profileFilter, setProfileFilter] = useState("all");
@@ -716,7 +706,39 @@ export default function PerformancePage() {
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const user = getUser();
+  useEffect(() => {
 
+    fetch("http://localhost:5000/api/assessments",{
+        headers:{
+            Authorization:`Bearer ${localStorage.getItem("token")}`
+        }
+    })
+    .then(res=>res.json())
+    .then(data => {
+
+    const list = data.assessments || [];
+
+    setAssessments(
+        list.map(a => ({
+            id: a.assessmentId,
+            date: a.dateTime,
+            overallScore: a.overallScore,
+            profile: a.gameplayProfile,
+            status: a.status
+        }))
+    );
+
+    setLoading(false);
+
+})
+    .catch(err=>{
+
+        console.error(err);
+        setLoading(false);
+
+    });
+
+},[]);
   useOutsideClose(menuRef, () => setMenuOpen(false));
 
 
@@ -766,8 +788,20 @@ export default function PerformancePage() {
     return assessments
       .filter((a) => {
         if (search && !a.id.toLowerCase().includes(search.toLowerCase())) return false;
-        if (dateFilter && a.date !== dateFilter) return false;
-        if (profileFilter !== "all" && a.profile !== profileFilter) return false;
+        if (dateFilter) {
+
+    const assessmentDate = new Date(a.date)
+        .toISOString()
+        .split("T")[0];
+
+    if (assessmentDate !== dateFilter)
+        return false;
+}
+       if (
+    profileFilter !== "all" &&
+    a.profile?.toLowerCase() !== profileFilter.toLowerCase()
+)
+    return false;
         if (statusFilter !== "all" && a.status !== statusFilter) return false;
         return true;
       })
@@ -775,14 +809,25 @@ export default function PerformancePage() {
   }, [assessments, search, dateFilter, profileFilter, statusFilter]);
 
   const hasActiveFilters = search || dateFilter || profileFilter !== "all" || statusFilter !== "all";
-
+  function viewDetails(id) {
+    navigate(`/analytics/${id}`);
+}
   function clearFilters() {
     setSearch("");
     setDateFilter("");
     setProfileFilter("all");
     setStatusFilter("all");
   }
-
+  const profileOptions = [
+    ...new Set(
+        assessments
+            .map(a => a.profile)
+            .filter(Boolean)
+    )
+];
+  if(loading){
+    return <h2>Loading...</h2>;
+}
   return (
     <div className="pp-page">
       <style>{styles}</style>
@@ -920,15 +965,25 @@ export default function PerformancePage() {
               />
 
               <select
-                className="pp-filter-select"
-                value={profileFilter}
-                onChange={(e) => setProfileFilter(e.target.value)}
+                  className="pp-filter-select"
+                  value={profileFilter}
+                  onChange={(e)=>setProfileFilter(e.target.value)}
               >
-                <option value="all">All profiles</option>
-                {PROFILES.map((p) => (
-                  <option key={p.label} value={p.label}>{p.label}</option>
-                ))}
-              </select>
+
+                  <option value="all">All profiles</option>
+
+                  {profileOptions.map(profile => (
+
+                      <option
+                          key={profile}
+                          value={profile}
+                      >
+                          {profile}
+                      </option>
+
+                    ))}
+
+                </select>
 
               <select
                 className="pp-filter-select"
@@ -958,7 +1013,7 @@ export default function PerformancePage() {
                         <th>Overall Score</th>
                         <th>Gameplay Profile</th>
                         <th>Status</th>
-                        {/* <th></th> */}
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -988,14 +1043,14 @@ export default function PerformancePage() {
                                 {a.status}
                               </span>
                             </td>
-                            {/* <td className="pp-td-action" onClick={(e) => e.stopPropagation()}>
+                             <td className="pp-td-action" onClick={(e) => e.stopPropagation()}>
                               <button className="pp-view-btn" onClick={() => viewDetails(a.id)}>
                                 View Details
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                                   <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                               </button>
-                            </td> */}
+                            </td>
                           </tr>
                         );
                       })}

@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getUser, getToken, setUser, clearSession } from "../utils/session";
 import { TiTick } from "react-icons/ti";
-import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar,FaGamepad ,FaTrophy,FaChartLine, FaRobot ,FaRegCalendarAlt
- } from "react-icons/fa";
+import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar,FaGamepad ,FaTrophy,FaChartLine, FaRobot ,FaRegCalendarAlt} from "react-icons/fa";
 import { GoGoal } from "react-icons/go";
-import { MdOutlineLoop } from "react-icons/md";
-import { TbReportAnalytics } from "react-icons/tb"
+// import { MdOutlineLoop } from "react-icons/md";
+// import { TbReportAnalytics } from "react-icons/tb"
 // Drop into client/src/pages/MyProfile.jsx
 // Route it in App.jsx: <Route path="/profile" element={<MyProfile />} />
 //

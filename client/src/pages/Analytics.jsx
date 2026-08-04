@@ -790,8 +790,8 @@ const [loading, setLoading] = useState(true);
     }
   }
 
-  loadAnalytics();
-}, [id, navigate]);
+    loadAnalytics();
+  }, [id, navigate]);
   const report = assessment
   ? {
       ...REPORT_SEED,
