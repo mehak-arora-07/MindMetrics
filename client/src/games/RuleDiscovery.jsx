@@ -834,8 +834,6 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      localStorage.removeItem("assessmentId");
-
       alert(
         "Your login session expired. Please log in again."
       );
@@ -869,8 +867,6 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
     await completeAssessment(assessmentId);
 
     console.log("Assessment completed successfully");
-
-    localStorage.removeItem("assessmentId");
 
     navigate("/");
   } catch (err) {

@@ -732,10 +732,6 @@ export default function PerformancePage() {
     navigate("/login");
   }
 
-  function viewDetails(id) {
-    navigate(`/performances/${id}`);
-  }
-
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : "?";
 
   const completedScores = assessments
@@ -792,16 +788,16 @@ export default function PerformancePage() {
 
         <div className="hp-nav-links">
           <Link to="/">Home</Link>
-          <Link to="/performances" className="active">My Performances</Link>
-          <Link to="/analysis">My Analysis</Link>
+          <Link to="/performance" className="active">My Performance</Link>
+          <Link to="/analytics">My Analysis</Link>
           <Link to="/about">About</Link>
         </div>
 
-        {user && (
+        {/* {user && (
           <button className="hp-nav-cta" onClick={handleStart} disabled={starting}>
             {starting ? "Starting…" : "Start Assessment"}
           </button>
-        )}
+        )} */}
 
         <div className="hp-nav-right" ref={menuRef}>
           {user ? (
@@ -821,8 +817,8 @@ export default function PerformancePage() {
                   <div className="email">{user.email}</div>
                 </div>
                 <Link to="/profile" onClick={() => setMenuOpen(false)}>My Profile</Link>
-                <Link to="/performances" onClick={() => setMenuOpen(false)}>My Performances</Link>
-                <Link to="/analysis" onClick={() => setMenuOpen(false)}>My Analysis</Link>
+                <Link to="/performance" onClick={() => setMenuOpen(false)}>My Performances</Link>
+                <Link to="/analytics" onClick={() => setMenuOpen(false)}>My Analysis</Link>
                 <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
                 <button className="logout" onClick={handleLogout}>Log Out</button>
               </div>
@@ -949,7 +945,7 @@ export default function PerformancePage() {
                         <th>Overall Score</th>
                         <th>Gameplay Profile</th>
                         <th>Status</th>
-                        <th></th>
+                        {/* <th></th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -979,14 +975,14 @@ export default function PerformancePage() {
                                 {a.status}
                               </span>
                             </td>
-                            <td className="pp-td-action" onClick={(e) => e.stopPropagation()}>
+                            {/* <td className="pp-td-action" onClick={(e) => e.stopPropagation()}>
                               <button className="pp-view-btn" onClick={() => viewDetails(a.id)}>
                                 View Details
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                                   <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                               </button>
-                            </td>
+                            </td> */}
                           </tr>
                         );
                       })}

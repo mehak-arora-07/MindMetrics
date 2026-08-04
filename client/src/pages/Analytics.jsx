@@ -336,14 +336,14 @@ const REPORT_SEED = {
   gameplayProfile: "Attention",
   confidence: 91,
   status: "Completed",
-  gameScores: [
-    { label: "Memory Matrix", value: 88 },
-    { label: "Focus Grid", value: 74 },
-    { label: "Reaction Rush", value: 81 },
-    { label: "Decision Dash", value: 65 },
-    { label: "Pattern Planner", value: 79 },
-    { label: "Switch Track", value: 70 },
-  ],
+  // gameScores: [
+  //   { label: "Memory Matrix", value: 88 },
+  //   { label: "Focus Grid", value: 74 },
+  //   { label: "Reaction Rush", value: 81 },
+  //   { label: "Decision Dash", value: 65 },
+  //   { label: "Pattern Planner", value: 79 },
+  //   { label: "Switch Track", value: 70 },
+  // ],
   radar: [
     { label: "Memory", value: 88 },
     { label: "Attention", value: 82 },
@@ -389,11 +389,12 @@ function useOutsideClose(ref, onClose) {
 /* ---------------- Charts (plain SVG, no external library) ---------------- */
 
 function BarChart({ data }) {
-  const w = 560, h = 220;
+  console.log(data);
+  const w = 700, h = 220;
   const padTop = 28, padBottom = 34, padSide = 6;
   const plotH = h - padTop - padBottom;
-  const gap = 18;
-  const barW = (w - padSide * 2 - gap * (data.length - 1)) / data.length;
+  const gap = 10;
+  const barW = 42;
   const gridLines = [0, 25, 50, 75, 100];
 
   return (
@@ -412,8 +413,12 @@ function BarChart({ data }) {
               <rect x={x} y={y} width={barW} height={barH} rx="6" fill="url(#arBarGrad)" />
             </g>
             <text className="ar-bar-value" x={x + barW / 2} y={y - 8} textAnchor="middle">{d.value}</text>
-            <text className="ar-bar-label" x={x + barW / 2} y={h - 12} textAnchor="middle">
-              {d.label.length > 12 ? d.label.slice(0, 11) + "…" : d.label}
+            <text
+              className="ar-bar-label"
+              transform={`translate(${x + barW / 2}, ${h - 8}) rotate(-25)`}
+              textAnchor="end"
+            >
+              {d.label}
             </text>
           </g>
         );
@@ -479,47 +484,149 @@ function RadarChart({ data }) {
   );
 }
 
-function ReactionLineChart({ data }) {
-  const w = 560, h = 200, padSide = 30, padTop = 24, padBottom = 30;
-  const plotW = w - padSide * 2, plotH = h - padTop - padBottom;
-  const max = Math.max(...data), min = Math.min(...data);
+function ReactionLineChart({ data = [] }) {
+  // Prevent crashes if data hasn't loaded yet
+  if (!Array.isArray(data) || data.length === 0) {
+    return (
+      <div
+        style={{
+          height: 220,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#9ca3af",
+        }}
+      >
+        No reaction time data available
+      </div>
+    );
+  }
+  if (data.length === 1) {
+    data = [data[0], data[0]];
+  }
+
+  const w = 560,
+    h = 200,
+    padSide = 30,
+    padTop = 24,
+    padBottom = 30;
+
+  const plotW = w - padSide * 2;
+  const plotH = h - padTop - padBottom;
+
+ const values = data.map(d => d.value);
+
+const max = Math.max(...values);
+const min = Math.min(...values);
   const range = max - min || 1;
 
-  const points = data.map((v, i) => {
-    const x = padSide + (i / (data.length - 1)) * plotW;
-    const y = padTop + plotH - ((v - min) / range) * plotH;
+  const points = data.map((d, i) => {
+  const v = d.value;
+    const x =
+      data.length === 1
+        ? w / 2
+        : padSide + (i / (data.length - 1)) * plotW;
+
+    const y =
+      padTop +
+      plotH -
+      ((v - min) / range) * plotH;
+
     return [x, y];
   });
 
-  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ");
-  const areaPath = `${linePath} L ${points[points.length - 1][0]} ${padTop + plotH} L ${points[0][0]} ${padTop + plotH} Z`;
+  const linePath = points
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`)
+    .join(" ");
+
+  const areaPath =
+    `${linePath} ` +
+    `L ${points[points.length - 1][0]} ${padTop + plotH} ` +
+    `L ${points[0][0]} ${padTop + plotH} Z`;
+
   const dashLen = Math.ceil(plotW * 1.6);
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet">
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="xMidYMid meet"
+    >
       <defs>
-        <linearGradient id="arLineArea" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.22" />
-          <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+        <linearGradient
+          id="arLineArea"
+          x1="0"
+          y1="0"
+          x2="0"
+          y2="1"
+        >
+          <stop
+            offset="0%"
+            stopColor="#3B82F6"
+            stopOpacity="0.22"
+          />
+          <stop
+            offset="100%"
+            stopColor="#3B82F6"
+            stopOpacity="0"
+          />
         </linearGradient>
       </defs>
+
       {[0, 1, 2, 3].map((i) => {
         const y = padTop + (plotH / 3) * i;
-        return <line key={i} className="ar-grid-line" x1={padSide} x2={w - padSide} y1={y} y2={y} />;
+
+        return (
+          <line
+            key={i}
+            className="ar-grid-line"
+            x1={padSide}
+            x2={w - padSide}
+            y1={y}
+            y2={y}
+          />
+        );
       })}
-      <path d={areaPath} fill="url(#arLineArea)" stroke="none" />
+
+      <path
+        d={areaPath}
+        fill="url(#arLineArea)"
+        stroke="none"
+      />
+
       <path
         className="ar-line-path"
         d={linePath}
-        style={{ "--dash": dashLen, strokeDasharray: dashLen }}
+        style={{
+          "--dash": dashLen,
+          strokeDasharray: dashLen,
+        }}
       />
+
       {points.map(([x, y], i) => (
-        <g key={i}>
-          <circle className="ar-line-dot" cx={x} cy={y} r="3.5" />
-          <text className="ar-line-value" x={x} y={y - 12} textAnchor="middle">{data[i]}ms</text>
-          <text className="ar-line-label" x={x} y={h - 8} textAnchor="middle">G{i + 1}</text>
-        </g>
-      ))}
+  <g key={i}>
+    <circle className="ar-line-dot" cx={x} cy={y} r="3.5" />
+
+    <text
+      className="ar-line-value"
+      x={x}
+      y={y - 12}
+      textAnchor="middle"
+    >
+      {data[i].value} ms
+    </text>
+
+    <text
+      className="ar-line-label"
+      x={x}
+      y={h - 8}
+      textAnchor="middle"
+    >
+      {data[i].game.length > 10
+        ? data[i].game.slice(0, 10) + "…"
+        : data[i].game}
+    </text>
+  </g>
+))}
     </svg>
   );
 }
@@ -593,15 +700,170 @@ function MiniRing({ value, accent }) {
 export default function AssessmentReportPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [assessment, setAssessment] = useState(null);
+const [sessions, setSessions] = useState([]);
+const [loading, setLoading] = useState(true);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const { id } = useParams();
   const user = getUser();
 
-  // Replace with: const [report, setReport] = useState(null); useEffect(() => { fetch report by id })
-  const report = { ...REPORT_SEED, id: id || REPORT_SEED.id };
+  useEffect(() => {
+
+    const assessmentId = localStorage.getItem("assessmentId");
+
+    if (!assessmentId) return;
+
+    fetch(
+        `http://localhost:5000/api/assessments/${assessmentId}/details`,
+        {
+            headers:{
+                Authorization:`Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    )
+    .then(res=>res.json())
+    .then(data=>{
+
+        setAssessment(data.assessment);
+        setSessions(data.sessions);
+
+        setLoading(false);
+
+    })
+    .catch(err=>{
+        console.error(err);
+        setLoading(false);
+    });
+
+},[]);
+  const report = assessment
+  ? {
+      ...REPORT_SEED,
+
+      id: assessment.assessmentId,
+
+      date: new Date(assessment.dateTime).toLocaleDateString(),
+
+      overallScore: assessment.overallScore ?? 0,
+
+      gameplayProfile: assessment.gameplayProfile ?? "Pending",
+
+      confidence: Math.round(
+        (assessment.predictionConfidence ?? 0) * 100
+      ),
+
+      status: assessment.status,
+    }
+  : REPORT_SEED;
+
+const correct = sessions.reduce(
+  (sum, s) => sum + (s.accuracy ?? 0),
+  0
+);
+
+const incorrect = sessions.length * 100 - correct;
 
   useOutsideClose(menuRef, () => setMenuOpen(false));
+
+if(loading){
+
+    return <h1>Loading...</h1>;
+
+}
+
+console.log(assessment);
+console.log(sessions);
+  // Replace with: const [report, setReport] = useState(null); useEffect(() => { fetch report by id })
+const gameScores = sessions.map(session => ({
+  label: session.gameId
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, c => c.toUpperCase()),
+
+  value: session.accuracy ?? 0
+}));
+
+const getAccuracy = (gameId) => {
+  const game = sessions.find((s) => s.gameId === gameId);
+  return game ? Number(game.accuracy) || 0 : 0;
+};
+
+const getGame = (gameId) =>
+  sessions.find((s) => s.gameId === gameId);
+
+const memoryMatrix = getGame("memory_matrix");
+const pattern = getGame("pattern_sequence");
+const multi = getGame("multi_switch");
+const cpt = getGame("cpt");
+const dual = getGame("dual_task");
+const keepTrack = getGame("keep_track_task");
+const operation = getGame("operation_span");
+const findBox = getGame("find_the_box");
+const colorReaction = getGame("color_number_reaction");
+const rule = getGame("rule_discovery");
+
+const radarData = [
+  {
+    label: "Memory",
+    value:
+      memoryMatrix?.metrics?.correctCellsTotal
+        ? (memoryMatrix.metrics.correctCellsTotal /
+            25) *
+          100
+        : 0,
+  },
+
+  {
+    label: "Working\nMemory",
+    value:
+      operation?.metrics?.storageAccuracy ??
+      0,
+  },
+
+  {
+    label: "Attention",
+    value:
+      cpt?.metrics?.score ??
+      cpt?.accuracy ??
+      0,
+  },
+
+  {
+    label: "Planning",
+    value:
+      rule?.metrics?.ruleDiscoveryAccuracy ??
+      0,
+  },
+
+  {
+    label: "Flexibility",
+    value:
+      multi?.accuracy ??
+      0,
+  },
+
+  {
+    label: "Observation",
+    value:
+      findBox?.accuracy ??
+      0,
+  },
+
+  {
+    label: "Pattern",
+    value:
+      pattern?.metrics?.correct
+        ? (pattern.metrics.correct / 10) * 100
+        : 0,
+  },
+
+  {
+    label: "Processing",
+    value:
+      colorReaction?.accuracy ??
+      0,
+  },
+];
 
   async function handleStart() {
     if (!user) {
@@ -645,7 +907,56 @@ export default function AssessmentReportPage() {
   }
 
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : "?";
+  console.log("Sessions:", sessions);
 
+const reactionTimes = sessions.map((session) => ({
+  game: session.gameId
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, c => c.toUpperCase()),
+
+  value:
+    session.avgTimeMs ||
+    session.metrics?.avgReactionTimeMs ||
+    session.metrics?.avgReactionMs ||
+    session.metrics?.avgMathReactionMs ||
+    session.metrics?.averageDiscoveryTimeMs ||
+    session.metrics?.avgTimePerQuestionMs ||
+    0,
+}));
+
+const correctResponses = sessions.reduce((sum, session) => {
+  return (
+    sum +
+    (session.metrics?.correctResponses ??
+      session.metrics?.correct ??
+      session.metrics?.hits ??
+      session.metrics?.mathCorrect ??
+      session.metrics?.correctCellsTotal ??
+      session.metrics?.correctLettersRecalled ??
+      0)
+  );
+}, 0);
+
+const totalResponses = sessions.reduce((sum, session) => {
+  return (
+    sum +
+    (session.metrics?.totalTrials ??
+      session.metrics?.questionsTotal ??
+      session.metrics?.attempts ??
+      session.metrics?.totalQuestions ??
+      session.metrics?.mathAnswered ??
+      session.metrics?.totalTrueTargets ??
+      session.metrics?.correctCellsTotal +
+        session.metrics?.wrongCellsTotal ??
+      session.metrics?.totalLettersPresented ??
+      0)
+  );
+}, 0);
+
+const incorrectResponses = Math.max(
+  totalResponses - correctResponses,
+  0
+);
   return (
     <div className="ar-page">
       <style>{styles}</style>
@@ -664,16 +975,16 @@ export default function AssessmentReportPage() {
 
         <div className="hp-nav-links">
           <Link to="/">Home</Link>
-          <Link to="/performances" className="active">My Performances</Link>
-          <Link to="/analysis">My Analysis</Link>
+          <Link to="/performance">My Performance</Link>
+          <Link to="/analytics" className="active">My Analysis</Link>
           <Link to="/about">About</Link>
         </div>
 
-        {user && (
+        {/* {user && (
           <button className="hp-nav-cta" onClick={handleStart} disabled={starting}>
             {starting ? "Starting…" : "Start Assessment"}
           </button>
-        )}
+        )} */}
 
         <div className="hp-nav-right" ref={menuRef}>
           {user ? (
@@ -688,8 +999,8 @@ export default function AssessmentReportPage() {
                   <div className="email">{user.email}</div>
                 </div>
                 <Link to="/profile" onClick={() => setMenuOpen(false)}>My Profile</Link>
-                <Link to="/performances" onClick={() => setMenuOpen(false)}>My Performances</Link>
-                <Link to="/analysis" onClick={() => setMenuOpen(false)}>My Analysis</Link>
+                <Link to="/analytics" onClick={() => setMenuOpen(false)}>My Analysis</Link>
+                <Link to="/performance" onClick={() => setMenuOpen(false)}>My Performance</Link>
                 <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
                 <button className="logout" onClick={handleLogout}>Log Out</button>
               </div>
@@ -703,20 +1014,19 @@ export default function AssessmentReportPage() {
       </nav>
 
       <div className="ar-container">
-        <Link to="/performances" className="ar-back">
+        <Link to="/performance" className="ar-back">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Back to Performances
+          Back to Performance Page
         </Link>
 
         <div className="ar-header">
           <div>
-            <div className="ar-eyebrow"><span className="ar-eyebrow-dot" />AI-Generated Report</div>
+            {/* <div className="ar-eyebrow"><span className="ar-eyebrow-dot" />AI-Generated Report</div> */}
             <h1>Analytics Dashboard</h1>
             <div className="ar-header-meta">
               <span className="chip">📅 Assessment Date · <b>{report.date}</b></span>
-              <span className="chip">🆔 Assessment ID · <b>{report.id}</b></span>
             </div>
           </div>
         </div>
@@ -766,7 +1076,7 @@ export default function AssessmentReportPage() {
               <h4>Game-wise Score Comparison</h4>
               <p>Score achieved in each mini-game during the assessment.</p>
             </div>
-            <BarChart data={report.gameScores} />
+            <BarChart data={gameScores} />
           </div>
 
           <div className="ar-chart-card">
@@ -774,7 +1084,7 @@ export default function AssessmentReportPage() {
               <h4>Cognitive Skills Overview</h4>
               <p>How each core cognitive skill measured against the full assessment.</p>
             </div>
-            <RadarChart data={report.radar} />
+            <RadarChart data={radarData} />
           </div>
 
           <div className="ar-chart-card">
@@ -782,7 +1092,7 @@ export default function AssessmentReportPage() {
               <h4>Average Reaction Time</h4>
               <p>Response speed across each game, in milliseconds.</p>
             </div>
-            <ReactionLineChart data={report.reactionTimes} />
+            <ReactionLineChart data={reactionTimes} />
           </div>
 
           <div className="ar-chart-card">
@@ -790,7 +1100,7 @@ export default function AssessmentReportPage() {
               <h4>Correct vs Incorrect Performance</h4>
               <p>Overall response accuracy across the full session.</p>
             </div>
-            <DonutChart correct={report.accuracy.correct} incorrect={report.accuracy.incorrect} />
+            <DonutChart correct={correctResponses} incorrect={incorrectResponses}/>
           </div>
         </div>
 
@@ -804,7 +1114,15 @@ export default function AssessmentReportPage() {
             <div className="ar-summary-badge">🤖</div>
             <h3>Session Report</h3>
           </div>
-          <p>{report.summary}</p>
+          <p>
+  Your assessment has been successfully completed. Based on the gameplay
+  metrics collected across all 10 cognitive games, the Machine Learning
+  model classified your gameplay profile as
+  <strong> {report.gameplayProfile}</strong>.
+  You achieved an overall cognitive score of
+  <strong> {report.overallScore}/100</strong> with a prediction confidence
+  of <strong>{report.confidence}%</strong>.
+</p>
         </div>
 
         <div className="ar-section-head">
@@ -865,9 +1183,9 @@ export default function AssessmentReportPage() {
             </svg>
             Share Report
           </button>
-          <button className="ar-btn-primary-icon" onClick={handleStart} disabled={starting}>
+          {/* <button className="ar-btn-primary-icon" onClick={handleStart} disabled={starting}>
             {starting ? "Starting…" : "Start New Assessment"}
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

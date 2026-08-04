@@ -649,7 +649,6 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      localStorage.removeItem("assessmentId");
 
       alert(
         "Your login session expired. Please log in again."

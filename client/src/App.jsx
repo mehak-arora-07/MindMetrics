@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { getUser, getAssessmentId, startAssessment } from "./utils/session";
+import { getUser, getAssessmentId} from "./utils/session";
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
 import PatternSequence from "./games/PatternSequence";
@@ -20,32 +20,8 @@ import AssessmentReportPage from "./pages/Analytics";
 
 
 function App() {
-  const [assessmentId, setAssessmentIdState] = useState(() =>
-    getAssessmentId()
-  );
-
+  const assessmentId = getAssessmentId();
   const [user] = useState(() => getUser());
-
-  useEffect(() => {
-    const createAssessment = async () => {
-      if (assessmentId || !user) {
-        return;
-      }
-
-      try {
-        const newAssessmentId = await startAssessment();
-
-        console.log("Assessment started:", newAssessmentId);
-
-        setAssessmentIdState(newAssessmentId);
-      } catch (err) {
-        console.error("Could not start assessment:", err);
-      }
-    };
-
-    createAssessment();
-  }, [assessmentId, user]);
-
 
   return (
     <BrowserRouter>

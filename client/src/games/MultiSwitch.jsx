@@ -730,7 +730,6 @@ async function endGame() {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      localStorage.removeItem("assessmentId");
 
       alert(
         "Your login session expired. Please log in again."

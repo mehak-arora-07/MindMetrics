@@ -89,6 +89,38 @@ router.get("/", verifyToken, async(req, res) => {
         });
     }
 });
+router.get("/:assessmentId/details", verifyToken, async(req, res) => {
+    try {
+
+        const assessment = await Assessment.findOne({
+            assessmentId: req.params.assessmentId,
+            userId: req.user.userId
+        });
+
+        if (!assessment) {
+            return res.status(404).json({
+                success: false,
+                message: "Assessment not found"
+            });
+        }
+
+        const sessions = await Session.find({
+            assessmentId: req.params.assessmentId
+        });
+
+        res.json({
+            success: true,
+            assessment,
+            sessions
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
 
 // Mark an assessment complete and roll up its sessions into an overallScore
 // and a gameplayProfile label. Call this once the user finishes every game
@@ -171,6 +203,38 @@ router.patch("/:assessmentId/complete", verifyToken, async(req, res) => {
             error: err.message,
         });
     }
+});
+router.get("/:assessmentId/details", verifyToken, async (req, res) => {
+  try {
+
+    const assessment = await Assessment.findOne({
+      assessmentId: req.params.assessmentId,
+      userId: req.user.userId
+    });
+
+    if (!assessment) {
+      return res.status(404).json({
+        success:false,
+        message:"Assessment not found"
+      });
+    }
+
+    const sessions = await Session.find({
+      assessmentId:req.params.assessmentId
+    });
+
+    res.json({
+      success:true,
+      assessment,
+      sessions
+    });
+
+  } catch(err){
+      res.status(500).json({
+          success:false,
+          error:err.message
+      });
+  }
 });
 
 module.exports = router;

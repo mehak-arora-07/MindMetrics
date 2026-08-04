@@ -743,7 +743,6 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
     if (res.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      localStorage.removeItem("assessmentId");
 
       alert(
         "Your login session expired. Please log in again."

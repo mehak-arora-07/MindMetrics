@@ -24,6 +24,10 @@ export function clearSession() {
   localStorage.removeItem("assessmentId");
 }
 
+export function clearAssessmentId() {
+    localStorage.removeItem("assessmentId");
+}
+
 export function getAssessmentId() {
   return localStorage.getItem("assessmentId");
 }

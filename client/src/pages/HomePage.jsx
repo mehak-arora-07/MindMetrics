@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getUser, clearSession, startAssessment } from "../utils/session";
+import { getUser, clearSession, startAssessment,clearAssessmentId } from "../utils/session";
 
 
 // Drop into client/src/pages/HomePage.jsx
@@ -1030,6 +1030,7 @@ export default function HomePage() {
     }
     setStarting(true);
     try {
+      clearAssessmentId();
       await startAssessment();
       navigate("/play/memory-matrix");
     } catch (err) {

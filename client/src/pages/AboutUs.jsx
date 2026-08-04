@@ -93,6 +93,10 @@ html, body, #root {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #1a2033;
 }
+.hp-nav-links { display: flex; align-items: center; gap: 6px; margin: 0 auto; padding: 4px; background: rgba(255, 255, 255, 0.02); border: 1px solid #1a2033; border-radius: 999px; }
+.hp-nav-links a { color: #8B93A7; text-decoration: none; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 999px; transition: color 0.15s ease, background 0.15s ease; }
+.hp-nav-links a:hover { color: #E5E7EB; background: rgba(255, 255, 255, 0.05); }
+.hp-nav-links a.active { color: #34D399; background: rgba(52, 211, 153, 0.08); }
 .hp-logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; letter-spacing: -0.4px; cursor: default; }
 .hp-logo-dot { width: 9px; height: 9px; border-radius: 50%; background: #34D399; flex-shrink: 0; }
 .hp-wordmark {
@@ -294,7 +298,7 @@ html, body, #root {
 }
 .hp-footer-bottom a { color: #4B5468; text-decoration: none; margin-left: 18px; }
 .hp-footer-bottom a:hover { color: #8B93A7; }
-
+@media (max-width: 760px) { .hp-nav-links { display: none; } }
 @media (max-width: 900px) {
   .hp-about-hero { padding: 130px 24px 30px; }
   .hp-about-hero h1 { font-size: 32px; }
@@ -516,6 +520,13 @@ export default function AboutPage() {
             <span className="hp-wordmark">MindMetrics</span>
           </div>
         </Link>
+
+        <div className="hp-nav-links">
+          <Link to="/">Home</Link>
+          <Link to="/performance">My Performance</Link>
+          <Link to="/analytics">My Analysis</Link>
+          <Link to="/about" className="active">About</Link>
+        </div>
 
         <div className="hp-nav-right" ref={menuRef}>
           <button className={`hp-menu-btn ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen((o) => !o)}>
