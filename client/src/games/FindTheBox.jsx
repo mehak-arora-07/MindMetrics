@@ -848,13 +848,7 @@ if (phase === "done") {
           </div>
         </div>
 
-        <button
-          className="fb-btn"
-          onClick={() => setPhase("instructions")}
-          style={{ marginTop: 24 }}
-        >
-          Try Again
-        </button>
+        
       </div>
     </div>
   );

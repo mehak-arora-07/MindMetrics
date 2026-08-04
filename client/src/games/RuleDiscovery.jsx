@@ -860,34 +860,23 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
 
     setPhase("done");
 
-    setTimeout(async () => {
-      const assessmentId =
-        localStorage.getItem("assessmentId");
+   setTimeout(async () => {
+  const assessmentId = localStorage.getItem("assessmentId");
 
-      if (!assessmentId) {
-        console.error(
-          "Assessment ID is missing."
-        );
-        return;
-      }
+  console.log("Assessment ID:", assessmentId);
 
-      try {
-        await completeAssessment(assessmentId);
+  try {
+    await completeAssessment(assessmentId);
 
-        console.log(
-          "Assessment completed successfully"
-        );
+    console.log("Assessment completed successfully");
 
-        localStorage.removeItem("assessmentId");
+    localStorage.removeItem("assessmentId");
 
-        navigate("/");
-      } catch (err) {
-        console.error(
-          "Failed to complete assessment:",
-          err
-        );
-      }
-    }, 10000);
+    navigate("/");
+  } catch (err) {
+    console.error("Failed to complete assessment:", err);
+  }
+}, 10000);
   } catch (err) {
     console.error(
       "Failed to save session:",

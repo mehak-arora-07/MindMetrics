@@ -105,6 +105,10 @@ export async function saveGameSession(sessionData) {
 }
 
 export async function completeAssessment(assessmentId) {
+  if (!assessmentId) {
+    throw new Error("assessmentId is missing");
+  }
+
   const res = await fetch(
     `${API_BASE}/api/assessments/${assessmentId}/complete`,
     {
@@ -116,13 +120,25 @@ export async function completeAssessment(assessmentId) {
     }
   );
 
-  const data = await res.json();
+  let data;
 
-  if (!res.ok || !data.success) {
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+
+  if (!res.ok || !data?.success) {
+    console.error("Complete assessment request failed:", {
+      status: res.status,
+      assessmentId,
+      response: data,
+    });
+
     throw new Error(
-      data.message ||
-      data.error ||
-      "Failed to complete assessment"
+      data?.message ||
+      data?.error ||
+      `Failed to complete assessment (${res.status})`
     );
   }
 
