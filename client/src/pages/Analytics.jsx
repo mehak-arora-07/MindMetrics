@@ -7,6 +7,16 @@ import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar ,FaTrop
 import { GoGoal } from "react-icons/go";
 import { MdOutlineLoop } from "react-icons/md";
 import { TbReportAnalytics } from "react-icons/tb";
+import { GiBrain } from "react-icons/gi";
+import { RiFocus2Fill } from "react-icons/ri";
+import { RiFocus3Fill } from "react-icons/ri";
+import { GiStopwatch } from "react-icons/gi";
+import { GrDocumentPerformance } from "react-icons/gr";
+import { BsFillPuzzleFill } from "react-icons/bs";
+import { MdSwitchAccessShortcut } from "react-icons/md";
+import { PiSpeedometerBold } from "react-icons/pi";
+// import { GrDocumentPerformance } from "react-icons/gr";
+
 
 // Drop into client/src/pages/AssessmentReportPage.jsx
 // Route it in App.jsx: <Route path="/performances/:id" element={<AssessmentReportPage />} />
@@ -313,7 +323,7 @@ html, body, #root {
 .ar-summary-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .ar-summary-badge {
   width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-  background: linear-gradient(135deg, #34D399, #3B82F6);
+  // background: linear-gradient(135deg, #34D399, #3B82F6);
   display: flex; align-items: center; justify-content: center; font-size: 17px;
 }
 .ar-summary-card h3 { font-size: 18px; font-weight: 700; color: #E5E7EB; margin: 0; letter-spacing: -0.3px; }
@@ -419,25 +429,26 @@ const REPORT_SEED = {
   accuracy: { correct: 82, incorrect: 18 },
   summary:
     "Across this session, performance was strongest in memory recall and sustained attention, with the Memory Matrix and Focus Grid rounds both landing well above baseline. Reaction time improved steadily across the session, suggesting good adaptation and warm-up effect. Decision-making tasks showed more variance, with speed occasionally trading off against accuracy under time pressure. Working memory and cognitive flexibility scored in a solid-but-improvable range, pointing to task switching as the main lever for the next session. Overall, the profile reflects a careful, accuracy-oriented player with room to build speed and adaptability.",
-  strengths: [
-    { label: "Excellent Memory", icon: <FaBrain />, hex: "#34D399" },
-    { label: "High Attention", icon:<GoGoal />, hex: "#3B82F6" },
-    { label: "Strong Accuracy", icon: <TiTick />, hex: "#34D399" },
-    { label: "Consistent Performance", icon: <FaChartLine />, hex: "#A78BFA" },
-  ],
-  improvements: [
-    { label: "Reaction Speed", icon: <FaBolt />, hex: "#F59E0B" },
-    { label: "Task Switching", icon: <MdOutlineLoop />, hex: "#F59E0B" },
-    { label: "Working Memory", icon: <FaPuzzlePiece />, hex: "#F87171" },
-    { label: "Decision Speed", icon: <FaBalanceScale />, hex: "#F87171" },
-  ],
-  recommendations: [
-    { icon: <FaBolt />, title: "Speed-focused drills", desc: "Add short, timed reaction exercises 2–3 times a week to build faster response thresholds without sacrificing accuracy." },
-    { icon:  <FaPuzzlePiece />, title: "Dual-task practice", desc: "Try holding one piece of information in mind while completing a second task to strengthen working memory capacity." },
-    { icon:<MdOutlineLoop />, title: "Task-switching sets", desc: "Rotate between different rule sets in short bursts to build flexibility and reduce switch-cost over time." },
-    { icon: <FaBalanceScale />  , title: "Timed decision drills", desc: "Practice making choices under a soft time limit to build faster judgment while keeping error rates low." },
-  ],
+  // strengths: [
+  //   { label: "Excellent Memory", icon: <FaBrain />, hex: "#34D399" },
+  //   { label: "High Attention", icon:<GoGoal />, hex: "#3B82F6" },
+  //   { label: "Strong Accuracy", icon: <TiTick />, hex: "#34D399" },
+  //   { label: "Consistent Performance", icon: <FaChartLine />, hex: "#A78BFA" },
+  // ],
+  // improvements: [
+  //   { label: "Reaction Speed", icon: <FaBolt />, hex: "#F59E0B" },
+  //   { label: "Task Switching", icon: <MdOutlineLoop />, hex: "#F59E0B" },
+  //   { label: "Working Memory", icon: <FaPuzzlePiece />, hex: "#F87171" },
+  //   { label: "Decision Speed", icon: <FaBalanceScale />, hex: "#F87171" },
+  // ],
+  // recommendations: [
+  //   { icon: <FaBolt />, title: "Speed-focused drills", desc: "Add short, timed reaction exercises 2–3 times a week to build faster response thresholds without sacrificing accuracy." },
+  //   { icon:  <FaPuzzlePiece />, title: "Dual-task practice", desc: "Try holding one piece of information in mind while completing a second task to strengthen working memory capacity." },
+  //   { icon:<MdOutlineLoop />, title: "Task-switching sets", desc: "Rotate between different rule sets in short bursts to build flexibility and reduce switch-cost over time." },
+  //   { icon: <FaBalanceScale />  , title: "Timed decision drills", desc: "Practice making choices under a soft time limit to build faster judgment while keeping error rates low." },
+  // ],
 };
+
 
 function useOutsideClose(ref, onClose) {
   useEffect(() => {
@@ -777,10 +788,118 @@ const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { id } = useParams();
   const user = getUser();
-
+  const strengths = [];
+const improvements = [];
+const recommendations = [];
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  if (sessions.some(s => s.gameId === "memory_matrix" && s.accuracy >= 80)) {
+  strengths.push({
+    label: "Excellent Memory",
+    icon: <GiBrain />,
+    hex: "#34D399"
+  });
+}
+
+if (sessions.some(s => s.gameId === "cpt" && s.accuracy >= 80)) {
+  strengths.push({
+    label: "High Attention",
+    icon: <RiFocus3Fill />,
+    hex: "#3B82F6"
+  });
+}
+
+if (sessions.some(s => s.accuracy >= 90)) {
+  strengths.push({
+    label: "Strong Accuracy",
+    icon: <RiFocus2Fill />,
+    hex: "#10B981"
+  });
+}
+
+const avgAccuracy =
+  sessions.reduce((sum, s) => sum + s.accuracy, 0) / sessions.length;
+
+if (avgAccuracy >= 75) {
+  strengths.push({
+    label: "Consistent Performance",
+    icon: <GrDocumentPerformance />,
+    hex: "#F59E0B"
+  });
+}
+if (sessions.some(s => s.avgTimeMs > 2500)) {
+  improvements.push({
+    label: "Reaction Speed",
+    icon: <GiStopwatch />,
+    hex: "#f25e5eff"
+  });
+}
+
+const multis = sessions.find(s => s.gameId === "multi_switch");
+
+if (multis && multis.accuracy < 75) {
+  improvements.push({
+    label: "Task Switching",
+    icon: <MdSwitchAccessShortcut />,
+    hex: "#F97316"
+  });
+}
+
+const opSpan = sessions.find(s => s.gameId === "operation_span");
+
+if (opSpan && opSpan.accuracy < 70) {
+  improvements.push({
+    label: "Working Memory",
+    icon: <BsFillPuzzleFill />,
+    hex: "#8B5CF6"
+  });
+}
+
+const rules = sessions.find(s => s.gameId === "rule_discovery");
+
+if (rules && rules.accuracy < 70) {
+  improvements.push({
+    label: "Decision Speed",
+    icon: <PiSpeedometerBold />,
+    hex: "#EC4899"
+  });
+}
+if (improvements.some(i => i.label === "Reaction Speed")) {
+  recommendations.push({
+    icon: <GiStopwatch />,
+    title: "Speed-focused drills",
+    desc:
+      "Add short, timed reaction exercises 2–3 times a week to improve response speed."
+  });
+}
+
+if (improvements.some(i => i.label === "Working Memory")) {
+  recommendations.push({
+    icon: <GiBrain />,
+    title: "Dual-task practice",
+    desc:
+      "Practice remembering information while completing another task."
+  });
+}
+
+if (improvements.some(i => i.label === "Task Switching")) {
+  recommendations.push({
+    icon: <MdSwitchAccessShortcut />,
+    title: "Task-switching sets",
+    desc:
+      "Alternate between different rule sets to improve cognitive flexibility."
+  });
+}
+
+if (improvements.some(i => i.label === "Decision Speed")) {
+  recommendations.push({
+    icon: <PiSpeedometerBold />,
+    title: "Timed decision drills",
+    desc:
+      "Practice making quick decisions under light time pressure."
+  });
+}
 
   useEffect(() => {
   async function loadAnalytics() {
@@ -847,6 +966,11 @@ const [loading, setLoading] = useState(true);
       }
 
       setAssessment(detailsData.assessment);
+      console.log("Assessment:", detailsData.assessment);
+console.log(
+  "Prediction Confidence:",
+  detailsData.assessment.predictionConfidence
+);
       setSessions(detailsData.sessions || []);
     } catch (error) {
       console.error("Analytics loading failed:", error);
@@ -877,6 +1001,9 @@ const [loading, setLoading] = useState(true);
       ),
 
       status: assessment.status,
+      strengths,
+      improvements,
+      recommendations,
     }
   : REPORT_SEED;
 
@@ -1291,7 +1418,7 @@ const incorrectResponses = Math.max(
 
         <div className="ar-summary-card">
           <div className="ar-summary-head">
-            <div className="ar-summary-badge"><TbReportAnalytics /></div>
+            <div className="ar-summary-badge"><GrDocumentPerformance /></div>
             <h3>Session Report</h3>
           </div>
           <p>

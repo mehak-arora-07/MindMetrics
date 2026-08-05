@@ -14,7 +14,7 @@ import { clearAssessmentCompleted } from "../utils/session";
 // Route it at "/" in App.jsx: <Route path="/" element={<HomePage />} />
 //
 // "My Performances", "My Analysis", "Profile", and "About Us" are routed to
-// placeholder paths (/performances, /analysis, /profile, /about) — build
+// placeholder paths (/performances, /analytics, /profile, /about) — build
 // those pages whenever you're ready, the links are already wired.
 
 const styles = `
