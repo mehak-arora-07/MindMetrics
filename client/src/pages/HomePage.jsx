@@ -1112,7 +1112,8 @@ export default function HomePage() {
           <a href="#how-it-works">How it works</a>
           <a href="#skills">Skills measured</a>
           <Link to="/performance">My performances</Link>
-            <Link to="/analytics">My analysis</Link>
+                      <Link to="/analytics">My analysis</Link>
+
           <Link to="/about">About Us</Link>
 
         </div>

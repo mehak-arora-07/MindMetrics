@@ -910,9 +910,9 @@ export default function PerformancePage() {
                 </div>
                 <Link to="/profile" onClick={() => setMenuOpen(false)}>My Profile</Link>
                                 <Link to="/analytics" onClick={() => setMenuOpen(false)}>My Analysis</Link>
+                <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
 
                 <Link to="/performance" onClick={() => setMenuOpen(false)}>My Performances</Link>
-                <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
                 <button className="logout" onClick={handleLogout}>Log Out</button>
               </div>
             </>
