@@ -777,7 +777,7 @@ async function endGame() {
 
   try {
     const res = await fetch(
-      "http://localhost:5000/api/sessions",
+      `${import.meta.env.VITE_API_URL}/api/sessions`,
       {
         method: "POST",
         headers: {
