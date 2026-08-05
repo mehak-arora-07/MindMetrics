@@ -778,7 +778,7 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
         }
         return next;
       });
-    }, 100);
+    }, 120);
   }
 
   function endRound(roundIdx) {
@@ -1065,22 +1065,18 @@ if (phase === "done") {
  return (
   <motion.div
     className="sr-wrap"
-    initial={{
-      opacity: 0,
-      y: 50,
-      scale: 0.96,
-      filter: "blur(8px)",
-    }}
-    animate={{
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      filter: "blur(0px)",
-    }}
-    transition={{
-      duration: 0.8,
-      ease: "easeOut",
-    }}
+      initial={{
+    opacity: 0,
+    y: 10,
+  }}
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.2,
+    ease: "easeOut",
+  }}
   >
     <style>{styles}</style>
       <div className={`sr-arena ${shake ? "shake" : ""}`}>
@@ -1092,7 +1088,7 @@ if (phase === "done") {
               <h2>Color-Number Reaction</h2>
             </div>
             <div className="sr-badge-row">
-              <div className="sr-badge round">Round {roundIndex + 1}/{ROUNDS.length}</div>
+              <div className="sr-badge round">Round {roundIndex + 1} of {ROUNDS.length}</div>
               {rule && phase === "playing" && <div className="sr-badge">{rule.label}</div>}
             </div>
           </div>
@@ -1143,9 +1139,7 @@ if (phase === "done") {
         {phase === "roundBreak" && (
           <div className="sr-board-area">
             <div className="sr-phase-label">{round.label} complete</div>
-            <div className="sr-info-card sr-info-round">
             </div>
-          </div>
         )}
 
       </div>

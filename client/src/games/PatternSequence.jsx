@@ -778,22 +778,18 @@ useDisableBackButton();
   return (
   <motion.div
     className="ps-wrap ps-screen"
-    initial={{
-      opacity: 0,
-      y: 50,
-      scale: 0.96,
-      filter: "blur(8px)",
-    }}
-    animate={{
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      filter: "blur(0px)",
-    }}
-    transition={{
-      duration: 0.8,
-      ease: "easeOut",
-    }}
+      initial={{
+    opacity: 0,
+    y: 10,
+  }}
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.2,
+    ease: "easeOut",
+  }}
   >
     <style>{styles}</style>
       <div className="ps-main">

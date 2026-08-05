@@ -22,7 +22,11 @@ import { TbReportAnalytics } from "react-icons/tb";
 
 const styles = `
 * { box-sizing: border-box; }
-
+@keyframes ar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 html, body, #root {
   margin: 0 !important;
   padding: 0 !important;
@@ -106,8 +110,6 @@ html, body, #root {
 .hp-nav-cta:hover { border-color: #34D399; color: #34D399; }
 @media (max-width: 760px) { .hp-nav-links { display: none; } }
 .hp-wordmark { color: #E5E7EB; transition: color 0.2s ease; }
-.hp-wordmark span { color: #34D399; }
-.hp-logo:hover .hp-wordmark { color: #F5F6F8; }
 .hp-nav-right { position: relative; }
 .hp-menu-btn { display: flex; align-items: center; gap: 10px; background: #141A2E; border: 1px solid #232A3D; border-radius: 999px; padding: 6px 14px 6px 6px; cursor: pointer; color: #E5E7EB; font-size: 13px; font-weight: 500; font-family: inherit; transition: border-color 0.15s ease; }
 .hp-menu-btn:hover { border-color: #34D399; }
@@ -126,7 +128,58 @@ html, body, #root {
 .hp-dropdown a:hover, .hp-dropdown button:hover { background: rgba(255, 255, 255, 0.05); color: #E5E7EB; }
 .hp-dropdown button.logout { color: #F87171; }
 .hp-dropdown button.logout:hover { background: rgba(248, 113, 113, 0.1); }
+.hp-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  cursor: pointer;   /* <-- Make sure this is pointer */
+}
 
+.hp-logo-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #34D399;
+  flex-shrink: 0;
+}
+
+.hp-wordmark {
+  color: #E5E7EB;
+
+  background-image: linear-gradient(
+    90deg,
+    #34D399,
+    #3B82F6,
+    #A78BFA,
+    #F59E0B,
+    #F87171
+  );
+
+  background-size: 300% 100%;
+  background-position: 100% 0;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  -webkit-text-fill-color: currentColor;
+
+  transition:
+    color .15s ease,
+    background-position .5s ease;
+}
+
+.hp-logo:hover .hp-wordmark {
+  color: transparent;
+  background-position: 0% 0;
+}
+
+.hp-wordmark:hover {
+  color: transparent;
+  background-position: 0% 0;
+}
 /* ---- Buttons (identical to HomePage) ---- */
 .hp-btn-primary { background: linear-gradient(90deg, #34D399, #3B82F6); color: #05221A; border: none; border-radius: 10px; padding: 13px 26px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.15s ease; }
 .hp-btn-primary:hover { box-shadow: 0 6px 24px rgba(52, 211, 153, 0.3); }
@@ -265,7 +318,11 @@ html, body, #root {
 }
 .ar-summary-card h3 { font-size: 18px; font-weight: 700; color: #E5E7EB; margin: 0; letter-spacing: -0.3px; }
 .ar-summary-card p { font-size: 14.5px; color: #B9BFCE; line-height: 1.75; margin: 0; }
-
+.logo-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+}
 /* ---- Tag chips (strengths / improvements) ---- */
 .ar-tag-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 @media (max-width: 900px) { .ar-tag-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -831,13 +888,29 @@ const correct = sessions.reduce(
 const incorrect = sessions.length * 100 - correct;
 
   useOutsideClose(menuRef, () => setMenuOpen(false));
-
 if (loading) {
   return (
     <div className="ar-page">
-      <h2 style={{ padding: "150px 30px" }}>
-        Loading analytics...
-      </h2>
+      <style>{styles}</style>
+       <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            border: "3px solid #232A3D",
+            borderTopColor: "#34D399",
+            borderRadius: "50%",
+            animation: "ar-spin 0.8s linear infinite",
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -845,10 +918,22 @@ if (loading) {
 if (!assessment) {
   return (
     <div className="ar-page">
-      <div style={{ padding: "150px 30px" }}>
+      <style>{styles}</style>
+
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+          padding: "24px",
+        }}
+      >
         <h2>No completed assessment found</h2>
 
-        <p>
+        <p style={{ color: "#8B93A7", marginBottom: 24 }}>
           Complete an assessment to view analytics.
         </p>
 
@@ -1060,18 +1145,20 @@ const incorrectResponses = Math.max(
         <div className="ar-blob b2" />
       </div>
 
-      <nav className="hp-nav">
-        <div className="hp-logo">
-          <span className="hp-logo-dot" />
-          <span className="hp-wordmark">Mind<span>Metrics</span></span>
-        </div>
-
+ <nav className="hp-nav">
+       <Link to="/" className="logo-link">
+  <div className="hp-logo">
+    <span className="hp-logo-dot" />
+    <span className="hp-wordmark">Mind Metrics</span>
+  </div>
+</Link>
+{/* 
         <div className="hp-nav-links">
           <Link to="/">Home</Link>
           <Link to="/performance">My Performance</Link>
           <Link to="/analytics" className="active">My Analysis</Link>
           <Link to="/about">About</Link>
-        </div>
+        </div> */}
 
         {/* {user && (
           <button className="hp-nav-cta" onClick={handleStart} disabled={starting}>

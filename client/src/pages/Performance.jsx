@@ -170,10 +170,48 @@ html, body, #root {
 @media (max-width: 760px) {
   .hp-nav-links { display: none; }
 }
+.hp-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  cursor: pointer;   /* <-- Make sure this is pointer */
+}
 
-.hp-wordmark { color: #E5E7EB; transition: color 0.2s ease; }
-.hp-wordmark span { color: #34D399; }
-.hp-logo:hover .hp-wordmark { color: #F5F6F8; }
+.hp-logo-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #34D399;
+  flex-shrink: 0;
+}
+
+.hp-wordmark {
+  color: #E5E7EB;
+  transition: background-position 0.5s ease, color 0.1s ease;
+  background-image: linear-gradient(
+    90deg,
+    #34D399,
+    #3B82F6,
+    #A78BFA,
+    #F59E0B,
+    #F87171
+  );
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.hp-wordmark:hover {
+  color: transparent;
+  background-position: 0% 0;
+}
+// .hp-wordmark { color: #E5E7EB; transition: color 0.2s ease; }
+// .hp-wordmark span { color: #34D399; }
+// .hp-logo:hover .hp-wordmark { color: #F5F6F8; }
 
 .hp-nav-right { position: relative; }
 
@@ -825,9 +863,9 @@ export default function PerformancePage() {
             .filter(Boolean)
     )
 ];
-  if(loading){
-    return <h2>Loading...</h2>;
-}
+//   if(loading){
+//     return <h2>Loading...</h2>;
+// }
   return (
     <div className="pp-page">
       <style>{styles}</style>
@@ -839,17 +877,13 @@ export default function PerformancePage() {
       </div>
 
       <nav className="hp-nav">
-        <div className="hp-logo">
-          <span className="hp-logo-dot" />
-          <span className="hp-wordmark">Mind<span>Metrics</span></span>
-        </div>
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <div className="hp-logo">
+            <span className="hp-logo-dot" />
+            <span className="hp-wordmark">Mind Metrics</span>
+          </div>
+        </Link>
 
-        <div className="hp-nav-links">
-          <Link to="/">Home</Link>
-          <Link to="/performance" className="active">My Performance</Link>
-          <Link to="/analytics">My Analysis</Link>
-          <Link to="/about">About</Link>
-        </div>
 
         {/* {user && (
           <button className="hp-nav-cta" onClick={handleStart} disabled={starting}>
@@ -875,8 +909,9 @@ export default function PerformancePage() {
                   <div className="email">{user.email}</div>
                 </div>
                 <Link to="/profile" onClick={() => setMenuOpen(false)}>My Profile</Link>
+                                <Link to="/analytics" onClick={() => setMenuOpen(false)}>My Analysis</Link>
+
                 <Link to="/performance" onClick={() => setMenuOpen(false)}>My Performances</Link>
-                <Link to="/analytics" onClick={() => setMenuOpen(false)}>My Analysis</Link>
                 <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
                 <button className="logout" onClick={handleLogout}>Log Out</button>
               </div>

@@ -167,7 +167,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.3px;
   cursor: default;
@@ -367,6 +367,8 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   gap: 56px;
+
+  transform: translateY(-10px);
 }
 
 .hp-hero-content {
@@ -1103,15 +1105,15 @@ export default function HomePage() {
       <nav className="hp-nav">
         <div className="hp-logo">
           <span className="hp-logo-dot" />
-          <span className="hp-wordmark">Mind<span>Metrics</span></span>
+          <span className="hp-wordmark">Mind<span> Metrics</span></span>
         </div>
 
         <div className="hp-nav-links">
           <a href="#how-it-works">How it works</a>
           <a href="#skills">Skills measured</a>
           <Link to="/performance">My performances</Link>
-                    <Link to="/analytics">My analysis</Link>
-          <Link to="/about">About</Link>
+            <Link to="/analytics">My analysis</Link>
+          <Link to="/about">About Us</Link>
 
         </div>
 

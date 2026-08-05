@@ -395,8 +395,16 @@ export default function AuthPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+     const passwordPattern = /^[A-Za-z0-9]{6,}$/;
+
+  if (!passwordPattern.test(form.password)) {
+    setError(
+      "Password must be at least 6 characters and contain only letters and numbers."
+    );
+    return;
+  }
+
+  setLoading(true);
 
     try {
       const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
@@ -447,17 +455,19 @@ export default function AuthPage() {
         <div className="auth-brand-content">
           <div className="auth-logo">
             <span className="auth-logo-dot" />
-            <span className="auth-wordmark">MindMetrics</span>
+            <span className="auth-wordmark">Mind Metrics</span>
           </div>
         </div>
         <div className="auth-tagline">
-          <h1>
-            Understand how <br /> your <span>mind</span> really works.
-          </h1>
-          <p>
-            Interactive cognitive assessments powered by AI to reveal your
-            strengths, improve performance, and unlock your potential.
-          </p>
+        <h1>
+  Test your skills. <br />
+  Track your <span>performance.</span>
+</h1>
+
+<p>
+  Complete short cognitive games and view your scores, progress,
+  and performance insights in one place.
+</p>
         </div>
       </div>
 
@@ -484,8 +494,8 @@ export default function AuthPage() {
           <h2>{mode === "login" ? "Welcome back" : "Create your account"}</h2>
           <p className="sub">
             {mode === "login"
-              ? "Log in to continue your cognitive assessment journey."
-              : "Start tracking your cognitive performance today."}
+              ? "Log in to continue your assessments."
+              : "Log in to continue your assessments."}
           </p>
 
           {error && <div className="auth-error">{error}</div>}
@@ -521,15 +531,21 @@ export default function AuthPage() {
 
             <div className="auth-field">
               <label>Password</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="At least 6 characters"
-                value={form.password}
-                onChange={handleChange}
-                style={{ "--focus-color": "#F87171", "--focus-glow": "rgba(248, 113, 113, 0.15)" }}
-                required
-              />
+             <input
+  type="password"
+  name="password"
+  placeholder="Minimum 6 letters or numbers"
+  value={form.password}
+  onChange={handleChange}
+  minLength={6}
+  pattern="[A-Za-z0-9]+"
+  title="Use at least 6 characters with letters and numbers only"
+  style={{
+    "--focus-color": "#F87171",
+    "--focus-glow": "rgba(248, 113, 113, 0.15)",
+  }}
+  required
+/>
             </div>
 
             <button className="auth-submit" type="submit" disabled={loading}>

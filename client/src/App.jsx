@@ -129,23 +129,17 @@ function App() {
          path="/performance"
          element={
          <ProtectedRoute>
-          <AssessmentGuard>
          <PerformancePage userId={user?.userId} assessmentId={assessmentId} />
-         </AssessmentGuard>
          </ProtectedRoute>}      
          />
          <Route path="/analytics/:id" element={
           <ProtectedRoute>
-            <AssessmentGuard>
           <AssessmentReportPage />
-          </AssessmentGuard>
           </ProtectedRoute>
         } />
          <Route path="/analytics" element={
           <ProtectedRoute>
-            <AssessmentGuard>
           <AssessmentReportPage  userId={user?.userId} assessmentId={assessmentId}/>
-          </AssessmentGuard>
           </ProtectedRoute>
         } />
       </Routes>

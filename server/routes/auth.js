@@ -11,65 +11,92 @@ router.get("/", (req, res) => {
 });
 
 // register
-router.post("/register", async(req, res) => {
-    try {
+router.post("/register", async (req, res) => {
+  try {
+    console.log("1. Route hit");
 
-        console.log("1. Route hit");
+    const { name, email, password } = req.body;
 
-        const { name, email, password } = req.body;
+    console.log("2. Body received", {
+      name,
+      email,
+      passwordReceived: Boolean(password),
+    });
 
-        console.log("2. Body received", req.body);
-
-        const existingUser = await User.findOne({ email });
-
-        console.log("3. Checked existing user");
-
-        if (existingUser) {
-            return res.status(400).json({
-                message: "Email already exists"
-            });
-        }
-
-        console.log("4. Hashing");
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        console.log("5. Creating user");
-
-        const newUser = new User({
-            userId: "USR" + Date.now(),
-            name,
-            email,
-            password: hashedPassword
-        });
-
-        console.log("6. Saving");
-
-        const savedUser = await newUser.save();
-
-        console.log(savedUser);
-
-        console.log("7. Saved");
-
-        res.status(201).json({
-            success: true,
-            message: "User Registered Successfully"
-        });
-
-    } catch (err) {
-
-        console.error("========== ERROR ==========");
-        console.error(err);
-        console.error("Message:", err.message);
-        console.error("===========================");
-
-        res.status(500).json({
-            success: false,
-            error: err.message
-        });
-
+    // Basic required-field validation
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, email, and password are required.",
+      });
     }
+
+    // Password rule:
+    // minimum 6 characters, letters and numbers only
+    const passwordPattern = /^[A-Za-z0-9]{6,}$/;
+
+    if (!passwordPattern.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Password must be at least 6 characters and contain only letters and numbers.",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    console.log("3. Checked existing user");
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "Email already exists.",
+      });
+    }
+
+    console.log("4. Hashing");
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      salt
+    );
+
+    console.log("5. Creating user");
+
+    const newUser = new User({
+      userId: "USR" + Date.now(),
+      name: name.trim(),
+      email: normalizedEmail,
+      password: hashedPassword,
+    });
+
+    console.log("6. Saving");
+
+    const savedUser = await newUser.save();
+
+    console.log("7. Saved", savedUser.userId);
+
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully.",
+    });
+  } catch (err) {
+    console.error("========== ERROR ==========");
+    console.error(err);
+    console.error("Message:", err.message);
+    console.error("===========================");
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to register user.",
+      error: err.message,
+    });
+  }
 });
 
 //login
@@ -195,66 +222,87 @@ router.patch("/profile", verifyToken, async(req, res) => {
 });
 
 // change password
-router.post("/change-password", verifyToken, async(req, res) => {
+router.post(
+  "/change-password",
+  verifyToken,
+  async (req, res) => {
     try {
+      const { oldPassword, newPassword } = req.body;
 
-        const { oldPassword, newPassword } = req.body;
-
-        if (!oldPassword || !newPassword) {
-            return res.status(400).json({
-                success: false,
-                message: "Both current and new password are required"
-            });
-        }
-
-        if (newPassword.length < 6) {
-            return res.status(400).json({
-                success: false,
-                message: "New password must be at least 6 characters"
-            });
-        }
-
-        const user = await User.findOne({ userId: req.user.userId });
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found"
-            });
-        }
-
-        const isMatch = await bcrypt.compare(oldPassword, user.password);
-
-        if (!isMatch) {
-            return res.status(401).json({
-                success: false,
-                message: "Current password is incorrect"
-            });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        user.password = hashedPassword;
-        await user.save();
-
-        res.status(200).json({
-            success: true,
-            message: "Password changed successfully"
+      if (!oldPassword || !newPassword) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Both current and new password are required.",
         });
+      }
 
+      const passwordPattern = /^[A-Za-z0-9]{6,}$/;
+
+      if (!passwordPattern.test(newPassword)) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "New password must be at least 6 characters and contain only letters and numbers.",
+        });
+      }
+
+      if (oldPassword === newPassword) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "New password must be different from the current password.",
+        });
+      }
+
+      const user = await User.findOne({
+        userId: req.user.userId,
+      });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found.",
+        });
+      }
+
+      const isMatch = await bcrypt.compare(
+        oldPassword,
+        user.password
+      );
+
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: "Current password is incorrect.",
+        });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(
+        newPassword,
+        salt
+      );
+
+      user.password = hashedPassword;
+      await user.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Password changed successfully.",
+      });
     } catch (err) {
+      console.error("CHANGE PASSWORD ERROR");
+      console.error(err);
 
-        console.error("CHANGE PASSWORD ERROR");
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            error: err.message
-        });
-
+      return res.status(500).json({
+        success: false,
+        message: "Failed to change password.",
+        error: err.message,
+      });
     }
-});
+  }
+);
 
 //logout
 router.post("/logout", (req, res) => {

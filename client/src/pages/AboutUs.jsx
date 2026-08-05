@@ -236,6 +236,11 @@ html, body, #root {
   overflow: hidden;
   flex-shrink: 0;
 }
+  .logo-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+}
 .hp-team-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .hp-team-card h4 { position: relative; z-index: 1; color: #E5E7EB; font-size: 16px; font-weight: 600; margin: 0 0 4px; }
 .hp-team-card .role {
@@ -514,19 +519,13 @@ export default function AboutPage() {
       <CursorGlow />
 
       <nav className="hp-nav">
-        <Link to="/" style={{ textDecoration: "none" }}>
-          <div className="hp-logo">
-            <span className="hp-logo-dot" />
-            <span className="hp-wordmark">MindMetrics</span>
-          </div>
-        </Link>
+       <Link to="/" className="logo-link">
+  <div className="hp-logo">
+    <span className="hp-logo-dot" />
+    <span className="hp-wordmark">MindMetrics</span>
+  </div>
+</Link>
 
-        <div className="hp-nav-links">
-          <Link to="/">Home</Link>
-          <Link to="/performance">My Performance</Link>
-          <Link to="/analytics">My Analysis</Link>
-          <Link to="/about" className="active">About</Link>
-        </div>
 
         <div className="hp-nav-right" ref={menuRef}>
           <button className={`hp-menu-btn ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen((o) => !o)}>
@@ -546,7 +545,7 @@ export default function AboutPage() {
               </div>
             )}
             <Link to="/profile" onClick={() => setMenuOpen(false)}>My Profile</Link>
-            <Link to="/performances" onClick={() => setMenuOpen(false)}>My Performances</Link>
+            <Link to="/performance" onClick={() => setMenuOpen(false)}>My Performances</Link>
             <Link to="/analysis" onClick={() => setMenuOpen(false)}>My Analysis</Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>About Us</Link>
             <button className="logout" onClick={handleLogout}>Log Out</button>
@@ -631,7 +630,7 @@ export default function AboutPage() {
             <div className="hp-footer-brand">
               <div className="hp-logo">
                 <span className="hp-logo-dot" />
-                <span className="hp-wordmark">MindMetrics</span>
+                <span className="hp-wordmark">Mind Metrics</span>
               </div>
               <p>
                 Interactive cognitive assessments powered by AI to reveal

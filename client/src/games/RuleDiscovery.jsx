@@ -595,7 +595,7 @@ useDisableBackButton();
       setCurrentItem(shuffled[0]);
       itemShownAtRef.current = performance.now();
       setPhase("classify");
-    }, 1400);
+    }, 700);
   }
 
   function classify(playerChoice) {
@@ -695,7 +695,7 @@ useDisableBackButton();
     setTimeout(() => {
       if (endedRef.current) return;
       finishRound();
-    }, 5000);
+    }, 1000);
   }
 
   function finishRound() {
@@ -710,7 +710,7 @@ useDisableBackButton();
         setRoundIndex(next);
         beginRound(next);
       }
-    }, 1400);
+    }, 600);
   }
 
   function triggerShake() {
@@ -973,22 +973,18 @@ useDisableBackButton();
   return (
   <motion.div
     className="rd-wrap"
-    initial={{
-      opacity: 0,
-      y: 50,
-      scale: 0.96,
-      filter: "blur(8px)",
-    }}
-    animate={{
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      filter: "blur(0px)",
-    }}
-    transition={{
-      duration: 0.8,
-      ease: "easeOut",
-    }}
+      initial={{
+    opacity: 0,
+    y: 10,
+  }}
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.2,
+    ease: "easeOut",
+  }}
   >
     <style>{styles}</style>
 
@@ -1078,7 +1074,6 @@ useDisableBackButton();
           {phase === "roundEnd" && (
             <div className="rd-center-msg">
               <h3>Round {roundIndex + 1} complete</h3>
-              <p>Next round…</p>
             </div>
           )}
         </div>
