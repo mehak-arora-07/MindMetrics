@@ -648,7 +648,7 @@ useDisableBackButton();
   useEffect(() => {
     async function loadQuestionBank() {
       try {
-        const res = await fetch("http://localhost:5000/api/questions/operation_span");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/questions/operation_span`);
         const result = await res.json();
 
         if (!result.success || !result.questions || result.questions.length === 0) {

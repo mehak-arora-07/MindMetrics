@@ -3,7 +3,7 @@
 // /api/sessions routes so game components and App.jsx don't each
 // reimplement this.
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = `${import.meta.env.VITE_API_URL}`;
 
 export function getToken() {
   return localStorage.getItem("token");

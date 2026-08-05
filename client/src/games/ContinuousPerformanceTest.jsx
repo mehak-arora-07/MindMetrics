@@ -445,7 +445,7 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
   useEffect(() => {
     async function loadRuleBank() {
       try {
-        const res = await fetch("http://localhost:5000/api/questions/cpt");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/questions/cpt`);
         const result = await res.json();
 
         if (!result.success || !result.questions || result.questions.length === 0) {

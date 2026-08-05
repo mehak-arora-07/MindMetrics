@@ -509,7 +509,7 @@ useDisableBackButton();
   // shown, with a retry) until this actually succeeds.
   function loadQuestionBank() {
     setBankError(null);
-    fetch("http://localhost:5000/api/questions/find_the_box")
+    fetch(`${import.meta.env.VITE_API_URL}/api/questions/find_the_box`)
       .then((res) => res.json())
       .then((result) => {
         if (!result.success || !result.questions || result.questions.length === 0) {

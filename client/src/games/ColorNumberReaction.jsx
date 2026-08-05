@@ -571,7 +571,7 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
   useEffect(() => {
     async function loadQuestionBank() {
       try {
-        const res = await fetch("http://localhost:5000/api/questions/color_number_reaction");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/questions/color_number_reaction`);
         const result = await res.json();
 
         if (!result.success || !result.questions || result.questions.length === 0) {

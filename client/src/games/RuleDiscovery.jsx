@@ -516,7 +516,7 @@ useDisableBackButton();
   useEffect(() => {
     async function loadQuestionBank() {
       try {
-        const res = await fetch("http://localhost:5000/api/questions/rule_discovery");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/questions/rule_discovery`);
         const result = await res.json();
 
         if (!result.success || !result.questions || result.questions.length === 0) {

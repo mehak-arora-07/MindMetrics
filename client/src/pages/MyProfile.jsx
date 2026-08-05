@@ -18,7 +18,7 @@ import { GoGoal } from "react-icons/go";
 // blobs + cursor glow, translucent blurred cards). Keep them in sync if you
 // tweak one.
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = `${import.meta.env.VITE_API_URL}`;
 
 const styles = `
 * { box-sizing: border-box; }

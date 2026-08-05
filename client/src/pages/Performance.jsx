@@ -746,7 +746,7 @@ export default function PerformancePage() {
   const user = getUser();
   useEffect(() => {
 
-    fetch("http://localhost:5000/api/assessments",{
+    fetch(`${import.meta.env.VITE_API_URL}/api/assessments`,{
         headers:{
             Authorization:`Bearer ${localStorage.getItem("token")}`
         }

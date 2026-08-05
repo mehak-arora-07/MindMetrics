@@ -432,7 +432,7 @@ useDisableBackButton();
   useEffect(() => {
     async function loadQuestionBank() {
       try {
-        const res = await fetch("http://localhost:5000/api/questions/pattern_sequence");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/questions/pattern_sequence`);
         const result = await res.json();
 
         console.log("Fetched question count:", result.questions?.length);

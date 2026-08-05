@@ -465,7 +465,7 @@ useDisableBackButton();
   useEffect(() => {
     async function loadQuestionBank() {
       try {
-        const res = await fetch("http://localhost:5000/api/questions/multi_switch");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/questions/multi_switch`);
         const result = await res.json();
 
         if (!result.success || !result.questions || result.questions.length === 0) {

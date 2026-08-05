@@ -917,7 +917,7 @@ if (improvements.some(i => i.label === "Decision Speed")) {
       // If /analytics has no ID, fetch the latest completed assessment.
       if (!selectedAssessmentId) {
         const historyRes = await fetch(
-          "http://localhost:5000/api/assessments",
+          `${import.meta.env.VITE_API_URL}/api/assessments`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -948,7 +948,7 @@ if (improvements.some(i => i.label === "Decision Speed")) {
       }
 
       const detailsRes = await fetch(
-        `http://localhost:5000/api/assessments/${selectedAssessmentId}/details`,
+        `${import.meta.env.VITE_API_URL}/api/assessments/${selectedAssessmentId}/details`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
