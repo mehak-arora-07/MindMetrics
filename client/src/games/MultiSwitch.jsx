@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
+import { motion } from "framer-motion";
+import { setCurrentGameIndex } from "../utils/session";
+import useDisableBackButton from "../hooks/useDisableBackButton";
+
 // Drop into client/src/games/MultiSwitch.jsx
 // Same visual family as CPT — grid layout (arena + sidebar), dark cards,
 // mint/gold/red accents.
@@ -426,7 +430,7 @@ function buildSession(pool) {
 
 export default function MultiSwitch({ onComplete, userId, assessmentId, onNextGame }) {
     const navigate = useNavigate();
-
+useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | question | questionEnd | roundEnd | done
   const [bankLoaded, setBankLoaded] = useState(false);
   const [bankSource, setBankSource] = useState(null); // "api" | "local"
@@ -759,8 +763,9 @@ async function endGame() {
       getNextGamePath("multi_switch");
 
     if (nextPath) {
+      setCurrentGameIndex(3)
       setTimeout(() => {
-        navigate(nextPath);
+        navigate(nextPath, { replace: true });
       }, 3000);
     }
   } catch (err) {

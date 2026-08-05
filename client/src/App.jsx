@@ -17,7 +17,8 @@ import MyProfile from "./pages/MyProfile";
 import AboutUs from "./pages/AboutUs";
 import PerformancePage from "./pages/Performance";
 import AssessmentReportPage from "./pages/Analytics";
-
+import ProtectedRoute from "./components/ProtectedRoute";
+import AssessmentGuard from "./components/AssessmentGuard";
 
 function App() {
   const assessmentId = getAssessmentId();
@@ -35,50 +36,118 @@ function App() {
 
         <Route
           path="/play/pattern-sequence"
-          element={<PatternSequence userId={user?.userId} assessmentId={assessmentId} />}
+          element={
+          <ProtectedRoute>
+          <AssessmentGuard>
+          <PatternSequence userId={user?.userId} assessmentId={assessmentId} />
+          </AssessmentGuard>
+          </ProtectedRoute>
+          }
         />
         <Route
           path="/play/memory-matrix"
-          element={<MemoryMatrix userId={user?.userId} assessmentId={assessmentId} />}
+          element={
+          <ProtectedRoute>
+          <AssessmentGuard>
+          <MemoryMatrix userId={user?.userId} assessmentId={assessmentId} />
+          </AssessmentGuard>
+          </ProtectedRoute>}
         />
         <Route
           path="/play/dual-task"
-          element={<DualTask userId={user?.userId} assessmentId={assessmentId} />}
+          element={
+          <ProtectedRoute>
+            <AssessmentGuard>
+          <DualTask userId={user?.userId} assessmentId={assessmentId} />
+          </AssessmentGuard>
+          </ProtectedRoute>}
         />
         <Route
           path="/play/cpt"
-          element={<CPT userId={user?.userId} assessmentId={assessmentId} />}
+          element={
+          <ProtectedRoute>
+            <AssessmentGuard>
+          <CPT userId={user?.userId} assessmentId={assessmentId} />
+          </AssessmentGuard>
+          </ProtectedRoute>}
         />
         <Route 
          path="/play/keep-track"
-         element={<KeepTrackTask userId={user?.userId} assessmentId={assessmentId} />}
+         element={
+         <ProtectedRoute>
+          <AssessmentGuard>
+         <KeepTrackTask userId={user?.userId} assessmentId={assessmentId} />
+         </AssessmentGuard>
+         </ProtectedRoute>}
          />
          <Route 
          path="/play/multi-switch"
-         element={<MultiSwitch userId={user?.userId} assessmentId={assessmentId} />}
+         element={
+         <ProtectedRoute>
+          <AssessmentGuard>
+         <MultiSwitch userId={user?.userId} assessmentId={assessmentId} />
+         </AssessmentGuard>
+         </ProtectedRoute>}
          />
         <Route
          path="/play/find-the-box"
-         element={<FindTheBox userId={user?.userId} assessmentId={assessmentId} />}      
+         element={
+         <ProtectedRoute>
+          <AssessmentGuard>
+         <FindTheBox userId={user?.userId} assessmentId={assessmentId} />
+         </AssessmentGuard>
+         </ProtectedRoute>}      
          />
          <Route
          path="/play/operation-span"
-         element={<OperationSpanTask userId={user?.userId} assessmentId={assessmentId} />}      
+         element={
+         <ProtectedRoute>
+          <AssessmentGuard>
+         <OperationSpanTask userId={user?.userId} assessmentId={assessmentId} />
+         </AssessmentGuard>
+         </ProtectedRoute>}      
          />
          <Route
          path="/play/rule-discovery"
-         element={<RuleDiscovery userId={user?.userId} assessmentId={assessmentId} />}      
+         element={
+         <ProtectedRoute>
+          <AssessmentGuard>
+         <RuleDiscovery userId={user?.userId} assessmentId={assessmentId} />
+         </AssessmentGuard>
+         </ProtectedRoute>}      
          />
          <Route
          path="/play/color-number"
-         element={<ColorNumberReaction userId={user?.userId} assessmentId={assessmentId} />}      
+         element={
+         <ProtectedRoute>
+          <AssessmentGuard>
+         <ColorNumberReaction userId={user?.userId} assessmentId={assessmentId} />
+         </AssessmentGuard>
+         </ProtectedRoute>}      
          />
          <Route
          path="/performance"
-         element={<PerformancePage userId={user?.userId} assessmentId={assessmentId} />}      
+         element={
+         <ProtectedRoute>
+          <AssessmentGuard>
+         <PerformancePage userId={user?.userId} assessmentId={assessmentId} />
+         </AssessmentGuard>
+         </ProtectedRoute>}      
          />
-         <Route path="/analytics/:id" element={<AssessmentReportPage />} />
-         <Route path="/analytics" element={<AssessmentReportPage  userId={user?.userId} assessmentId={assessmentId}/>} />
+         <Route path="/analytics/:id" element={
+          <ProtectedRoute>
+            <AssessmentGuard>
+          <AssessmentReportPage />
+          </AssessmentGuard>
+          </ProtectedRoute>
+        } />
+         <Route path="/analytics" element={
+          <ProtectedRoute>
+            <AssessmentGuard>
+          <AssessmentReportPage  userId={user?.userId} assessmentId={assessmentId}/>
+          </AssessmentGuard>
+          </ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   );

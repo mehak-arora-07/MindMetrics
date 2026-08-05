@@ -2,6 +2,9 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { saveGameSession } from "../utils/session";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
+import { motion } from "framer-motion";
+import { setCurrentGameIndex } from "../utils/session";
+import useDisableBackButton from "../hooks/useDisableBackButton";
 
 // Drop into client/src/games/PatternSequence.jsx
 //
@@ -387,7 +390,7 @@ html, body, #root {
 
 export default function PatternSequence({ onComplete, userId, assessmentId }) {
     const navigate = useNavigate();
-
+useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | playing | done
   const [level, setLevel] = useState(1);
   const [streak, setStreak] = useState(0);
@@ -423,6 +426,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
   const questionTimesMsRef = useRef([]);
   const highestLvlRef = useRef(1);
   const scoreRef = useRef(0);
+  const levelRef = useRef(1);
 
   // ---- Load real questions from the bank on mount ----
   useEffect(() => {
@@ -430,6 +434,9 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
       try {
         const res = await fetch("http://localhost:5000/api/questions/pattern_sequence");
         const result = await res.json();
+
+        console.log("Fetched question count:", result.questions?.length);
+        console.log("Fetched question IDs:", result.questions?.map((q) => q.questionId));
 
         if (!result.success || !result.questions || result.questions.length === 0) {
           throw new Error("Bank empty or request unsuccessful");
@@ -505,6 +512,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
   function startGame() {
     setPhase("playing");
     setLevel(1);
+    levelRef.current = 1;
     setStreak(0);
     setQuestionIndex(0);
     setCorrectCount(0);
@@ -555,6 +563,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
         if (ns % 3 === 0) {
           setLevel((lvl) => {
             const nl = lvl + 1;
+            levelRef.current = nl;
             setHighestLvl((h) => {
               highestLvlRef.current = Math.max(h, nl);
               return Math.max(h, nl);
@@ -576,7 +585,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
         endGame();
       } else {
         setQuestionIndex(nextIndex);
-        loadQuestion(level, workingPool);
+        loadQuestion(levelRef.current, workingPool);
       }
     }, 800);
   }
@@ -629,6 +638,19 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
 
   console.log("Payload being sent:", payload);
 
+  // Show results and queue the transition to the next game immediately —
+  // don't let a failed save trap the player on the last round. The save
+  // itself still happens below; failures are logged, not blocking.
+  setPhase("done");
+
+  const nextPath = getNextGamePath("pattern_sequence");
+  if (nextPath) {
+    setCurrentGameIndex(2)
+    setTimeout(() => {
+      navigate(nextPath, { replace: true });
+    }, 3000);
+  }
+
   try {
     const res = await fetch(
       "http://localhost:5000/api/sessions",
@@ -660,7 +682,7 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
 
     if (!res.ok) {
       console.error(
-        "Failed to save session:",
+        "Failed to save session (results are shown, but this attempt's score was NOT saved):",
         res.status,
         data
       );
@@ -671,17 +693,6 @@ export default function PatternSequence({ onComplete, userId, assessmentId }) {
       "Session saved successfully:",
       data
     );
-
-    setPhase("done");
-
-    const nextPath =
-      getNextGamePath("pattern_sequence");
-
-    if (nextPath) {
-      setTimeout(() => {
-        navigate(nextPath);
-      }, 3000);
-    }
   } catch (err) {
     console.error(
       "Failed to save session:",

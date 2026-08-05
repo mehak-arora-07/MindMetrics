@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
+import { motion } from "framer-motion";
+import { setCurrentGameIndex } from "../utils/session";
+import useDisableBackButton from "../hooks/useDisableBackButton";
 
 
 // Drop into client/src/games/OperationSpanTask.jsx
@@ -586,7 +589,7 @@ function getResultCopy(score) {
 
 export default function OperationSpanTask({ onComplete, onNextGame, userId, assessmentId }) {
     const navigate = useNavigate();
-
+useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | math | letterFlash | recall | setBreak | done
   const [setIndex, setSetIndex] = useState(0);
   const [trialIndex, setTrialIndex] = useState(0);
@@ -1049,8 +1052,9 @@ async function endGame() {
       getNextGamePath("operation_span");
 
     if (nextPath) {
+      setCurrentGameIndex(7)
       setTimeout(() => {
-        navigate(nextPath);
+        navigate(nextPath, { replace: true });
       }, 3000);
     }
   } catch (err) {

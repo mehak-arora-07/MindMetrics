@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { saveGameSession } from "../utils/session";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
+import { setCurrentGameIndex } from "../utils/session";
+import useDisableBackButton from "../hooks/useDisableBackButton";
+import { motion } from "framer-motion";
 
 // Drop into client/src/games/ColorNumberReaction.jsx
 // Same visual family as DualTask/KeepTrackTask/OperationSpanTask/ContinuousPerformanceTest — dark arena, mint/gold/red accents.
@@ -517,6 +520,7 @@ function getResultCopy(score) {
 
 export default function ColorNumberReaction({ onComplete, onNextGame, userId, assessmentId }) {
   const navigate = useNavigate();
+  useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | ruleFlash | playing | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [rule, setRule] = useState(null);
@@ -944,8 +948,9 @@ async function endGame() {
     );
 
     if (nextPath) {
+      setCurrentGameIndex(9)
       setTimeout(() => {
-        navigate(nextPath);
+        navigate(nextPath, { replace: true });
       }, 3000);
     }
   } catch (err) {

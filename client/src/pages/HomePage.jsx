@@ -7,6 +7,8 @@ import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar ,FaTrop
 import { GoGoal } from "react-icons/go";
 import { MdOutlineLoop } from "react-icons/md";
 import { TbReportAnalytics } from "react-icons/tb"
+import { startAssessmentFlow } from "../utils/assessmentFlow";
+import { clearAssessmentCompleted } from "../utils/session";
 
 // Drop into client/src/pages/HomePage.jsx
 // Route it at "/" in App.jsx: <Route path="/" element={<HomePage />} />
@@ -1028,34 +1030,34 @@ export default function HomePage() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-useEffect(() => {
-  if (!user) return;
+// useEffect(() => {
+//   if (!user) return;
 
-  async function cleanupIncompleteAssessments() {
-    try {
-      const res = await fetch(
-        "http://localhost:5000/api/assessments/cleanup/incomplete",
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+//   async function cleanupIncompleteAssessments() {
+//     try {
+//       const res = await fetch(
+//         "http://localhost:5000/api/assessments/cleanup/incomplete",
+//         {
+//           method: "DELETE",
+//           headers: {
+//             Authorization: `Bearer ${localStorage.getItem("token")}`,
+//           },
+//         }
+//       );
 
-      const data = await res.json();
+//       const data = await res.json();
 
-      if (res.ok && data.success) {
-        localStorage.removeItem("assessmentId");
-        console.log("Incomplete assessments cleaned");
-      }
-    } catch (err) {
-      console.error("Cleanup failed:", err);
-    }
-  }
+//       if (res.ok && data.success) {
+//         localStorage.removeItem("assessmentId");
+//         console.log("Incomplete assessments cleaned");
+//       }
+//     } catch (err) {
+//       console.error("Cleanup failed:", err);
+//     }
+//   }
 
-  cleanupIncompleteAssessments();
-}, [user]);
+//   cleanupIncompleteAssessments();
+// }, [user]);
 
   async function handleStart() {
   if (!user) {
@@ -1066,7 +1068,15 @@ useEffect(() => {
   setStarting(true);
 
   try {
-    await startAssessment();
+    clearAssessmentCompleted();
+    const newAssessmentId = await startAssessment();
+    startAssessmentFlow();
+    console.log("New assessment created:", newAssessmentId);
+    console.log(
+      "Stored assessment ID:",
+      localStorage.getItem("assessmentId")
+    );
+
     navigate("/play/memory-matrix");
   } catch (err) {
     console.error("Could not start assessment:", err);

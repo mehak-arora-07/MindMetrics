@@ -32,6 +32,14 @@ export function getAssessmentId() {
   return localStorage.getItem("assessmentId");
 }
 
+export function getCurrentGameIndex() {
+    return Number(localStorage.getItem("currentGameIndex") || 0);
+}
+
+export function setCurrentGameIndex(index) {
+    localStorage.setItem("currentGameIndex", index);
+}
+
 export function setAssessmentId(id) {
   localStorage.setItem("assessmentId", id);
 }
@@ -147,4 +155,15 @@ export async function completeAssessment(assessmentId) {
   }
 
   return data.assessment;
+}
+export function markAssessmentCompleted() {
+  localStorage.setItem("assessmentCompleted", "true");
+}
+
+export function isAssessmentCompleted() {
+  return localStorage.getItem("assessmentCompleted") === "true";
+}
+
+export function clearAssessmentCompleted() {
+  localStorage.removeItem("assessmentCompleted");
 }

@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
+import { setCurrentGameIndex } from "../utils/session";
+import { motion } from "framer-motion";
+import useDisableBackButton from "../hooks/useDisableBackButton";
 
 // Drop into client/src/games/MemoryMatrix.jsx
 // Same visual family as WhackACircle — dark arena, mint/gold/red accents.
@@ -383,7 +386,7 @@ function getResultCopy(score) {
 
 export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
     const navigate = useNavigate();
-
+useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | showing | input | levelBreak | done
   const [levelIndex, setLevelIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(new Set());
@@ -594,8 +597,9 @@ export default function MemoryMatrix({ onComplete, userId, assessmentId }) {
       getNextGamePath("memory_matrix");
 
     if (nextPath) {
+      setCurrentGameIndex(1);
       setTimeout(() => {
-        navigate(nextPath);
+        navigate(nextPath, { replace: true });
       }, 3000);
     }
   } catch (err) {

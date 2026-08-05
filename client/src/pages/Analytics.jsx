@@ -88,7 +88,7 @@ html, body, #root {
   position: fixed; top: 0; left: 0; right: 0; z-index: 50;
   display: flex; justify-content: space-between; align-items: center;
   gap: 24px; padding: 16px 40px;
-  background: rgba(11, 15, 25, 0.78);
+  background: rgba(11, 15, 25, 0.97);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #1a2033;
 }
@@ -395,23 +395,29 @@ function useOutsideClose(ref, onClose) {
 /* ---------------- Charts (plain SVG, no external library) ---------------- */
 
 function BarChart({ data }) {
-  console.log(data);
-  const w = 700, h = 220;
-  const padTop = 28, padBottom = 34, padSide = 6;
-  const plotH = h - padTop - padBottom;
-  const gap = 10;
-  const barW = 42;
+  const w = 700, h = 250;
+  const padTop = 10, padBottom = 40, padSide = 6;
+  const plotH = h + padTop + padBottom + 300;
+  const gap = 18;
+  const barW = 50;
   const gridLines = [0, 25, 50, 75, 100];
+  // Bars are scaled against a ceiling above 100 (not 100 itself) so a
+  // perfect score doesn't fill the entire plot height and crowd the
+  // card header — it leaves visible headroom at the top instead.
+  const chartMax = 120;
+  const MAX_LABEL_CHARS = 13;
+  const truncate = (label) =>
+    label.length > MAX_LABEL_CHARS ? `${label.slice(0, MAX_LABEL_CHARS - 1)}…` : label;
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet">
       {gridLines.map((g) => {
-        const y = padTop + plotH - (g / 100) * plotH;
+        const y = padTop + plotH - (g / chartMax) * plotH;
         return <line key={g} className="ar-grid-line" x1={padSide} x2={w - padSide} y1={y} y2={y} />;
       })}
       {data.map((d, i) => {
         const x = padSide + i * (barW + gap);
-        const barH = (d.value / 100) * plotH;
+        const barH = (d.value / chartMax) * plotH;
         const y = padTop + plotH - barH;
         return (
           <g key={d.label}>
@@ -421,10 +427,11 @@ function BarChart({ data }) {
             <text className="ar-bar-value" x={x + barW / 2} y={y - 8} textAnchor="middle">{d.value}</text>
             <text
               className="ar-bar-label"
-              transform={`translate(${x + barW / 2}, ${h - 8}) rotate(-25)`}
+              transform={`translate(${x + barW / 2}, ${h + 385}) rotate(-45)`}
               textAnchor="end"
             >
-              {d.label}
+              <title>{d.label}</title>
+              {truncate(d.label)}
             </text>
           </g>
         );
@@ -713,6 +720,10 @@ const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { id } = useParams();
   const user = getUser();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
   async function loadAnalytics() {
@@ -1036,7 +1047,7 @@ const totalResponses = sessions.reduce((sum, session) => {
 }, 0);
 
 const incorrectResponses = Math.max(
-  totalResponses - correctResponses,
+  100 - correctResponses,
   0
 );
   return (

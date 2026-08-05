@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
+import { motion } from "framer-motion";
+import { setCurrentGameIndex } from "../utils/session";
+import useDisableBackButton from "../hooks/useDisableBackButton";
+
+
 
 // Drop into client/src/games/FindTheBox.jsx
 // Same visual family as DualTask / MemoryMatrix / HiddenSymbol — dark arena, mint/gold/red accents.
@@ -462,7 +467,7 @@ function getResultCopy(score) {
 
 export default function FindTheBox({ onComplete, onNextGame, userId, assessmentId }) {
     const navigate = useNavigate();
-
+useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | question | reveal | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [question, setQuestion] = useState(null);
@@ -735,8 +740,9 @@ export default function FindTheBox({ onComplete, onNextGame, userId, assessmentI
       getNextGamePath("find_the_box");
 
     if (nextPath) {
+      setCurrentGameIndex(8)
       setTimeout(() => {
-        navigate(nextPath);
+        navigate(nextPath, { replace: true });
       }, 3000);
     }
   } catch (err) {

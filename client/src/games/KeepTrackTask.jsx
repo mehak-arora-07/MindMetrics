@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
 import { motion } from "framer-motion";
+import { setCurrentGameIndex } from "../utils/session";
+import useDisableBackButton from "../hooks/useDisableBackButton";
+
 // Drop into client/src/games/KeepTrackTask.jsx
 // Same visual family as DualTask/MemoryMatrix/HiddenSymbol — dark arena, mint/gold/red accents.
 // POSTs the completed session to POST /api/sessions on game end, same pattern as DualTask.
@@ -570,7 +573,7 @@ function getResultCopy(score) {
 
 export default function KeepTrackTask({ onComplete, onNextGame, userId, assessmentId }) {
     const navigate = useNavigate();
-
+useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | streaming | question | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [categories, setCategories] = useState([]);
@@ -821,8 +824,9 @@ async function endGame() {
       getNextGamePath("keep_track_task");
 
     if (nextPath) {
+      setCurrentGameIndex(6)
       setTimeout(() => {
-        navigate(nextPath);
+        navigate(nextPath, { replace: true });
       }, 3000);
     }
   } catch (err) {

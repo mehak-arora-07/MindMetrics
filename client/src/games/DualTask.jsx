@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
+import { motion } from "framer-motion";
+import { setCurrentGameIndex } from "../utils/session";
+import useDisableBackButton from "../hooks/useDisableBackButton";
+
 
 // Drop into client/src/games/DualTask.jsx
 // Same visual family as MemoryMatrix / HiddenSymbol — dark arena, mint/gold/red accents.
@@ -524,8 +528,8 @@ function getResultCopy(score) {
 }
 
 export default function DualTask({ onComplete, userId, assessmentId, onNextGame }) {
-    const navigate = useNavigate();
-
+  const navigate = useNavigate();
+  useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | sequence | math | memory | roundBreak | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [sequence, setSequence] = useState([]);
@@ -761,6 +765,19 @@ export default function DualTask({ onComplete, userId, assessmentId, onNextGame 
   );
   console.log("Payload being sent:", payload);
 
+  // Show results and queue the transition to the next game immediately —
+  // don't let a failed save trap the player on the last round. The save
+  // itself still happens below; failures are logged, not blocking.
+  setPhase("done");
+
+  const nextPath = getNextGamePath("dual_task");
+  if (nextPath) {
+    setCurrentGameIndex(4)
+    setTimeout(() => {
+      navigate(nextPath, { replace: true });
+    }, 3000);
+  }
+
   try {
     const res = await fetch(
       "http://localhost:5000/api/sessions",
@@ -792,7 +809,7 @@ export default function DualTask({ onComplete, userId, assessmentId, onNextGame 
 
     if (!res.ok) {
       console.error(
-        "Failed to save session:",
+        "Failed to save session (results are shown, but this attempt's score was NOT saved):",
         res.status,
         data
       );
@@ -803,16 +820,6 @@ export default function DualTask({ onComplete, userId, assessmentId, onNextGame 
       "Session saved successfully:",
       data
     );
-
-    setPhase("done");
-
-    const nextPath = getNextGamePath("dual_task");
-
-    if (nextPath) {
-      setTimeout(() => {
-        navigate(nextPath);
-      }, 3000);
-    }
   } catch (err) {
     console.error(
       "Failed to save session:",
@@ -1051,24 +1058,24 @@ if (phase === "done") {
       </div>
 
      {phase !== "done" && (
-  <div className="mm-sidebar">
-    <div className="mm-stat">
+  <div className="cs-sidebar">
+    <div className="cs-stat">
       <div className="label">Time Left</div>
       <div className="value">{Math.ceil(timeLeftMs / 1000)}s</div>
-      <div className="mm-progress-bar">
+      <div className="cs-progress-bar">
         <div
-          className="mm-progress-fill timer"
+          className="cs-progress-fill timer"
           style={{ width: `${(timeLeftMs / SESSION_TIME_LIMIT_MS) * 100}%` }}
         />
       </div>
     </div>
 
-    <div className="mm-stat">
+    <div className="cs-stat">
       <div className="label">Score</div>
       <div className="value score">{score}</div>
     </div>
 
-    <div className="mm-stat">
+    <div className="cs-stat">
       <div className="label">Avg Reaction Time</div>
       <div className="value">{avgTime || 0}ms</div>
     </div>

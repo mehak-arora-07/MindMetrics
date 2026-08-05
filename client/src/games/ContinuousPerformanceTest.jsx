@@ -2,6 +2,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { saveGameSession } from "../utils/session";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
+import { motion } from "framer-motion";
+import { setCurrentGameIndex } from "../utils/session";
+import useDisableBackButton from "../hooks/useDisableBackButton";
+
 
 // Drop into client/src/games/CPT.jsx
 // Fetches rules from the real question bank on load via
@@ -388,8 +392,8 @@ html, body, #root {
 `;
 
 export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
-    const navigate = useNavigate();
-
+  const navigate = useNavigate();
+  useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | playing | roundEnd | done
   const [roundIndex, setRoundIndex] = useState(0);
   const [rulesForRound, setRulesForRound] = useState([]);
@@ -771,8 +775,9 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
     const nextPath = getNextGamePath("cpt");
 
     if (nextPath) {
+      setCurrentGameIndex(5)
       setTimeout(() => {
-        navigate(nextPath);
+        navigate(nextPath, { replace: true });
       }, 3000);
     }
   } catch (err) {

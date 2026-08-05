@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
-
-import { completeAssessment } from "../utils/session";
+import { motion } from "framer-motion";
+import {saveGameSession,completeAssessment,markAssessmentCompleted } from "../utils/session";
+import useDisableBackButton from "../hooks/useDisableBackButton";
 // Drop into client/src/games/RuleDiscovery.jsx
 // Same visual family as MultiSwitch/CPT — grid layout (arena + sidebar),
 // dark cards, mint/gold/red accents.
@@ -469,7 +470,7 @@ html, body, #root {
 
 export default function RuleDiscovery({ onComplete, onNextGame, userId, assessmentId }) {
     const navigate = useNavigate();
-
+useDisableBackButton();
   const [phase, setPhase] = useState("instructions"); // instructions | roundIntro | classify | guessing | guessResult | roundEnd | done
   const [bankLoaded, setBankLoaded] = useState(false);
   const [bankSource, setBankSource] = useState(null); // "api" | "local"
@@ -865,10 +866,12 @@ export default function RuleDiscovery({ onComplete, onNextGame, userId, assessme
 
   try {
     await completeAssessment(assessmentId);
-
+    markAssessmentCompleted();
     console.log("Assessment completed successfully");
 
-    navigate("/analytics");
+    navigate("/analytics", {
+    replace: true,
+});
   } catch (err) {
     console.error("Failed to complete assessment:", err);
   }
