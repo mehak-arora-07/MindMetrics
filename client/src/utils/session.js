@@ -1,7 +1,4 @@
-// Drop into client/src/utils/session.js
-// Small wrapper around localStorage + the /api/assessments and
-// /api/sessions routes so game components and App.jsx don't each
-// reimplement this.
+
 
 const API_BASE = `${import.meta.env.VITE_API_URL}`;
 

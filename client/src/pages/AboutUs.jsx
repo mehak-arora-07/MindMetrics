@@ -2,12 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getUser, clearSession, startAssessment } from "../utils/session";
 
-// Drop into client/src/pages/AboutPage.jsx
-// Route it at "/about" in App.jsx: <Route path="/about" element={<AboutPage />} />
-//
-// Shares the same visual system as HomePage.jsx (nav, floating orbs,
-// cursor glow, dot-grid background). If you ever change one, mirror the
-// change in the other so they stay in sync.
 
 const styles = `
 * { box-sizing: border-box; }

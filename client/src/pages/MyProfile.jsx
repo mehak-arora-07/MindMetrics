@@ -6,17 +6,7 @@ import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar,FaGamep
 import { GoGoal } from "react-icons/go";
 // import { MdOutlineLoop } from "react-icons/md";
 // import { TbReportAnalytics } from "react-icons/tb"
-// Drop into client/src/pages/MyProfile.jsx
-// Route it in App.jsx: <Route path="/profile" element={<MyProfile />} />
-//
-// Stats are computed from your real GET /api/sessions and GET /api/assessments
-// endpoints — no mock data. Editing name/password needs two small backend
-// additions (PATCH /api/auth/profile, POST /api/auth/change-password) — see
-// the accompanying auth.js file for those.
-//
-// Visual language matches HomePage.jsx / AboutPage.jsx (dot-grid + floating
-// blobs + cursor glow, translucent blurred cards). Keep them in sync if you
-// tweak one.
+
 
 const API_BASE = `${import.meta.env.VITE_API_URL}`;
 

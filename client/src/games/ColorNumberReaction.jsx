@@ -6,23 +6,7 @@ import { setCurrentGameIndex } from "../utils/session";
 import useDisableBackButton from "../hooks/useDisableBackButton";
 import { motion } from "framer-motion";
 
-// Drop into client/src/games/ColorNumberReaction.jsx
-// Same visual family as DualTask/KeepTrackTask/OperationSpanTask/ContinuousPerformanceTest — dark arena, mint/gold/red accents.
-// POSTs the completed session to POST /api/sessions on game end, same pattern as the other games.
-//
-// Stroop-inspired go/no-go: a color WORD and a NUMBER appear together. The
-// word's ink color may or may not match what the word says (the Stroop
-// conflict is the word text itself — it's a distractor, the rule only ever
-// cares about the ink color you SEE and the number's parity). Press SPACE
-// only when both parts of the rule are true. No button, no click target —
-// same as the CPT game, response is keyboard-only.
-//
-// Two fast rounds. A fresh rule flashes before each round (2s), then trials
-// run until the round's timer runs out, then a brief round-break before the
-// next one starts.
-//
-// Matches the Sessions mongoose schema:
-//   { sessionId, userId, assessmentId, gameId, accuracy, avgTimeMs, metrics, completed }
+
 
 const ROUNDS = [
   { label: "Round 1", durationMs: 14000, stimulusOnMs: 700, isiMs: 400 },
@@ -53,9 +37,6 @@ const COLORS = [
   { name: "PURPLE", hex: "#A78BFA" },
 ];
 
-// The rule is re-picked at the start of every round, so it can (but doesn't
-// have to) change round to round — same "stay sharp, the rule can move"
-// pressure the CPT game uses across its rounds.
 const RULES = COLORS.flatMap((c) => [
   { targetColor: c.name, parity: "even", label: `Color is ${c.name} AND Number is EVEN` },
   { targetColor: c.name, parity: "odd", label: `Color is ${c.name} AND Number is ODD` },
@@ -82,9 +63,7 @@ function pickNumberWithParity(parity) {
   return n === 9 ? 8 : n + 1;
 }
 
-// Fallback ONLY — used if GET /api/questions/color_number_reaction can't be
-// reached or returns no questions. The real stimulus bank (word, inkColor,
-// number, congruent) is fetched from the DB in the component below.
+// Fallback ONLY 
 function buildStimulusProcedural(rule, forceGo) {
   let inkColor, number;
 
@@ -550,14 +529,10 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
   const trialTimeoutRef = useRef(null);
   const hideTimeoutRef = useRef(null);
 
-  // Question bank (fetched from the DB). Mirrored into a ref so
-  // pickStimulus() — called from deep inside setTimeout chains — always
-  // reads the latest pool instead of whatever it was when that particular
-  // closure was created. Same pattern as OperationSpanTask.
+  
   const masterStimulusPoolRef = useRef([]);
   const usedQuestionIdsRef = useRef(new Set());
 
-  // Mirrors of the metric state, for the same reason.
   const scoreRef = useRef(0);
   const correctCountRef = useRef(0);
   const falseClicksRef = useRef(0);
@@ -567,7 +542,6 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
   const roundsCompletedRef = useRef(0);
   const rulesUsedRef = useRef([]);
 
-  // ---- Load real stimuli from the DB on mount ----
   useEffect(() => {
     async function loadQuestionBank() {
       try {
@@ -598,10 +572,6 @@ export default function ColorNumberReaction({ onComplete, onNextGame, userId, as
     loadQuestionBank();
   }, []);
 
-  // Picks the next stimulus for a trial. Prefers unused DB entries that
-  // satisfy the go/no-go requirement for this trial; falls back to any DB
-  // entry that satisfies it once the unused ones run out; falls back to the
-  // local generator only if nothing in the bank fits (or the bank is empty).
   function pickStimulus(currentRule, forceGo) {
     const pool = masterStimulusPoolRef.current;
 

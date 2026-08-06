@@ -5,23 +5,14 @@ import { setCurrentGameIndex } from "../utils/session";
 import { motion } from "framer-motion";
 import useDisableBackButton from "../hooks/useDisableBackButton";
 
-// Drop into client/src/games/MemoryMatrix.jsx
-// Same visual family as WhackACircle — dark arena, mint/gold/red accents.
-// Currently console.logs the final payload — once your teammate's
-// POST /api/game-results endpoint is ready, swap the console.log in
-// endGame() for an actual fetch/axios call (see comment near the bottom).
-//
-// Mongo shape this feeds (per the spec):
-//   game_result: { id, assessmentId, gameId, accuracy, score, avgTime, additionalData }
-//   session:     { id, startedAt, endedAt, ... }
 
-const SESSION_TIME_LIMIT_MS = 35000; // overall 30-40s window, we land in the middle
+const SESSION_TIME_LIMIT_MS = 30000; // overall 30-40s window, we land in the middle
 
 const LEVELS = [
   { grid: 3, cells: 3, showMs: 1200 },
-  { grid: 3, cells: 4, showMs: 1400 },
+  // { grid: 3, cells: 4, showMs: 1400 },
   { grid: 4, cells: 5, showMs: 1800 },
-  { grid: 4, cells: 6, showMs: 2100 },
+  // { grid: 4, cells: 6, showMs: 2100 },
   { grid: 5, cells: 8, showMs: 2200 },
 ];
 

@@ -7,27 +7,15 @@ import useDisableBackButton from "../hooks/useDisableBackButton";
 
 
 
-// Drop into client/src/games/FindTheBox.jsx
-// Same visual family as DualTask / MemoryMatrix / HiddenSymbol — dark arena, mint/gold/red accents.
-// POSTs the completed session to POST /api/sessions on game end.
-// Pass `userId` and `assessmentId` in as props from wherever those live
-// in your app (auth context / the active assessment route).
-//
-// Matches the Sessions mongoose schema:
-//   { sessionId, userId, assessmentId, gameId, accuracy, avgTimeMs, metrics, completed }
-// Assessment (overallScore / status) is intentionally NOT touched here —
-// that should be aggregated server-side (or by whatever orchestrates the
-// full multi-game assessment) once all games in the assessment are done.
-
-const SESSION_TIME_LIMIT_MS = 75000; // overall safety net, same pattern as DualTask
+const SESSION_TIME_LIMIT_MS = 30000; // overall safety net, same pattern as DualTask
 
 const ROUNDS = [
   { label: "Round 1", tier: "Easy", timeLimitMs: 15000, boxCount: 5 },
-  { label: "Round 2", tier: "Easy", timeLimitMs: 13000, boxCount: 5 },
-  { label: "Round 3", tier: "Medium", timeLimitMs: 11000, boxCount: 5 },
-  { label: "Round 4", tier: "Medium", timeLimitMs: 10000, boxCount: 6 },
-  { label: "Round 5", tier: "Hard", timeLimitMs: 9000, boxCount: 6 },
-  { label: "Round 6", tier: "Hard", timeLimitMs: 8000, boxCount: 6 },
+  // { label: "Round 2", tier: "Easy", timeLimitMs: 13000, boxCount: 5 },
+  // { label: "Round 3", tier: "Medium", timeLimitMs: 11000, boxCount: 5 },
+  { label: "Round 2", tier: "Medium", timeLimitMs: 10000, boxCount: 6 },
+  // { label: "Round 5", tier: "Hard", timeLimitMs: 9000, boxCount: 6 },
+  { label: "Round 3", tier: "Hard", timeLimitMs: 8000, boxCount: 6 },
 ];
 
 const POINTS_PER_TIER = { Easy: 10, Medium: 15, Hard: 20 };

@@ -5,25 +5,11 @@ import { motion } from "framer-motion";
 import { setCurrentGameIndex } from "../utils/session";
 import useDisableBackButton from "../hooks/useDisableBackButton";
 
-// Drop into client/src/games/MultiSwitch.jsx
-// Same visual family as CPT — grid layout (arena + sidebar), dark cards,
-// mint/gold/red accents.
-//
-// Question bank: fetches from GET /api/questions/multi_switch (gameId
-// "multi_switch" in the question_bank collection). Each doc looks like:
-//   { questionId, difficulty, data: { set, rule, answer }, gameId }
-// `set` is the full array of numbers shown, `answer` is the pre-computed
-// correct subset — no client-side rule logic needed, just compare
-// selections against `answer`. Falls back to the local RULE_BANK below if
-// the fetch fails, same pattern as CPT.
-//
-// Session connection: same pattern as DualTask/CPT — reads assessmentId
-// straight from localStorage, POSTs directly to /api/sessions, handles a
-// 401 by clearing the session and bouncing to login.
 
-const ROUNDS_TOTAL = 5;
+
+const ROUNDS_TOTAL = 3;
 const QUESTIONS_PER_ROUND = 1;
-const SESSION_TIME_LIMIT_MS = 60000;
+const SESSION_TIME_LIMIT_MS = 30000;
 const SCORE_PER_HIT = 10;
 const SCORE_PENALTY_PER_FALSE_POSITIVE = 5;
 
@@ -388,19 +374,9 @@ function isValidQuestion(q) {
   );
 }
 
-// Groups question docs by their rule text, then hands back exactly
-// ROUNDS_TOTAL rounds of QUESTIONS_PER_ROUND questions each. If the pool
-// has fewer than ROUNDS_TOTAL distinct rules (e.g. the local fallback
-// bank only has 3), it cycles back through the available rules rather
-// than leaving later rounds empty.
+
 function buildSession(pool) {
-  // Drop anything malformed BEFORE grouping — a single bad document
-  // anywhere in the DB collection (missing `set`, a non-array `answer`,
-  // etc.) would otherwise silently end up assigned to whichever round's
-  // slot it happens to land in and either render an empty board (looks
-  // like the round flew by instantly) or throw when submitQuestion()
-  // calls .forEach()/.includes() on something that isn't actually an
-  // array — an uncaught crash.
+
   const validPool = pool.filter(isValidQuestion);
   if (validPool.length < pool.length) {
     console.warn(

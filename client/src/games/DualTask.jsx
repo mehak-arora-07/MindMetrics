@@ -6,23 +6,12 @@ import { setCurrentGameIndex } from "../utils/session";
 import useDisableBackButton from "../hooks/useDisableBackButton";
 
 
-// Drop into client/src/games/DualTask.jsx
-// Same visual family as MemoryMatrix / HiddenSymbol — dark arena, mint/gold/red accents.
-// POSTs the completed session to POST /api/sessions on game end.
-// Pass `userId` and `assessmentId` in as props from wherever those live
-// in your app (auth context / the active assessment route).
-//
-// Matches the Sessions mongoose schema:
-//   { sessionId, userId, assessmentId, gameId, accuracy, avgTimeMs, metrics, completed }
-// Assessment (overallScore / status) is intentionally NOT touched here —
-// that should be aggregated server-side (or by whatever orchestrates the
-// full multi-game assessment) once all games in the assessment are done.
 
 const SESSION_TIME_LIMIT_MS = 60000; // more phases per round than the other games, so a longer clock
 
 const ROUNDS = [
   { label: "Round 1", colorCount: 3, mathCount: 1, displayMs: 1000, difficulty: "normal" },
-  { label: "Round 2", colorCount: 4, mathCount: 2, displayMs: 850, difficulty: "normal" },
+  { label: "Round 2", colorCount: 4, mathCount: 2, displayMs: 850, difficulty: "hard" },
   { label: "Round 3", colorCount: 4, mathCount: 1, displayMs: 700, difficulty: "hard" },
 ];
 

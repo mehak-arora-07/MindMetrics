@@ -6,18 +6,9 @@ import { motion } from "framer-motion";
 import { setCurrentGameIndex } from "../utils/session";
 import useDisableBackButton from "../hooks/useDisableBackButton";
 
-// Drop into client/src/games/PatternSequence.jsx
-//
-// Fetches real questions from GET /api/questions/pattern_sequence
-// (matching your actual questions.js route: { success, questions }).
-// Falls back to a small local procedural generator only if that fetch
-// fails, so the game never breaks even if the server hiccups.
-//
-// Saves completed sessions via POST /api/sessions
-// (matching your actual sessions.js route + Sessions.js schema:
-// assessmentId, gameId, accuracy, avgTimeMs, metrics, completed).
 
-const TOTAL_QUESTIONS = 5;
+
+const TOTAL_QUESTIONS = 3;
 const CORRECT_POINTS = 10;
 const BASE_TIME_LIMIT_MS = 12000;
 const MIN_TIME_LIMIT_MS = 6000;

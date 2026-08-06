@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 
-// Drop this file into client/src/pages/AuthPage.jsx
-// Wire up handleSubmit to your teammate's /api/auth/register and /api/auth/login routes.
 
 const styles = `
 * {

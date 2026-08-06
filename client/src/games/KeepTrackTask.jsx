@@ -5,20 +5,11 @@ import { motion } from "framer-motion";
 import { setCurrentGameIndex } from "../utils/session";
 import useDisableBackButton from "../hooks/useDisableBackButton";
 
-// Drop into client/src/games/KeepTrackTask.jsx
-// Same visual family as DualTask/MemoryMatrix/HiddenSymbol — dark arena, mint/gold/red accents.
-// POSTs the completed session to POST /api/sessions on game end, same pattern as DualTask.
-//
-// Matches the Sessions mongoose schema:
-//   { sessionId, userId, assessmentId, gameId, accuracy, avgTimeMs, metrics, completed }
-// additionalData shape requested: { recallAccuracy, maxLevel, incorrectRecalls }
-// — all three live inside metrics, same as every other game here.
-
-const SESSION_TIME_LIMIT_MS = 65000;
+const SESSION_TIME_LIMIT_MS = 60000;
 
 const ROUNDS = [
   { label: "Round 1", categoryCount: 3, itemCount: 6, displayMs: 1400, types: ["latest"] },
-  { label: "Round 2", categoryCount: 4, itemCount: 7, displayMs: 1500, types: ["latest", "mostRecentCategory"] },
+  { label: "Round 2", categoryCount: 4, itemCount: 7, displayMs: 1500, types: ["latest", "mostRecentCategory","itemBefore"] },
   {
     label: "Round 3",
     categoryCount: 4,

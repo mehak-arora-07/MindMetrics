@@ -10,12 +10,7 @@ import { TbReportAnalytics } from "react-icons/tb"
 import { startAssessmentFlow } from "../utils/assessmentFlow";
 import { clearAssessmentCompleted } from "../utils/session";
 
-// Drop into client/src/pages/HomePage.jsx
-// Route it at "/" in App.jsx: <Route path="/" element={<HomePage />} />
-//
-// "My Performances", "My Analysis", "Profile", and "About Us" are routed to
-// placeholder paths (/performances, /analytics, /profile, /about) — build
-// those pages whenever you're ready, the links are already wired.
+
 
 const styles = `
 * { box-sizing: border-box; }

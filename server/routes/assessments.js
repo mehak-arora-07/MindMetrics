@@ -1,10 +1,3 @@
-// Drop into server/routes/assessments.js
-// Mount in your main server file with:
-//   app.use("/api/assessments", require("./routes/assessments"));
-//
-// NOTE: your model file is named "Assesment.js" (one "s") per your screenshot —
-// the require path below matches that exact filename. If you rename the file,
-// update this require to match.
 
 const express = require("express");
 const Assessment = require("../models/Assesment");

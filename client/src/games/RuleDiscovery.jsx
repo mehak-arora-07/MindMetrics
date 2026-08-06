@@ -4,27 +4,12 @@ import { getNextGamePath } from "../utils/gameSequence";
 import { motion } from "framer-motion";
 import {saveGameSession,completeAssessment,markAssessmentCompleted } from "../utils/session";
 import useDisableBackButton from "../hooks/useDisableBackButton";
-// Drop into client/src/games/RuleDiscovery.jsx
-// Same visual family as MultiSwitch/CPT — grid layout (arena + sidebar),
-// dark cards, mint/gold/red accents.
-//
-// Question bank: fetches from GET /api/questions/rule_discovery (gameId
-// "rule_discovery" in the question_bank collection). Each doc looks like:
-//   { questionId, difficulty, data: { set, rule, answer }, gameId }
-// `rule` is never shown to the player — only `set` (items to classify) and
-// `answer` (which items the hidden rule actually accepts) are used at
-// runtime. Falls back to the local RULE_BANK below if the fetch fails.
-//
-// Session connection: same pattern as MultiSwitch/DualTask/CPT — reads
-// assessmentId straight from localStorage, POSTs directly to
-// /api/sessions, handles a 401 by clearing the session and bouncing to
-// login, and mirrors all running totals into refs so endGame() (reached
-// through nested setTimeout chains) never reads stale state.
 
-const ROUND_DIFFICULTIES = ["Easy", "Medium", "Hard"];
+
+const ROUND_DIFFICULTIES = ["Medium", "Hard"];
 const ROUNDS_TOTAL = ROUND_DIFFICULTIES.length;
 const MIN_TESTED_BEFORE_GUESS = 3;
-const SESSION_TIME_LIMIT_MS = 90000;
+const SESSION_TIME_LIMIT_MS = 60000;
 
 const CORRECT_GUESS_POINTS = 30;
 const WRONG_GUESS_POINTS = -10;

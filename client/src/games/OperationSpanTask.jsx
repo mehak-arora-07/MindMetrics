@@ -6,32 +6,14 @@ import { setCurrentGameIndex } from "../utils/session";
 import useDisableBackButton from "../hooks/useDisableBackButton";
 
 
-// Drop into client/src/games/OperationSpanTask.jsx
-// Same visual family as DualTask/KeepTrackTask/MemoryMatrix/HiddenSymbol — dark arena, mint/gold/red accents.
-// POSTs the completed session to POST /api/sessions on game end, same pattern as the other games.
-//
-// This is the classic Operation Span (OSPAN) task — one of the gold-standard
-// working memory measures. Each trial: solve/verify a simple math equation
-// (Processing), then a letter flashes briefly (Storage). After a set of N
-// trials, recall every letter shown, in the order it appeared (Executive
-// Function — juggling both tasks without letting one interfere with the
-// other). Set size grows each round, same escalating-difficulty shape as
-// every other game here.
-//
-// Matches the Sessions mongoose schema:
-//   { sessionId, userId, assessmentId, gameId, accuracy, avgTimeMs, metrics, completed }
-// "accuracy" is the average of processing accuracy (math judgments) and
-// storage accuracy (letter recall) — both live individually inside metrics
-// too, since OSPAN is meant to separate the two out.
-
-const SESSION_TIME_LIMIT_MS = 150000; // 5 sets, each with its own math+letter trials, so a long clock
+const SESSION_TIME_LIMIT_MS = 60000; // 5 sets, each with its own math+letter trials, so a long clock
 
 const SETS = [
   { label: "Round 1", setSize: 3, mathDifficulty: "easy", mathTimeLimitMs: 6000, letterDisplayMs: 900 },
-  { label: "Round 2", setSize: 4, mathDifficulty: "easy", mathTimeLimitMs: 5500, letterDisplayMs: 900 },
-  { label: "Round 3", setSize: 5, mathDifficulty: "medium", mathTimeLimitMs: 5000, letterDisplayMs: 850 },
-  { label: "Round 4", setSize: 6, mathDifficulty: "medium", mathTimeLimitMs: 4500, letterDisplayMs: 850 },
-  { label: "Round 5", setSize: 6, mathDifficulty: "hard", mathTimeLimitMs: 4000, letterDisplayMs: 800 },
+  // { label: "Round 2", setSize: 4, mathDifficulty: "easy", mathTimeLimitMs: 5500, letterDisplayMs: 900 },
+  { label: "Round 2", setSize: 5, mathDifficulty: "medium", mathTimeLimitMs: 5000, letterDisplayMs: 850 },
+  // { label: "Round 4", setSize: 6, mathDifficulty: "medium", mathTimeLimitMs: 4500, letterDisplayMs: 850 },
+  { label: "Round 3", setSize: 6, mathDifficulty: "hard", mathTimeLimitMs: 4000, letterDisplayMs: 800 },
 ];
 
 const MATH_POINTS = 5; // per correct true/false judgment

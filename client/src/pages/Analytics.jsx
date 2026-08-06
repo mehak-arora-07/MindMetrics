@@ -18,17 +18,6 @@ import { PiSpeedometerBold } from "react-icons/pi";
 // import { GrDocumentPerformance } from "react-icons/gr";
 
 
-// Drop into client/src/pages/AssessmentReportPage.jsx
-// Route it in App.jsx: <Route path="/performances/:id" element={<AssessmentReportPage />} />
-//
-// This is the "Analytics Dashboard" report for a single completed
-// assessment — reached via "View Details" from PerformancePage.jsx.
-// Shares the exact visual language of HomePage.jsx / PerformancePage.jsx
-// (same nav, palette, typography, card style) so all three read as one
-// product. REPORT_SEED below is sample data — replace it with a real
-// fetch keyed on the :id route param (e.g. getAssessmentReport(id)).
-// Charts are hand-built SVG (no chart library dependency), matching the
-// codebase's existing pattern of custom canvas/SVG visuals.
 
 const styles = `
 * { box-sizing: border-box; }

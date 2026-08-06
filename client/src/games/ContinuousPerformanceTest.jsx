@@ -7,20 +7,14 @@ import { setCurrentGameIndex } from "../utils/session";
 import useDisableBackButton from "../hooks/useDisableBackButton";
 
 
-// Drop into client/src/games/CPT.jsx
-// Fetches rules from the real question bank on load via
-// GET /api/questions/cpt. If that fails for any reason (server down,
-// empty bank, network issue), it falls back to the small local RULE_BANK
-// below so the game never breaks — the instructions screen shows which
-// source is actually active ("loaded from database" vs "offline set").
 
-const TOTAL_ROUNDS = 5;
+const TOTAL_ROUNDS = 3;
 const HIT_POINTS = 10;
 const MISS_PENALTY = -3;
 const FALSE_POSITIVE_PENALTY = -5;
 const SESSION_TIME_LIMIT_MS = 90000;
 
-// ---- Local rule bank (swap for a fetch once the backend endpoint exists) ----
+// Local rule bank 
 const RULE_BANK = [
   { ruleId: "CPT001", difficulty: "Easy", cue: "A", target: "X" },
   { ruleId: "CPT002", difficulty: "Easy", cue: "H", target: "P" },
@@ -40,8 +34,6 @@ const RULE_BANK = [
 // question rather than a long run of letters.
 const ROUND_CONFIG = [
   { difficulty: "Easy", intervalMs: 750, length: 18, requiredHits: 3, dual: false },
-  { difficulty: "Easy", intervalMs: 700, length: 20, requiredHits: 3, dual: false },
-  { difficulty: "Medium", intervalMs: 550, length: 22, requiredHits: 3, dual: false },
   { difficulty: "Hard", intervalMs: 420, length: 24, requiredHits: 3, dual: false },
   { difficulty: "Hard", intervalMs: 650, length: 6, requiredHits: 1, dual: false },
 ];
@@ -54,10 +46,6 @@ function pickRule(pool, difficulty) {
   return candidates[idx];
 }
 
-// Builds a letter stream and injects exact-count true-target trials
-// (cue immediately followed by target) at random non-overlapping spots.
-// Everything else is random filler, which naturally creates the
-// "cue without target" and "target without cue" lure trials.
 function buildStream(rules, length, requiredHits) {
   const stream = Array.from(
     { length },

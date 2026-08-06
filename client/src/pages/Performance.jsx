@@ -6,15 +6,6 @@ import { FaBrain,FaPuzzlePiece,FaBolt,FaBalanceScale,FaRegEye,FaChartBar ,FaTrop
 import { GoGoal } from "react-icons/go";
 
 
-// Drop into client/src/pages/PerformancePage.jsx
-// Route it at "/performances" in App.jsx: <Route path="/performances" element={<PerformancePage />} />
-//
-// Shares the exact visual language of HomePage.jsx (same nav, palette,
-// typography, card/button styles) so the two pages read as one product.
-// Assessment data below is sample data — swap ASSESSMENTS_SEED for a real
-// fetch (e.g. a getPerformanceHistory() call from ../utils/session) and
-// feed the result into the `assessments` state.
-
 const styles = `
 * { box-sizing: border-box; }
 

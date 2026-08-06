@@ -47,10 +47,9 @@ def train_models() -> None:
     y_score = dataframe["overall_score"]
     y_profile = dataframe["behavior_profile"]
 
-    # -------------------------------------------------
-    # LINEAR REGRESSION
+    #  LINEAR REGRESSION
     # Predicts overall score
-    # -------------------------------------------------
+
 
     (
         x_train_reg,
@@ -65,7 +64,7 @@ def train_models() -> None:
     )
 
     # Scale values because reaction times and accuracies
-    # have very different numeric ranges
+
     scaler = StandardScaler()
 
     x_train_reg_scaled = scaler.fit_transform(x_train_reg)
@@ -96,10 +95,8 @@ def train_models() -> None:
     print("MAE:", round(regression_mae, 4))
     print("R2 Score:", round(regression_r2, 4))
 
-    # -------------------------------------------------
     # RANDOM FOREST CLASSIFIER
     # Predicts behavior profile
-    # -------------------------------------------------
 
     (
         x_train_cls,
