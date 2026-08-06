@@ -11,7 +11,7 @@ const SESSION_TIME_LIMIT_MS = 60000; // more phases per round than the other gam
 
 const ROUNDS = [
   { label: "Round 1", colorCount: 3, mathCount: 1, displayMs: 1000, difficulty: "normal" },
-  { label: "Round 2", colorCount: 4, mathCount: 2, displayMs: 850, difficulty: "hard" },
+  { label: "Round 2", colorCount: 4, mathCount: 2, displayMs: 850, difficulty: "normal" },
   { label: "Round 3", colorCount: 4, mathCount: 1, displayMs: 700, difficulty: "hard" },
 ];
 

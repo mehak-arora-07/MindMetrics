@@ -5,13 +5,12 @@ import { motion } from "framer-motion";
 import { setCurrentGameIndex } from "../utils/session";
 import useDisableBackButton from "../hooks/useDisableBackButton";
 
-const SESSION_TIME_LIMIT_MS = 60000;
+const SESSION_TIME_LIMIT_MS = 50000;
 
 const ROUNDS = [
   { label: "Round 1", categoryCount: 3, itemCount: 6, displayMs: 1400, types: ["latest"] },
-  { label: "Round 2", categoryCount: 4, itemCount: 7, displayMs: 1500, types: ["latest", "mostRecentCategory","itemBefore"] },
   {
-    label: "Round 3",
+    label: "Round 2",
     categoryCount: 4,
     itemCount: 8,
     displayMs: 1900,

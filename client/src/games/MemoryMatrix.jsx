@@ -13,7 +13,7 @@ const LEVELS = [
   // { grid: 3, cells: 4, showMs: 1400 },
   { grid: 4, cells: 5, showMs: 1800 },
   // { grid: 4, cells: 6, showMs: 2100 },
-  { grid: 5, cells: 8, showMs: 2200 },
+  { grid: 5, cells: 7, showMs: 2200 },
 ];
 
 function pickHighlightedCells(gridSize, count) {
