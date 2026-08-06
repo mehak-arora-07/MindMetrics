@@ -17,7 +17,7 @@ import useDisableBackButton from "../hooks/useDisableBackButton";
 // (matching your actual sessions.js route + Sessions.js schema:
 // assessmentId, gameId, accuracy, avgTimeMs, metrics, completed).
 
-const TOTAL_QUESTIONS = 10;
+const TOTAL_QUESTIONS = 5;
 const CORRECT_POINTS = 10;
 const BASE_TIME_LIMIT_MS = 12000;
 const MIN_TIME_LIMIT_MS = 6000;
