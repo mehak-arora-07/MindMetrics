@@ -787,11 +787,6 @@ useDisableBackButton();
         <div className="ps-topbar">
           <h2>Pattern Sequence</h2>
           <div className="ps-topright">
-            {streak >= 2 && (
-              <div className="ps-flame" key={streak}>
-                <span className="icon">🔥</span> {streak}
-              </div>
-            )}
             <div className="ps-round-badge">Round {questionIndex + 1} of {TOTAL_QUESTIONS}</div>
           </div>
         </div>
