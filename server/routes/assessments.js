@@ -196,7 +196,7 @@ router.patch("/:assessmentId/complete", verifyToken, async(req, res) => {
         console.log("ML features:", features);
 
         const mlResponse = await fetch(
-            "http://127.0.0.1:8000/api/predict/", {
+            `${process.env.ML_API_URL}/api/predict/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
