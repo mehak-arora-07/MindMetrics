@@ -463,21 +463,27 @@ html, body, #root {
 }
 
 .os-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
-  border-radius: 12px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .os-stat .label {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #8B93A7;
-  font-size: 12px;
-  margin-bottom: 6px;
+  font-size: 11px;
 }
 
 .os-stat .value {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #E5E7EB;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -582,6 +588,16 @@ html, body, #root {
     grid-template-columns: repeat(6, minmax(0, 1fr));
     max-width: 300px;
     gap: 8px;
+  }
+  .os-results-grid {
+    gap: 8px;
+  }
+  .os-results-grid div {
+    padding: 10px;
+  }
+  .os-intro-screen {
+    gap: 14px;
+    padding: 20px;
   }
 }
 `;

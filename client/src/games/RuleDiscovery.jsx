@@ -51,6 +51,17 @@ function buildRuleOptions(pool, correctRule) {
   return [...distractors, correctRule].sort(() => Math.random() - 0.5);
 }
 
+// Rough ceiling for the results-screen subtitle tiering: ~5 correct
+// classifications plus a first-try correct guess, per round.
+const MAX_POSSIBLE_SCORE = ROUNDS_TOTAL * (5 * CORRECT_CLASSIFY_POINTS + CORRECT_GUESS_POINTS);
+
+function getResultCopy(score) {
+  const pct = MAX_POSSIBLE_SCORE > 0 ? score / MAX_POSSIBLE_SCORE : 0;
+  if (pct < 0.35) return { title: "Room to grow" };
+  if (pct < 0.7) return { title: "Nice detective work" };
+  return { title: "Sharp pattern-spotting 🔍" };
+}
+
 const styles = `
 * { box-sizing: border-box; }
 
@@ -416,12 +427,12 @@ html, body, #root {
   background: #141A2E;
   border: 1px solid #232A3D;
   border-radius: 12px;
-  padding: 14px;
+  padding: 16px;
   text-align: center;
 }
 
-.rd-stat .label { color: #8B93A7; font-size: 11px; margin-bottom: 4px; }
-.rd-stat .value { color: #E5E7EB; font-size: 18px; font-weight: 600; }
+.rd-stat .label { color: #8B93A7; font-size: 12px; margin-bottom: 6px; }
+.rd-stat .value { color: #E5E7EB; font-size: 22px; font-weight: 600; }
 .rd-stat .value.score { color: #F59E0B; }
 .rd-stat .value.solved { color: #34D399; }
 
@@ -442,23 +453,48 @@ html, body, #root {
 .rd-center-msg h3 { color: #E5E7EB; font-size: 20px; margin: 0; }
 .rd-center-msg p { color: #8B93A7; font-size: 13px; margin: 0; max-width: 340px; }
 
+.rd-results-subtitle {
+  color: #8B93A7;
+  font-size: 14px;
+  margin: -18px 0 24px;
+}
+
 .rd-results-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 14px;
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   margin: 0 auto;
 }
 
-.rd-results-grid div {
-  background: #0B0F19;
+.rd-result-card {
+  border: 1px solid #232A3D;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rd-result-label {
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #8B93A7;
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.rd-result-value {
   border: 1px solid #232A3D;
   border-radius: 8px;
   padding: 12px;
+  color: #E5E7EB;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
 }
-.rd-results-grid .label { color: #8B93A7; font-size: 11px; }
-.rd-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
 
 /* ---- Responsive: stack sidebar under the arena on narrow screens ---- */
 @media (max-width: 900px) {
@@ -502,7 +538,12 @@ html, body, #root {
   .rd-item-box { width: 100px; height: 100px; font-size: 34px; }
   .rd-topbar h2 { font-size: 15px; }
   .rd-round-badge { font-size: 11px; padding: 4px 10px; }
-  .rd-results-grid { grid-template-columns: 1fr; }
+  .rd-results-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .rd-result-card { padding: 10px; gap: 6px; }
+  .rd-result-label { padding: 6px 8px; font-size: 10.5px; }
+  .rd-result-value { padding: 8px; font-size: 14px; }
+  .rd-results-subtitle { margin: -14px 0 16px; font-size: 13px; }
+  .rd-intro-screen h2 { font-size: 19px; margin-bottom: 4px; }
   .rd-intro-screen h1 { font-size: 24px; }
   .rd-guess-options { max-width: 100%; }
   .rd-arena { padding: 18px; }
@@ -979,31 +1020,32 @@ useDisableBackButton();
       <div className="rd-intro-screen rd-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
+          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 8 }}>Scores</h2>
+          <p className="rd-results-subtitle">{getResultCopy(score).title}</p>
           <div className="rd-results-grid">
-            <div>
-              <div className="label">Score</div>
-              <div className="value">{score}</div>
+            <div className="rd-result-card">
+              <div className="rd-result-label">Score</div>
+              <div className="rd-result-value">{score}</div>
             </div>
-            <div>
-              <div className="label">Rules Solved</div>
-              <div className="value">{rulesSolved}/{ROUNDS_TOTAL}</div>
+            <div className="rd-result-card">
+              <div className="rd-result-label">Rules Solved</div>
+              <div className="rd-result-value">{rulesSolved}/{ROUNDS_TOTAL}</div>
             </div>
-            <div>
-              <div className="label">Rule Discovery Accuracy</div>
-              <div className="value">{ruleDiscoveryAccuracy}%</div>
+            <div className="rd-result-card">
+              <div className="rd-result-label">Rule Discovery Accuracy</div>
+              <div className="rd-result-value">{ruleDiscoveryAccuracy}%</div>
             </div>
-            <div>
-              <div className="label">Classification Accuracy</div>
-              <div className="value">{classificationAccuracy}%</div>
+            <div className="rd-result-card">
+              <div className="rd-result-label">Classification Accuracy</div>
+              <div className="rd-result-value">{classificationAccuracy}%</div>
             </div>
-            <div>
-              <div className="label">Avg Guesses to Solve</div>
-              <div className="value">{averageRuleGuesses}</div>
+            <div className="rd-result-card">
+              <div className="rd-result-label">Avg Guesses to Solve</div>
+              <div className="rd-result-value">{averageRuleGuesses}</div>
             </div>
-            <div>
-              <div className="label">Avg Discovery Time</div>
-              <div className="value">{averageDiscoveryTimeMs}ms</div>
+            <div className="rd-result-card">
+              <div className="rd-result-label">Avg Discovery Time</div>
+              <div className="rd-result-value">{averageDiscoveryTimeMs}ms</div>
             </div>
           </div>
         </div>

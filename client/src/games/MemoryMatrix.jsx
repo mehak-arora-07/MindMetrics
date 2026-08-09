@@ -259,21 +259,27 @@ html, body, #root {
 }
 
 .mm-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
-  border-radius: 12px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .mm-stat .label {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #8B93A7;
-  font-size: 12px;
-  margin-bottom: 6px;
+  font-size: 11px;
 }
 
 .mm-stat .value {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #E5E7EB;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -378,9 +384,11 @@ html, body, #root {
 }
 
 @media (max-width: 480px) {
-  .mm-results-grid { grid-template-columns: 1fr; }
+  .mm-results-grid { grid-template-columns: 1fr; gap: 8px; }
+  .mm-results-grid div { padding: 10px; }
   .mm-arena-header h2 { font-size: 16px; }
   .mm-badge { font-size: 12px; padding: 5px 10px; }
+  .mm-intro-screen { gap: 14px; padding: 20px; }
   .mm-intro-screen h1 { font-size: 24px; }
 }
 `;

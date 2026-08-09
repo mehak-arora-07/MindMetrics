@@ -307,15 +307,29 @@ html, body, #root {
 }
 
 .ms-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
-  border-radius: 12px;
-  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   text-align: center;
 }
 
-.ms-stat .label { color: #8B93A7; font-size: 11px; margin-bottom: 4px; }
-.ms-stat .value { color: #E5E7EB; font-size: 18px; font-weight: 600; }
+.ms-stat .label {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 10px;
+  color: #8B93A7;
+  font-size: 11px;
+}
+.ms-stat .value {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 10px;
+  color: #E5E7EB;
+  font-size: 18px;
+  font-weight: 600;
+}
 .ms-stat .value.hits { color: #34D399; }
 .ms-stat .value.misses { color: #F87171; }
 .ms-stat .value.fp { color: #F59E0B; }
@@ -382,6 +396,12 @@ html, body, #root {
   .ms-stat {
     flex: 1 1 100px;
   }
+}
+
+@media (max-width: 480px) {
+  .ms-results-grid { grid-template-columns: 1fr; gap: 8px; }
+  .ms-results-grid div { padding: 10px; }
+  .ms-intro-screen { gap: 14px; padding: 20px; }
 }
 `;
 

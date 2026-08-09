@@ -406,21 +406,27 @@ html, body, #root {
 }
 
 .cs-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
-  border-radius: 12px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .cs-stat .label {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #8B93A7;
-  font-size: 12px;
-  margin-bottom: 6px;
+  font-size: 11px;
 }
 
 .cs-stat .value {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #E5E7EB;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -531,6 +537,16 @@ html, body, #root {
   .cs-options {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: 280px;
+  }
+  .cs-intro-screen {
+    gap: 14px;
+    padding: 20px;
+  }
+  .cs-results-grid {
+    gap: 8px;
+  }
+  .cs-results-grid div {
+    padding: 10px;
   }
 }
 `;

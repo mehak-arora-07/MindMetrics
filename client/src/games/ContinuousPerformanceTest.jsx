@@ -330,15 +330,29 @@ html, body, #root {
 }
 
 .cpt-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
-  border-radius: 12px;
-  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   text-align: center;
 }
 
-.cpt-stat .label { color: #8B93A7; font-size: 11px; margin-bottom: 4px; }
-.cpt-stat .value { color: #E5E7EB; font-size: 18px; font-weight: 600; }
+.cpt-stat .label {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 10px;
+  color: #8B93A7;
+  font-size: 11px;
+}
+.cpt-stat .value {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 10px;
+  color: #E5E7EB;
+  font-size: 18px;
+  font-weight: 600;
+}
 .cpt-stat .value.hits { color: #34D399; }
 .cpt-stat .value.misses { color: #F87171; }
 .cpt-stat .value.fp { color: #F59E0B; }
@@ -403,6 +417,16 @@ html, body, #root {
   }
   .cpt-stat {
     flex: 1 1 100px;
+  }
+  .cpt-intro-screen {
+    gap: 14px;
+    padding: 20px;
+  }
+  .cpt-results-grid {
+    gap: 8px;
+  }
+  .cpt-results-grid div {
+    padding: 10px;
   }
 }
 `;

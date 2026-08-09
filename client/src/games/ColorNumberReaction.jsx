@@ -374,21 +374,27 @@ html, body, #root {
 }
 
 .sr-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
-  border-radius: 12px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .sr-stat .label {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #8B93A7;
-  font-size: 12px;
-  margin-bottom: 6px;
+  font-size: 11px;
 }
 
 .sr-stat .value {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #E5E7EB;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -504,6 +510,16 @@ html, body, #root {
   }
   .sr-stat {
     flex: 1 1 100px;
+  }
+  .sr-intro-screen {
+    gap: 14px;
+    padding: 20px;
+  }
+  .sr-results-grid {
+    gap: 8px;
+  }
+  .sr-results-grid div {
+    padding: 10px;
   }
 }
 `;

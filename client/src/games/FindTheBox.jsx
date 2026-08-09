@@ -327,21 +327,27 @@ html, body, #root {
 }
 
 .fb-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
-  border-radius: 12px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .fb-stat .label {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #8B93A7;
-  font-size: 12px;
-  margin-bottom: 6px;
+  font-size: 11px;
 }
 
 .fb-stat .value {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #E5E7EB;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -475,9 +481,11 @@ html, body, #root {
   .fb-hint { font-size: 13px; }
   .fb-box { width: 46px; height: 46px; font-size: 17px; }
   .fb-boxes { gap: 10px; }
-  .fb-results-grid { grid-template-columns: 1fr; }
+  .fb-results-grid { grid-template-columns: 1fr; gap: 10px; }
+  .fb-result-card { padding: 12px; gap: 8px; }
   .fb-arena-header h2 { font-size: 16px; }
   .fb-badge { font-size: 12px; padding: 5px 10px; }
+  .fb-intro-screen { gap: 14px; padding: 20px; }
   .fb-intro-screen h1 { font-size: 24px; }
 }
 `;

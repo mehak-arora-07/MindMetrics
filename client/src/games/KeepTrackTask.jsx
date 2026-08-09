@@ -455,21 +455,27 @@ html, body, #root {
 }
 
 .kt-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
-  border-radius: 12px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .kt-stat .label {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #8B93A7;
-  font-size: 12px;
-  margin-bottom: 6px;
+  font-size: 11px;
 }
 
 .kt-stat .value {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 12px;
   color: #E5E7EB;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -579,9 +585,11 @@ html, body, #root {
   .kt-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .kt-option { font-size: 13px; padding: 12px 8px; }
   .kt-item-box .item { font-size: 24px; }
-  .kt-results-grid { grid-template-columns: 1fr; }
+  .kt-results-grid { grid-template-columns: 1fr; gap: 8px; }
+  .kt-results-grid div { padding: 10px; }
   .kt-arena-header h2 { font-size: 16px; }
   .kt-badge { font-size: 12px; padding: 5px 10px; }
+  .kt-intro-screen { gap: 14px; padding: 20px; }
   .kt-intro-screen h1 { font-size: 24px; }
 }
 `;

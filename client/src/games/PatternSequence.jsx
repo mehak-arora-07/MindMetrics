@@ -359,14 +359,29 @@ html, body, #root {
 }
 
 .ps-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
-  border-radius: 12px;
-  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   text-align: center;
 }
-.ps-stat .label { color: #8B93A7; font-size: 11px; margin-bottom: 4px; }
-.ps-stat .value { color: #E5E7EB; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ps-stat .label {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 10px;
+  color: #8B93A7;
+  font-size: 11px;
+}
+.ps-stat .value {
+  background: #141A2E;
+  border: 1px solid #232A3D;
+  border-radius: 8px;
+  padding: 10px;
+  color: #E5E7EB;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
 .ps-stat .value.correct { color: #34D399; }
 
 .ps-results-grid {
@@ -416,7 +431,9 @@ html, body, #root {
   .ps-options { max-width: 100%; }
   .ps-topbar h2 { font-size: 15px; }
   .ps-round-badge { font-size: 11px; padding: 4px 10px; }
-  .ps-results-grid { grid-template-columns: 1fr; }
+  .ps-results-grid { grid-template-columns: 1fr; gap: 8px; }
+  .ps-results-grid div { padding: 10px; }
+  .ps-intro-screen { gap: 14px; padding: 20px; }
   .ps-intro-screen h1 { font-size: 24px; }
   .ps-arena { padding: 24px 18px; gap: 20px; }
 }
