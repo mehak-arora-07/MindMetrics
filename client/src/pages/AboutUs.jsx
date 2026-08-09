@@ -303,6 +303,15 @@ html, body, #root {
   .hp-about-hero h1 { font-size: 32px; }
   .hp-footer-top { grid-template-columns: 1fr 1fr; }
 }
+
+@media (max-width: 480px) {
+  .hp-nav { padding: 16px 20px; }
+  .hp-about-hero { padding: 110px 20px 24px; }
+  .hp-about-hero h1 { font-size: 26px; }
+  .hp-mid-cta { padding: 32px 22px; }
+  .hp-footer-top { grid-template-columns: 1fr; gap: 32px; }
+  .hp-section { padding: 56px 20px; }
+}
 `;
 
 /* ============================================================

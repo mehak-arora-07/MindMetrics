@@ -253,6 +253,13 @@ html, body, #root {
   .auth-wrap { grid-template-columns: 1fr; }
   .auth-brand { display: none; }
 }
+
+@media (max-width: 480px) {
+  .auth-panel { padding: 28px 20px; }
+  .auth-card { max-width: 100%; }
+  /* 16px prevents iOS Safari from auto-zooming the page on input focus */
+  .auth-field input { font-size: 16px; }
+}
 `;
 
 // Six nodes = your six cognitive skills. Each orbits the core at its own

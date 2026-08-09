@@ -484,6 +484,28 @@ html, body, #root {
 
 .sr-results-grid .label { color: #8B93A7; font-size: 11px; }
 .sr-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+
+@media (max-width: 760px) {
+  .sr-wrap {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 16px;
+    gap: 14px;
+  }
+  .sr-arena {
+    height: auto;
+    min-height: 420px;
+  }
+  .sr-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .sr-stat {
+    flex: 1 1 100px;
+  }
+}
 `;
 
 function getResultCopy(score) {

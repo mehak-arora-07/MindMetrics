@@ -444,6 +444,42 @@ html, body, #root {
   font-weight: 700;
   text-align: center;
 }
+
+/* ---- Responsive: stack sidebar under the arena on narrow screens ---- */
+@media (max-width: 900px) {
+  .fb-wrap {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 16px;
+    gap: 16px;
+  }
+  .fb-arena {
+    height: auto;
+    min-height: 60vh;
+  }
+  .fb-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .fb-sidebar .fb-stat {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fb-sentence { font-size: 18px; }
+  .fb-hint { font-size: 13px; }
+  .fb-box { width: 46px; height: 46px; font-size: 17px; }
+  .fb-boxes { gap: 10px; }
+  .fb-results-grid { grid-template-columns: 1fr; }
+  .fb-arena-header h2 { font-size: 16px; }
+  .fb-badge { font-size: 12px; padding: 5px 10px; }
+  .fb-intro-screen h1 { font-size: 24px; }
+}
 `;
 
 function getResultCopy(score) {

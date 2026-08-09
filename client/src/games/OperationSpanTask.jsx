@@ -556,6 +556,34 @@ html, body, #root {
   display: flex;
   gap: 12px;
 }
+
+@media (max-width: 760px) {
+  .os-wrap {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 16px;
+    gap: 14px;
+  }
+  .os-arena {
+    height: auto;
+    min-height: 420px;
+    padding: 22px 16px;
+  }
+  .os-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .os-stat {
+    flex: 1 1 100px;
+  }
+  .os-letter-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    max-width: 300px;
+    gap: 8px;
+  }
+}
 `;
 
 function getResultCopy(score) {

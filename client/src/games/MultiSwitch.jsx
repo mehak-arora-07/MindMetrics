@@ -354,6 +354,35 @@ html, body, #root {
 }
 .ms-results-grid .label { color: #8B93A7; font-size: 11px; }
 .ms-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+
+@media (max-width: 760px) {
+  html, body, #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .ms-wrap {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 16px;
+    gap: 14px;
+  }
+  .ms-main {
+    height: auto;
+  }
+  .ms-arena {
+    min-height: 360px;
+    padding: 22px 16px;
+  }
+  .ms-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .ms-stat {
+    flex: 1 1 100px;
+  }
+}
 `;
 
 function getResultCopy(accuracy) {
@@ -823,9 +852,6 @@ async function endGame() {
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
           <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 4 }}>Scores</h2>
-          <p style={{ color: "#8B93A7", fontSize: 14, margin: "0 0 20px" }}>
-            {getResultCopy(accuracy).title}
-          </p>
           <div className="ms-results-grid">
             <div>
               <div className="label">Score</div>

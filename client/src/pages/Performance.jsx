@@ -666,6 +666,12 @@ html, body, #root {
   .pp-td-action::before { content: none; }
   .pp-view-btn { width: 100%; justify-content: center; }
 }
+
+@media (max-width: 480px) {
+  .hp-nav { padding: 14px 20px; gap: 12px; }
+  .pp-container { padding: 96px 14px 48px; }
+  .pp-hero h1 { font-size: 24px; }
+}
 `;
 
 // Six cognitive profiles measured by the assessment series — mirrors the

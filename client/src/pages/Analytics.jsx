@@ -388,6 +388,14 @@ html, body, #root {
   .ar-footer-actions { flex-direction: column; }
   .ar-btn-icon, .ar-btn-primary-icon { width: 100%; justify-content: center; }
 }
+
+@media (max-width: 480px) {
+  .hp-nav { padding: 14px 20px; gap: 12px; }
+  .ar-container { padding: 96px 14px 48px; }
+  .ar-header h1 { font-size: 24px; }
+  .ar-summary-card { padding: 22px; }
+  .ar-donut-wrap { gap: 18px; }
+}
 `;
 
 // ---- Sample report data — replace with a real fetch keyed on :id ----
@@ -454,7 +462,12 @@ function useOutsideClose(ref, onClose) {
 function BarChart({ data }) {
   const w = 700, h = 250;
   const padTop = 10, padBottom = 40, padSide = 6;
-  const plotH = h + padTop + padBottom + 300;
+  // Usable vertical space for bars = total height minus top/bottom padding.
+  // (Previously this added a stray "+ 300", making bars compute positions
+  // far below the actual 250px-tall viewBox — since chart SVGs use
+  // overflow:visible so rotated labels aren't clipped, that overflow was
+  // spilling straight into the chart card below.)
+  const plotH = h - padTop - padBottom;
   const gap = 18;
   const barW = 50;
   const gridLines = [0, 25, 50, 75, 100];
@@ -484,7 +497,7 @@ function BarChart({ data }) {
             <text className="ar-bar-value" x={x + barW / 2} y={y - 8} textAnchor="middle">{d.value}</text>
             <text
               className="ar-bar-label"
-              transform={`translate(${x + barW / 2}, ${h + 385}) rotate(-45)`}
+              transform={`translate(${x + barW / 2}, ${h - padBottom + 18}) rotate(-45)`}
               textAnchor="end"
             >
               <title>{d.label}</title>

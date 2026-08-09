@@ -115,6 +115,14 @@ html, body, #root {
   text-align: left !important;
 }
 
+@media (max-width: 900px) {
+  html, body, #root {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+}
+
 @keyframes ps-fade-in {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
@@ -377,6 +385,41 @@ html, body, #root {
 }
 .ps-results-grid .label { color: #8B93A7; font-size: 11px; }
 .ps-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+
+/* ---- Responsive: stack sidebar under the arena on narrow screens ---- */
+@media (max-width: 900px) {
+  .ps-wrap {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 16px;
+    gap: 16px;
+  }
+  .ps-main {
+    height: auto;
+  }
+  .ps-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .ps-sidebar .ps-stat {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ps-pattern-display { font-size: 18px; padding: 14px 18px; }
+  .ps-option { font-size: 15px; padding: 12px; }
+  .ps-options { max-width: 100%; }
+  .ps-topbar h2 { font-size: 15px; }
+  .ps-round-badge { font-size: 11px; padding: 4px 10px; }
+  .ps-results-grid { grid-template-columns: 1fr; }
+  .ps-intro-screen h1 { font-size: 24px; }
+  .ps-arena { padding: 24px 18px; gap: 20px; }
+}
 `;
 
 export default function PatternSequence({ onComplete, userId, assessmentId }) {

@@ -66,6 +66,14 @@ html, body, #root {
   text-align: left !important;
 }
 
+@media (max-width: 900px) {
+  html, body, #root {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+}
+
 @keyframes rd-fade-in {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
@@ -451,6 +459,54 @@ html, body, #root {
 }
 .rd-results-grid .label { color: #8B93A7; font-size: 11px; }
 .rd-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+
+/* ---- Responsive: stack sidebar under the arena on narrow screens ---- */
+@media (max-width: 900px) {
+  .rd-wrap {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 16px;
+    gap: 16px;
+  }
+  .rd-main {
+    height: auto;
+  }
+  .rd-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .rd-sidebar .rd-stat {
+    flex: 1;
+    min-width: 120px;
+  }
+  /* the tested-items log is an absolute overlay on desktop — that only
+     works because there's room beside the classify column. On narrow
+     screens it would sit on top of the accept/reject buttons, so it
+     drops back into normal flow underneath them instead. */
+  .rd-arena {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .rd-log-col {
+    position: static;
+    width: 100%;
+    max-height: 160px;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rd-item-box { width: 100px; height: 100px; font-size: 34px; }
+  .rd-topbar h2 { font-size: 15px; }
+  .rd-round-badge { font-size: 11px; padding: 4px 10px; }
+  .rd-results-grid { grid-template-columns: 1fr; }
+  .rd-intro-screen h1 { font-size: 24px; }
+  .rd-guess-options { max-width: 100%; }
+  .rd-arena { padding: 18px; }
+}
 `;
 
 export default function RuleDiscovery({ onComplete, onNextGame, userId, assessmentId }) {

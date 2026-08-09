@@ -187,7 +187,11 @@ html, body, #root {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid #1a2033;
   border-radius: 999px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.hp-nav-links::-webkit-scrollbar { display: none; }
 
 .hp-nav-links a {
   color: #8B93A7;
@@ -240,6 +244,7 @@ html, body, #root {
 
 .hp-nav-right {
   position: relative;
+  flex-shrink: 0;
 }
 
 .hp-menu-btn {
@@ -256,6 +261,7 @@ html, body, #root {
   font-weight: 500;
   font-family: inherit;
   transition: border-color 0.15s ease;
+  flex-shrink: 0;
 }
 .hp-menu-btn:hover { border-color: #34D399; }
 
@@ -782,6 +788,15 @@ html, body, #root {
   .hp-hero h1 { font-size: 34px; }
   .hp-footer-top { grid-template-columns: 1fr 1fr; }
 }
+
+@media (max-width: 480px) {
+  .hp-nav { padding: 14px 20px; gap: 12px; }
+  .hp-hero { padding: 104px 20px 48px; }
+  .hp-hero h1 { font-size: 26px; }
+  .hp-mid-cta { padding: 32px 22px; }
+  .hp-section { padding: 56px 20px; }
+  .hp-footer-top { grid-template-columns: 1fr; gap: 32px; }
+}
 `;
 
 const SKILLS = [
@@ -1112,12 +1127,6 @@ export default function HomePage() {
           <Link to="/about">About Us</Link>
 
         </div>
-
-        {user && (
-          <button className="hp-nav-cta" onClick={handleStart} disabled={starting}>
-            {starting ? "Starting…" : "Start Assessment"}
-          </button>
-        )}
 
         <div className="hp-nav-right" ref={menuRef}>
           {user ? (

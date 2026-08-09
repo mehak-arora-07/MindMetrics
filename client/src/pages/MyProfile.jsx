@@ -421,7 +421,7 @@ html, body, #root {
 @media (max-width: 560px) {
   .mp-page { padding: 96px 16px 40px; }
   .mp-nav { padding: 14px 20px; }
-  .mp-header-card { flex-direction: column; text-align: center; }
+  .mp-header-card { flex-direction: column; text-align: center; padding: 24px 20px; }
   .mp-stats-grid { grid-template-columns: 1fr 1fr; }
   .mp-row { grid-template-columns: 1fr; }
 }

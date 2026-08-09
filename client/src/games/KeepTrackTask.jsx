@@ -548,6 +548,42 @@ html, body, #root {
 
 .kt-results-grid .label { color: #8B93A7; font-size: 11px; }
 .kt-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+
+/* ---- Responsive: stack sidebar under the arena on narrow screens ---- */
+@media (max-width: 900px) {
+  .kt-wrap {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 16px;
+    gap: 16px;
+  }
+  .kt-arena {
+    height: auto;
+    min-height: 60vh;
+  }
+  .kt-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .kt-sidebar .kt-stat {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .kt-question { font-size: 18px; }
+  .kt-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kt-option { font-size: 13px; padding: 12px 8px; }
+  .kt-item-box .item { font-size: 24px; }
+  .kt-results-grid { grid-template-columns: 1fr; }
+  .kt-arena-header h2 { font-size: 16px; }
+  .kt-badge { font-size: 12px; padding: 5px 10px; }
+  .kt-intro-screen h1 { font-size: 24px; }
+}
 `;
 
 function getResultCopy(score) {

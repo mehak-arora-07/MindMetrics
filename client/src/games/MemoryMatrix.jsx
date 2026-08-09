@@ -219,8 +219,8 @@ html, body, #root {
 }
 
 .mm-cell {
-  width: 64px;
-  height: 64px;
+  width: 100%;
+  height: 100%;
   border-radius: 12px;
   border: 1px solid #232A3D;
   background: #0B0F19;
@@ -354,6 +354,35 @@ html, body, #root {
 
 .mm-results-grid .label { color: #8B93A7; font-size: 11px; }
 .mm-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+
+/* ---- Responsive: stack sidebar under the arena on narrow screens ---- */
+@media (max-width: 900px) {
+  .mm-wrap {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    min-height: 100vh;
+    padding: 16px;
+    gap: 16px;
+  }
+  .mm-arena {
+    min-height: 60vh;
+  }
+  .mm-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .mm-sidebar .mm-stat {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mm-results-grid { grid-template-columns: 1fr; }
+  .mm-arena-header h2 { font-size: 16px; }
+  .mm-badge { font-size: 12px; padding: 5px 10px; }
+  .mm-intro-screen h1 { font-size: 24px; }
+}
 `;
 
 const MAX_POSSIBLE_SCORE = LEVELS.reduce((sum, l) => sum + l.cells, 0) * 10; // 260
@@ -748,8 +777,8 @@ if (phase === "done") {
             <div
               className="mm-board"
               style={{
-                gridTemplateColumns: `repeat(${level.grid}, 64px)`,
-                gridTemplateRows: `repeat(${level.grid}, 64px)`,
+                gridTemplateColumns: `repeat(${level.grid}, min(64px, 15vw))`,
+                gridTemplateRows: `repeat(${level.grid}, min(64px, 15vw))`,
               }}
             >
               {Array.from({ length: level.grid * level.grid }, (_, i) => {

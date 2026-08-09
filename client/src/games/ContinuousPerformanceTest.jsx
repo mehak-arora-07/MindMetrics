@@ -377,6 +377,34 @@ html, body, #root {
 }
 .cpt-results-grid .label { color: #8B93A7; font-size: 11px; }
 .cpt-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+
+@media (max-width: 760px) {
+  html, body, #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .cpt-wrap {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 16px;
+    gap: 14px;
+  }
+  .cpt-main {
+    height: auto;
+  }
+  .cpt-arena {
+    min-height: 360px;
+  }
+  .cpt-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .cpt-stat {
+    flex: 1 1 100px;
+  }
+}
 `;
 
 export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
