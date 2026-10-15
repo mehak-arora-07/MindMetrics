@@ -87,7 +87,8 @@ html, body, #root { margin: 0 !important; padding: 0 !important; background: var
 
 /* ---------- Voxel stage ---------- */
 .vx { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: 0 30px 80px -30px rgba(52,211,153,.25), 0 0 0 1px rgba(255,255,255,.02) inset; }
-.vx-canvas { display: block; width: 100%; height: 480px; cursor: crosshair; touch-action: none; }
+.vx-stage { height: 480px; position: relative; }
+.vx-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
 .vx-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 12px 14px; border-top: 1px solid var(--line); background: rgba(9,12,22,.55); }
 .vx-swatches { display: flex; gap: 8px; }
 .vx-sw { width: 24px; height: 24px; border-radius: 6px; border: 2px solid transparent; cursor: pointer; padding: 0; transition: transform .12s; }
@@ -136,12 +137,12 @@ html, body, #root { margin: 0 !important; padding: 0 !important; background: var
 
 @media (max-width: 980px) {
   .hp-hero-inner { grid-template-columns: 1fr; }
-  .vx-canvas { height: 400px; }
+  .vx-stage { height: 400px; }
   .hp-nav-links { display: none; }
 }
 @media (max-width: 640px) {
   .hp-nav { padding: 14px 20px; } .hp-hero { padding: 96px 20px 40px; } .hp-section { padding: 60px 20px; } .hp-footer { padding: 48px 20px 24px; }
-  .vx-canvas { height: 340px; } .hp-footer-top { grid-template-columns: 1fr 1fr; }
+  .vx-stage { height: 340px; } .hp-footer-top { grid-template-columns: 1fr 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   .rt-c { animation: none; } .rt-c > span, .hp-skill::before { transition: none; }
@@ -212,7 +213,7 @@ function VoxelPainter() {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setSize(w(), h());
+    renderer.setSize(w(), h(), false);
     renderer.domElement.className = "vx-canvas";
     mount.appendChild(renderer.domElement);
 
@@ -313,7 +314,7 @@ function VoxelPainter() {
     el.addEventListener("pointerup", onUp); el.addEventListener("pointerleave", onLeave);
     el.addEventListener("wheel", wake, { passive: true });
 
-    const ro = new ResizeObserver(() => { renderer.setSize(w(), h()); camera.aspect = w() / h(); camera.updateProjectionMatrix(); });
+    const ro = new ResizeObserver(() => { renderer.setSize(w(), h(), false); camera.aspect = w() / h(); camera.updateProjectionMatrix(); });
     ro.observe(mount);
 
     let raf;
@@ -336,7 +337,7 @@ function VoxelPainter() {
 
   return (
     <div className="vx">
-      <div ref={mountRef} />
+      <div ref={mountRef} className="vx-stage" />
       <div className="vx-corner tl" /><div className="vx-corner br" />
       <div className="vx-hint">
         <span>Click to build · Shift-click to erase · Drag to orbit</span>
