@@ -75,8 +75,8 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
     #0B0F19;
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
@@ -109,10 +109,10 @@ html, body, #root {
   font-size: 16px;
 }
 
-.ms-example .chip.match { border-color: #34D399; color: #34D399; }
+.ms-example .chip.match { border-color: #2FF3B0; color: #2FF3B0; }
 
 .ms-btn {
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   color: #05221A;
   border: none;
   border-radius: 8px;
@@ -144,8 +144,8 @@ html, body, #root {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.06), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.06), transparent 40%),
+    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.06), transparent 40%),
     #0B0F19;
 }
 
@@ -174,9 +174,9 @@ html, body, #root {
 .ms-topbar h2 { color: #E5E7EB; font-size: 17px; font-weight: 600; margin: 0; }
 
 .ms-round-badge {
-  background: rgba(167, 139, 250, 0.12);
-  border: 1px solid rgba(167, 139, 250, 0.35);
-  color: #A78BFA;
+  background: rgba(183, 148, 255, 0.12);
+  border: 1px solid rgba(183, 148, 255, 0.35);
+  color: #B794FF;
   font-size: 12.5px;
   font-weight: 600;
   padding: 5px 12px;
@@ -194,7 +194,7 @@ html, body, #root {
   text-align: center;
 }
 
-.ms-rule-banner b { color: #34D399; }
+.ms-rule-banner b { color: #2FF3B0; }
 
 .ms-arena {
   position: relative;
@@ -243,7 +243,7 @@ html, body, #root {
   color: #E5E7EB;
   font-size: 22px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
   cursor: pointer;
   animation: ms-item-in 0.2s ease;
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
@@ -252,30 +252,30 @@ html, body, #root {
 .ms-stim:active { transform: scale(0.94); }
 
 .ms-stim.selected {
-  border-color: #3B82F6;
-  background: rgba(59, 130, 246, 0.12);
+  border-color: #4F9CFF;
+  background: rgba(79, 156, 255, 0.12);
 }
 
 .ms-stim.result-correct {
-  border-color: #34D399;
-  background: rgba(52, 211, 153, 0.15);
+  border-color: #2FF3B0;
+  background: rgba(47, 243, 176, 0.15);
   cursor: default;
 }
 
 .ms-stim.result-wrong {
-  border-color: #F87171;
-  background: rgba(248, 113, 113, 0.15);
+  border-color: #FF7A7A;
+  background: rgba(255, 122, 122, 0.15);
   cursor: default;
 }
 
 .ms-stim.result-missed {
-  border-color: #F59E0B;
-  background: rgba(245, 158, 11, 0.12);
+  border-color: #FFB020;
+  background: rgba(255, 176, 32, 0.12);
   cursor: default;
 }
 
 .ms-submit-btn {
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   color: #05221A;
   border: none;
   border-radius: 8px;
@@ -297,12 +297,12 @@ html, body, #root {
 
 .ms-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   transition: width 0.15s linear;
 }
 
 .ms-progress-fill.timer {
-  background: linear-gradient(90deg, #F59E0B, #F87171);
+  background: linear-gradient(90deg, #FFB020, #FF7A7A);
   transition: width 1s linear;
 }
 
@@ -330,9 +330,9 @@ html, body, #root {
   font-size: 18px;
   font-weight: 600;
 }
-.ms-stat .value.hits { color: #34D399; }
-.ms-stat .value.misses { color: #F87171; }
-.ms-stat .value.fp { color: #F59E0B; }
+.ms-stat .value.hits { color: #2FF3B0; }
+.ms-stat .value.misses { color: #FF7A7A; }
+.ms-stat .value.fp { color: #FFB020; }
 
 .ms-center-msg {
   position: absolute;
@@ -940,7 +940,7 @@ async function endGame() {
         )}
 
         <div className={`ms-arena ${shake ? "shake" : ""}`}>
-          <div className={`ms-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
+          <div className={`ms-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
 
           {currentQuestion && (phase === "question" || phase === "questionEnd") && (
             <>
@@ -959,7 +959,7 @@ async function endGame() {
             <div className="ms-center-msg">
               <h3>Round {roundIndex + 1}</h3>
               <p>
-                New rule: <b style={{ color: "#34D399" }}>{rounds[roundIndex][0].data.rule}</b>
+                New rule: <b style={{ color: "#2FF3B0" }}>{rounds[roundIndex][0].data.rule}</b>
               </p>
             </div>
           )}

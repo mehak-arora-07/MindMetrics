@@ -133,8 +133,8 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
     #0B0F19;
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
@@ -165,11 +165,11 @@ html, body, #root {
   font-size: 18px;
 }
 
-.cpt-example .letter-chip.cue { border-color: #3B82F6; color: #60A5FA; }
-.cpt-example .letter-chip.target { border-color: #34D399; color: #34D399; }
+.cpt-example .letter-chip.cue { border-color: #4F9CFF; color: #7DB8FF; }
+.cpt-example .letter-chip.target { border-color: #2FF3B0; color: #2FF3B0; }
 
 .cpt-btn {
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   color: #05221A;
   border: none;
   border-radius: 8px;
@@ -201,8 +201,8 @@ html, body, #root {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.06), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.06), transparent 40%),
+    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.06), transparent 40%),
     #0B0F19;
 }
 
@@ -231,9 +231,9 @@ html, body, #root {
 .cpt-topbar h2 { color: #E5E7EB; font-size: 17px; font-weight: 600; margin: 0; }
 
 .cpt-round-badge {
-  background: rgba(167, 139, 250, 0.12);
-  border: 1px solid rgba(167, 139, 250, 0.35);
-  color: #A78BFA;
+  background: rgba(183, 148, 255, 0.12);
+  border: 1px solid rgba(183, 148, 255, 0.35);
+  color: #B794FF;
   font-size: 12.5px;
   font-weight: 600;
   padding: 5px 12px;
@@ -251,8 +251,8 @@ html, body, #root {
   text-align: center;
 }
 
-.cpt-rule-banner b.cue { color: #60A5FA; }
-.cpt-rule-banner b.target { color: #34D399; }
+.cpt-rule-banner b.cue { color: #7DB8FF; }
+.cpt-rule-banner b.target { color: #2FF3B0; }
 
 .cpt-arena {
   position: relative;
@@ -291,7 +291,7 @@ html, body, #root {
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  border: 2px solid var(--burst-color, #34D399);
+  border: 2px solid var(--burst-color, #2FF3B0);
   pointer-events: none;
   animation: cpt-burst 0.45s ease-out forwards;
   z-index: 2;
@@ -320,12 +320,12 @@ html, body, #root {
 
 .cpt-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   transition: width 0.15s linear;
 }
 
 .cpt-progress-fill.timer {
-  background: linear-gradient(90deg, #F59E0B, #F87171);
+  background: linear-gradient(90deg, #FFB020, #FF7A7A);
   transition: width 1s linear;
 }
 
@@ -353,9 +353,9 @@ html, body, #root {
   font-size: 18px;
   font-weight: 600;
 }
-.cpt-stat .value.hits { color: #34D399; }
-.cpt-stat .value.misses { color: #F87171; }
-.cpt-stat .value.fp { color: #F59E0B; }
+.cpt-stat .value.hits { color: #2FF3B0; }
+.cpt-stat .value.misses { color: #FF7A7A; }
+.cpt-stat .value.fp { color: #FFB020; }
 
 .cpt-center-msg {
   position: absolute;
@@ -597,7 +597,7 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
         return s + HIT_POINTS;
       });
       setFlash("hit");
-      spawnBurst("#34D399");
+      spawnBurst("#2FF3B0");
     } else if (wasTrueTarget && !clicked) {
       setMisses((m) => {
         missesRef.current = m + 1;
@@ -945,7 +945,7 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
           <div
             className="cpt-flash"
             style={{
-              background: flash === "hit" ? "#34D399" : flash === "fp" ? "#F87171" : "#F59E0B",
+              background: flash === "hit" ? "#2FF3B0" : flash === "fp" ? "#FF7A7A" : "#FFB020",
               opacity: flash ? undefined : 0,
             }}
             key={flash ? letterPos : "none"}
@@ -972,8 +972,8 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
               <h3>Round {roundIndex + 1}</h3>
               {rulesForRound.map((r) => (
                 <p key={r.ruleId}>
-                  Press BACKSPACE for <b style={{ color: "#34D399" }}>{r.target}</b> only after{" "}
-                  <b style={{ color: "#60A5FA" }}>{r.cue}</b>
+                  Press BACKSPACE for <b style={{ color: "#2FF3B0" }}>{r.target}</b> only after{" "}
+                  <b style={{ color: "#7DB8FF" }}>{r.cue}</b>
                 </p>
               ))}
             </div>

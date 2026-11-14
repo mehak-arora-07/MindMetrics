@@ -111,8 +111,8 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.1), transparent 40%),
     #0B0F19;
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
@@ -157,7 +157,7 @@ html, body, #root {
   height: 22px;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
 }
 
 .os-intro-card .title {
@@ -189,8 +189,8 @@ html, body, #root {
 .os-arena {
   position: relative;
   background:
-    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
     #141A2E;
   border: 1px solid #232A3D;
   border-radius: 16px;
@@ -252,9 +252,9 @@ html, body, #root {
 }
 
 .os-badge {
-  background: rgba(52, 211, 153, 0.12);
-  border: 1px solid rgba(52, 211, 153, 0.35);
-  color: #34D399;
+  background: rgba(47, 243, 176, 0.12);
+  border: 1px solid rgba(47, 243, 176, 0.35);
+  color: #2FF3B0;
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
@@ -263,9 +263,9 @@ html, body, #root {
 }
 
 .os-badge.warn {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.35);
-  color: #F59E0B;
+  background: rgba(255, 176, 32, 0.12);
+  border-color: rgba(255, 176, 32, 0.35);
+  color: #FFB020;
 }
 
 .os-board-area {
@@ -291,7 +291,7 @@ html, body, #root {
   color: #E5E7EB;
   font-size: 34px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
   background: #0B0F19;
   border: 1px solid #232A3D;
   border-radius: 14px;
@@ -300,13 +300,13 @@ html, body, #root {
 }
 
 .os-equation.os-eq-correct {
-  border-color: #34D399;
-  background: rgba(52, 211, 153, 0.08);
+  border-color: #2FF3B0;
+  background: rgba(47, 243, 176, 0.08);
 }
 
 .os-equation.os-eq-wrong {
-  border-color: #F87171;
-  background: rgba(248, 113, 113, 0.08);
+  border-color: #FF7A7A;
+  background: rgba(255, 122, 122, 0.08);
 }
 
 .os-math-timer {
@@ -320,7 +320,7 @@ html, body, #root {
 
 .os-math-timer-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #F59E0B);
+  background: linear-gradient(90deg, #2FF3B0, #FFB020);
   transition: width 0.2s linear;
 }
 
@@ -346,8 +346,8 @@ html, body, #root {
   transform: scale(0.96);
 }
 
-.os-yesno-btn.yes:hover { border-color: #34D399; color: #34D399; }
-.os-yesno-btn.no:hover { border-color: #F87171; color: #F87171; }
+.os-yesno-btn.yes:hover { border-color: #2FF3B0; color: #2FF3B0; }
+.os-yesno-btn.no:hover { border-color: #FF7A7A; color: #FF7A7A; }
 
 .os-yesno-btn:disabled {
   cursor: default;
@@ -367,7 +367,7 @@ html, body, #root {
   color: #E5E7EB;
   font-size: 54px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
 }
 
 .os-recall-instructions {
@@ -396,17 +396,17 @@ html, body, #root {
   color: #E5E7EB;
   font-size: 20px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
 }
 
 .os-slot.os-slot-correct {
-  background: radial-gradient(circle at 35% 30%, #6EE7B7, #34D399);
+  background: radial-gradient(circle at 35% 30%, #8CF7CC, #2FF3B0);
   border-color: transparent;
   color: #05221A;
 }
 
 .os-slot.os-slot-wrong {
-  background: radial-gradient(circle at 35% 30%, #FCA5A5, #F87171);
+  background: radial-gradient(circle at 35% 30%, #FFB4B4, #FF7A7A);
   border-color: transparent;
   color: #3D0B0B;
 }
@@ -424,7 +424,7 @@ html, body, #root {
   color: #E5E7EB;
   font-size: 17px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
   padding: 12px 0;
   cursor: pointer;
   transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
@@ -440,9 +440,9 @@ html, body, #root {
 }
 
 .os-backspace-btn {
-  background: rgba(248, 113, 113, 0.1);
-  border: 1px solid rgba(248, 113, 113, 0.4);
-  color: #F87171;
+  background: rgba(255, 122, 122, 0.1);
+  border: 1px solid rgba(255, 122, 122, 0.4);
+  color: #FF7A7A;
   border-radius: 10px;
   padding: 10px 20px;
   font-size: 13px;
@@ -487,9 +487,9 @@ html, body, #root {
   font-weight: 600;
 }
 
-.os-stat .value.score { color: #F59E0B; }
-.os-stat .value.wrong { color: #F87171; }
-.os-stat .value.level { color: #34D399; }
+.os-stat .value.score { color: #FFB020; }
+.os-stat .value.wrong { color: #FF7A7A; }
+.os-stat .value.level { color: #2FF3B0; }
 
 .os-progress-bar {
   height: 6px;
@@ -501,12 +501,12 @@ html, body, #root {
 
 .os-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   transition: width 0.2s ease;
 }
 
 .os-progress-fill.timer {
-  background: linear-gradient(90deg, #F59E0B, #F87171);
+  background: linear-gradient(90deg, #FFB020, #FF7A7A);
   transition: width 1s linear;
 }
 
@@ -528,7 +528,7 @@ html, body, #root {
 }
 
 .os-btn {
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   color: #05221A;
   border: none;
   border-radius: 8px;
@@ -1123,7 +1123,7 @@ async function endGame() {
             <div className="desc">A letter flashes right after — keep it in mind.</div>
           </div>
           <div className="os-intro-card">
-            <div className="dot" style={{ background: "#F87171" }} />
+            <div className="dot" style={{ background: "#FF7A7A" }} />
             <div className="title">Recall</div>
             <div className="desc">Tap every letter back, in the order it appeared.</div>
           </div>
@@ -1214,7 +1214,7 @@ return (
   >
     <style>{styles}</style>
       <div className={`os-arena ${shake ? "shake" : ""}`}>
-        <div className={`os-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
+        <div className={`os-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
 
         {phase !== "done" && (
           <div className="os-arena-header">

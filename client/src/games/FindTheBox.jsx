@@ -69,8 +69,8 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.1), transparent 40%),
     #0B0F19;
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
@@ -115,7 +115,7 @@ html, body, #root {
   height: 22px;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
 }
 
 .fb-intro-card .title {
@@ -147,8 +147,8 @@ html, body, #root {
 .fb-arena {
   position: relative;
   background:
-    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
     #141A2E;
   border: 1px solid #232A3D;
   border-radius: 16px;
@@ -210,9 +210,9 @@ html, body, #root {
 }
 
 .fb-badge {
-  background: rgba(52, 211, 153, 0.12);
-  border: 1px solid rgba(52, 211, 153, 0.35);
-  color: #34D399;
+  background: rgba(47, 243, 176, 0.12);
+  border: 1px solid rgba(47, 243, 176, 0.35);
+  color: #2FF3B0;
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
@@ -221,9 +221,9 @@ html, body, #root {
 }
 
 .fb-badge.warn {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.35);
-  color: #F59E0B;
+  background: rgba(255, 176, 32, 0.12);
+  border-color: rgba(255, 176, 32, 0.35);
+  color: #FFB020;
 }
 
 .fb-board-area {
@@ -255,12 +255,12 @@ html, body, #root {
 
 .fb-round-timer-fill {
   height: 100%;
-  background: linear-gradient(90deg, #F59E0B, #F87171);
+  background: linear-gradient(90deg, #FFB020, #FF7A7A);
   transition: width 0.05s linear;
 }
 
 .fb-hint {
-  color: #A78BFA;
+  color: #B794FF;
   font-size: 14px;
   font-weight: 600;
   max-width: 480px;
@@ -302,15 +302,15 @@ html, body, #root {
 }
 
 .fb-box.fb-correct {
-  background: radial-gradient(circle at 35% 30%, #6EE7B7, #34D399);
-  box-shadow: 0 0 14px rgba(52, 211, 153, 0.45);
+  background: radial-gradient(circle at 35% 30%, #8CF7CC, #2FF3B0);
+  box-shadow: 0 0 14px rgba(47, 243, 176, 0.45);
   color: #05221A;
   cursor: default;
 }
 
 .fb-box.fb-wrong {
-  background: radial-gradient(circle at 35% 30%, #FCA5A5, #F87171);
-  box-shadow: 0 0 14px rgba(248, 113, 113, 0.45);
+  background: radial-gradient(circle at 35% 30%, #FFB4B4, #FF7A7A);
+  box-shadow: 0 0 14px rgba(255, 122, 122, 0.45);
   color: #3D0B0B;
   cursor: default;
 }
@@ -351,9 +351,9 @@ html, body, #root {
   font-weight: 600;
 }
 
-.fb-stat .value.score { color: #F59E0B; }
-.fb-stat .value.wrong { color: #F87171; }
-.fb-stat .value.level { color: #34D399; }
+.fb-stat .value.score { color: #FFB020; }
+.fb-stat .value.wrong { color: #FF7A7A; }
+.fb-stat .value.level { color: #2FF3B0; }
 
 .fb-progress-bar {
   height: 6px;
@@ -365,12 +365,12 @@ html, body, #root {
 
 .fb-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   transition: width 0.2s ease;
 }
 
 .fb-progress-fill.timer {
-  background: linear-gradient(90deg, #F59E0B, #F87171);
+  background: linear-gradient(90deg, #FFB020, #FF7A7A);
   transition: width 1s linear;
 }
 
@@ -393,7 +393,7 @@ html, body, #root {
 }
 
 .fb-btn {
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   color: #05221A;
   border: none;
   border-radius: 8px;
@@ -815,7 +815,7 @@ useDisableBackButton();
             <div className="desc">Figure out the exact letter the hint is pointing to.</div>
           </div>
           <div className="fb-intro-card">
-            <div className="dot" style={{ background: "#F87171" }} />
+            <div className="dot" style={{ background: "#FF7A7A" }} />
             <div className="title">Click the box</div>
             <div className="desc">Select the box labeled with that letter, fast.</div>
           </div>
@@ -908,7 +908,7 @@ if (phase === "done") {
   >
     <style>{styles}</style>
       <div className={`fb-arena ${shake ? "shake" : ""}`}>
-        <div className={`fb-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
+        <div className={`fb-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
 
         {phase !== "done" && (
           <div className="fb-arena-header">
@@ -989,7 +989,7 @@ if (phase === "done") {
                 fontSize: 18,
                 fontWeight: 700,
                 color: "#05131A",
-                background: selected === question?.answer ? "#34D399" : "#F87171",
+                background: selected === question?.answer ? "#2FF3B0" : "#FF7A7A",
               }}
             >
               {selected === question?.answer ? "Correct!" : "Not quite"}

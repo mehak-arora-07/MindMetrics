@@ -118,8 +118,8 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
     #0B0F19;
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
@@ -150,11 +150,11 @@ html, body, #root {
   font-size: 18px;
 }
 
-.rd-example .chip.accept { border-color: #34D399; color: #34D399; }
-.rd-example .chip.reject { border-color: #F87171; color: #F87171; }
+.rd-example .chip.accept { border-color: #2FF3B0; color: #2FF3B0; }
+.rd-example .chip.reject { border-color: #FF7A7A; color: #FF7A7A; }
 
 .rd-btn {
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   color: #05221A;
   border: none;
   border-radius: 8px;
@@ -186,8 +186,8 @@ html, body, #root {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.06), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.06), transparent 40%),
+    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.06), transparent 40%),
     #0B0F19;
 }
 
@@ -216,9 +216,9 @@ html, body, #root {
 .rd-topbar h2 { color: #E5E7EB; font-size: 17px; font-weight: 600; margin: 0; }
 
 .rd-round-badge {
-  background: rgba(167, 139, 250, 0.12);
-  border: 1px solid rgba(167, 139, 250, 0.35);
-  color: #A78BFA;
+  background: rgba(183, 148, 255, 0.12);
+  border: 1px solid rgba(183, 148, 255, 0.35);
+  color: #B794FF;
   font-size: 12.5px;
   font-weight: 600;
   padding: 5px 12px;
@@ -235,12 +235,12 @@ html, body, #root {
 
 .rd-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   transition: width 0.15s linear;
 }
 
 .rd-progress-fill.timer {
-  background: linear-gradient(90deg, #F59E0B, #F87171);
+  background: linear-gradient(90deg, #FFB020, #FF7A7A);
   transition: width 1s linear;
 }
 
@@ -290,7 +290,7 @@ html, body, #root {
   color: #E5E7EB;
   font-size: 44px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
   animation: rd-item-in 0.2s ease;
 }
 
@@ -312,21 +312,21 @@ html, body, #root {
 .rd-accept-btn:active, .rd-reject-btn:active { transform: scale(0.95); }
 
 .rd-accept-btn {
-  background: rgba(52, 211, 153, 0.15);
-  border: 2px solid #34D399;
-  color: #34D399;
+  background: rgba(47, 243, 176, 0.15);
+  border: 2px solid #2FF3B0;
+  color: #2FF3B0;
 }
 
 .rd-reject-btn {
-  background: rgba(248, 113, 113, 0.15);
-  border: 2px solid #F87171;
-  color: #F87171;
+  background: rgba(255, 122, 122, 0.15);
+  border: 2px solid #FF7A7A;
+  color: #FF7A7A;
 }
 
 .rd-guess-btn {
-  background: rgba(167, 139, 250, 0.15);
-  border: 2px solid #A78BFA;
-  color: #A78BFA;
+  background: rgba(183, 148, 255, 0.15);
+  border: 2px solid #B794FF;
+  color: #B794FF;
   border-radius: 10px;
   padding: 10px 20px;
   font-size: 13px;
@@ -376,8 +376,8 @@ html, body, #root {
   border-radius: 10px;
 }
 
-.rd-log-entry .result.accepted { background: rgba(52, 211, 153, 0.15); color: #34D399; }
-.rd-log-entry .result.rejected { background: rgba(248, 113, 113, 0.15); color: #F87171; }
+.rd-log-entry .result.accepted { background: rgba(47, 243, 176, 0.15); color: #2FF3B0; }
+.rd-log-entry .result.rejected { background: rgba(255, 122, 122, 0.15); color: #FF7A7A; }
 
 .rd-guess-col {
   flex: 1;
@@ -412,15 +412,15 @@ html, body, #root {
 .rd-guess-option:active { transform: scale(0.96); }
 
 .rd-guess-option.correct {
-  border-color: #34D399;
-  background: rgba(52, 211, 153, 0.15);
-  color: #34D399;
+  border-color: #2FF3B0;
+  background: rgba(47, 243, 176, 0.15);
+  color: #2FF3B0;
 }
 
 .rd-guess-option.wrong {
-  border-color: #F87171;
-  background: rgba(248, 113, 113, 0.12);
-  color: #F87171;
+  border-color: #FF7A7A;
+  background: rgba(255, 122, 122, 0.12);
+  color: #FF7A7A;
 }
 
 .rd-stat {
@@ -433,8 +433,8 @@ html, body, #root {
 
 .rd-stat .label { color: #8B93A7; font-size: 12px; margin-bottom: 6px; }
 .rd-stat .value { color: #E5E7EB; font-size: 22px; font-weight: 600; }
-.rd-stat .value.score { color: #F59E0B; }
-.rd-stat .value.solved { color: #34D399; }
+.rd-stat .value.score { color: #FFB020; }
+.rd-stat .value.solved { color: #2FF3B0; }
 
 .rd-center-msg {
   position: absolute;
@@ -1084,7 +1084,7 @@ useDisableBackButton();
         </div>
 
         <div className={`rd-arena ${shake ? "shake" : ""}`}>
-          <div className={`rd-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
+          <div className={`rd-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
 
           {phase === "classify" && (
             <>

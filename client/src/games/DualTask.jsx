@@ -23,14 +23,14 @@ const MAX_POSSIBLE_SCORE = ROUNDS.reduce((sum, r) => sum + r.mathCount * MATH_PO
 
 const COLORS = ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "Pink", "Teal"];
 const COLOR_HEX = {
-  Red: "#F87171",
-  Blue: "#60A5FA",
-  Green: "#34D399",
-  Yellow: "#FBBF24",
-  Purple: "#C084FC",
-  Orange: "#FB923C",
-  Pink: "#F472B6",
-  Teal: "#2DD4BF",
+  Red: "#FF7A7A",
+  Blue: "#7DB8FF",
+  Green: "#2FF3B0",
+  Yellow: "#FFD43B",
+  Purple: "#D09BFF",
+  Orange: "#FFA060",
+  Pink: "#FF86C8",
+  Teal: "#35F0D8",
 };
 
 function randInt(min, max) {
@@ -126,8 +126,8 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.1), transparent 40%),
     #0B0F19;
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
@@ -172,7 +172,7 @@ html, body, #root {
   height: 22px;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
 }
 
 .cs-intro-card .title {
@@ -204,8 +204,8 @@ html, body, #root {
 .cs-arena {
   position: relative;
   background:
-    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
     #141A2E;
   border: 1px solid #232A3D;
   border-radius: 16px;
@@ -269,14 +269,14 @@ html, body, #root {
 
 .cs-round-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   transition: width 0.3s ease;
 }
 
 .cs-badge {
-  background: rgba(52, 211, 153, 0.12);
-  border: 1px solid rgba(52, 211, 153, 0.35);
-  color: #34D399;
+  background: rgba(47, 243, 176, 0.12);
+  border: 1px solid rgba(47, 243, 176, 0.35);
+  color: #2FF3B0;
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
@@ -285,9 +285,9 @@ html, body, #root {
 }
 
 .cs-badge.warn {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.35);
-  color: #F59E0B;
+  background: rgba(255, 176, 32, 0.12);
+  border-color: rgba(255, 176, 32, 0.35);
+  color: #FFB020;
 }
 
 .cs-board-area {
@@ -327,7 +327,7 @@ html, body, #root {
   color: #E5E7EB;
   font-size: 32px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
 }
 
 .cs-input {
@@ -336,7 +336,7 @@ html, body, #root {
   border-radius: 10px;
   color: #E5E7EB;
   font-size: 20px;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
   padding: 12px 16px;
   width: 140px;
   text-align: center;
@@ -344,7 +344,7 @@ html, body, #root {
 }
 
 .cs-input:focus {
-  border-color: #34D399;
+  border-color: #2FF3B0;
 }
 
 .cs-options {
@@ -381,15 +381,15 @@ html, body, #root {
 }
 
 .cs-option.cs-correct {
-  background: radial-gradient(circle at 35% 30%, #6EE7B7, #34D399);
-  box-shadow: 0 0 14px rgba(52, 211, 153, 0.45);
+  background: radial-gradient(circle at 35% 30%, #8CF7CC, #2FF3B0);
+  box-shadow: 0 0 14px rgba(47, 243, 176, 0.45);
   color: #05221A;
   cursor: default;
 }
 
 .cs-option.cs-wrong {
-  background: radial-gradient(circle at 35% 30%, #FCA5A5, #F87171);
-  box-shadow: 0 0 14px rgba(248, 113, 113, 0.45);
+  background: radial-gradient(circle at 35% 30%, #FFB4B4, #FF7A7A);
+  box-shadow: 0 0 14px rgba(255, 122, 122, 0.45);
   color: #3D0B0B;
   cursor: default;
 }
@@ -430,9 +430,9 @@ html, body, #root {
   font-weight: 600;
 }
 
-.cs-stat .value.score { color: #F59E0B; }
-.cs-stat .value.wrong { color: #F87171; }
-.cs-stat .value.level { color: #34D399; }
+.cs-stat .value.score { color: #FFB020; }
+.cs-stat .value.wrong { color: #FF7A7A; }
+.cs-stat .value.level { color: #2FF3B0; }
 
 .cs-progress-bar {
   height: 6px;
@@ -444,12 +444,12 @@ html, body, #root {
 
 .cs-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   transition: width 0.2s ease;
 }
 
 .cs-progress-fill.timer {
-  background: linear-gradient(90deg, #F59E0B, #F87171);
+  background: linear-gradient(90deg, #FFB020, #FF7A7A);
   transition: width 1s linear;
 }
 
@@ -471,7 +471,7 @@ html, body, #root {
 }
 
 .cs-btn {
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   color: #05221A;
   border: none;
   border-radius: 8px;
@@ -897,7 +897,7 @@ export default function DualTask({ onComplete, userId, assessmentId, onNextGame 
             <div className="desc">Quick math questions — type the answer.</div>
           </div>
           <div className="cs-intro-card">
-            <div className="dot" style={{ background: "#F87171" }} />
+            <div className="dot" style={{ background: "#FF7A7A" }} />
             <div className="title">Recall</div>
             <div className="desc">Pick the color that was in that position.</div>
           </div>
@@ -986,7 +986,7 @@ if (phase === "done") {
   >
     <style>{styles}</style>
       <div className={`cs-arena ${shake ? "shake" : ""}`}>
-        <div className={`cs-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
+        <div className={`cs-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
 
         {phase !== "done" && (
           <div className="cs-arena-header">
@@ -1073,7 +1073,7 @@ if (phase === "done") {
             <div
               className="cs-color-box"
               style={{
-                background: memorySelected === memoryQuestion?.correctAnswer ? "#34D399" : "#F87171",
+                background: memorySelected === memoryQuestion?.correctAnswer ? "#2FF3B0" : "#FF7A7A",
                 fontSize: 18,
               }}
             >

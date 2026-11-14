@@ -30,11 +30,11 @@ const MAX_POSSIBLE_SCORE = ROUNDS.reduce(
 );
 
 const COLORS = [
-  { name: "RED", hex: "#F87171" },
-  { name: "BLUE", hex: "#60A5FA" },
-  { name: "GREEN", hex: "#34D399" },
-  { name: "YELLOW", hex: "#FBBF24" },
-  { name: "PURPLE", hex: "#A78BFA" },
+  { name: "RED", hex: "#FF7A7A" },
+  { name: "BLUE", hex: "#7DB8FF" },
+  { name: "GREEN", hex: "#2FF3B0" },
+  { name: "YELLOW", hex: "#FFD43B" },
+  { name: "PURPLE", hex: "#B794FF" },
 ];
 
 const RULES = COLORS.flatMap((c) => [
@@ -106,8 +106,8 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.1), transparent 40%),
     #0B0F19;
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
@@ -152,7 +152,7 @@ html, body, #root {
   height: 22px;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
 }
 
 .sr-intro-card .title {
@@ -184,8 +184,8 @@ html, body, #root {
 .sr-arena {
   position: relative;
   background:
-    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
     #141A2E;
   border: 1px solid #232A3D;
   border-radius: 16px;
@@ -254,9 +254,9 @@ html, body, #root {
 }
 
 .sr-badge {
-  background: rgba(52, 211, 153, 0.12);
-  border: 1px solid rgba(52, 211, 153, 0.35);
-  color: #34D399;
+  background: rgba(47, 243, 176, 0.12);
+  border: 1px solid rgba(47, 243, 176, 0.35);
+  color: #2FF3B0;
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
@@ -265,9 +265,9 @@ html, body, #root {
 }
 
 .sr-badge.round {
-  background: rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.35);
-  color: #60A5FA;
+  background: rgba(79, 156, 255, 0.12);
+  border-color: rgba(79, 156, 255, 0.35);
+  color: #7DB8FF;
 }
 
 .sr-board-area {
@@ -305,14 +305,14 @@ html, body, #root {
 }
 
 .sr-stimulus-card.sr-good {
-  border-color: #34D399;
-  background: rgba(52, 211, 153, 0.06);
+  border-color: #2FF3B0;
+  background: rgba(47, 243, 176, 0.06);
 }
 
 .sr-word {
   font-size: 46px;
   font-weight: 800;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
 }
 
@@ -320,7 +320,7 @@ html, body, #root {
   font-size: 34px;
   font-weight: 700;
   color: #E5E7EB;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
 }
 
 .sr-blank-placeholder {
@@ -344,26 +344,26 @@ html, body, #root {
 
 .sr-info-card {
   max-width: 440px;
-  background: rgba(52, 211, 153, 0.08);
-  border: 1px solid rgba(52, 211, 153, 0.4);
+  background: rgba(47, 243, 176, 0.08);
+  border: 1px solid rgba(47, 243, 176, 0.4);
   border-radius: 20px;
   padding: 32px 36px;
 }
 
 .sr-info-card.sr-info-round {
-  background: rgba(59, 130, 246, 0.08);
-  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(79, 156, 255, 0.08);
+  border-color: rgba(79, 156, 255, 0.4);
 }
 
 .sr-info-card-text {
-  color: #34D399;
+  color: #2FF3B0;
   font-size: 24px;
   font-weight: 800;
   line-height: 1.4;
 }
 
 .sr-info-round .sr-info-card-text {
-  color: #60A5FA;
+  color: #7DB8FF;
   font-size: 20px;
 }
 
@@ -398,9 +398,9 @@ html, body, #root {
   font-weight: 600;
 }
 
-.sr-stat .value.score { color: #F59E0B; }
-.sr-stat .value.wrong { color: #F87171; }
-.sr-stat .value.good { color: #34D399; }
+.sr-stat .value.score { color: #FFB020; }
+.sr-stat .value.wrong { color: #FF7A7A; }
+.sr-stat .value.good { color: #2FF3B0; }
 
 .sr-progress-bar {
   height: 6px;
@@ -412,12 +412,12 @@ html, body, #root {
 
 .sr-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   transition: width 0.2s ease;
 }
 
 .sr-progress-fill.timer {
-  background: linear-gradient(90deg, #F59E0B, #F87171);
+  background: linear-gradient(90deg, #FFB020, #FF7A7A);
   transition: width 1s linear;
 }
 
@@ -439,7 +439,7 @@ html, body, #root {
 }
 
 .sr-btn {
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   color: #05221A;
   border: none;
   border-radius: 8px;
@@ -1001,7 +1001,7 @@ async function endGame() {
             <div className="desc">Ignore the word's meaning — go by ink color + parity.</div>
           </div>
           <div className="sr-intro-card">
-            <div className="dot" style={{ background: "#F87171" }} />
+            <div className="dot" style={{ background: "#FF7A7A" }} />
             <div className="title">Respond</div>
             <div className="desc">Press SPACE only if both conditions are true.</div>
           </div>
@@ -1088,7 +1088,7 @@ if (phase === "done") {
   >
     <style>{styles}</style>
       <div className={`sr-arena ${shake ? "shake" : ""}`}>
-        <div className={`sr-flash ${flash ? "on" : ""}`} style={{ background: "#F87171" }} />
+        <div className={`sr-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
 
         {phase !== "done" && (
           <div className="sr-arena-header">

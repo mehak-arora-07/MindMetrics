@@ -154,8 +154,8 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.08), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
     #0B0F19;
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
@@ -175,10 +175,10 @@ html, body, #root {
   font-weight: 600;
   letter-spacing: 1.5px;
 }
-.ps-example span { color: #3B82F6; }
+.ps-example span { color: #4F9CFF; }
 
 .ps-btn {
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   color: #05221A;
   border: none;
   border-radius: 8px;
@@ -204,8 +204,8 @@ html, body, #root {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 20%, rgba(167, 139, 250, 0.06), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.06), transparent 40%),
+    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.06), transparent 40%),
     #0B0F19;
 }
 
@@ -234,9 +234,9 @@ html, body, #root {
 .ps-topright { display: flex; align-items: center; gap: 10px; }
 
 .ps-round-badge {
-  background: rgba(167, 139, 250, 0.12);
-  border: 1px solid rgba(167, 139, 250, 0.35);
-  color: #A78BFA;
+  background: rgba(183, 148, 255, 0.12);
+  border: 1px solid rgba(183, 148, 255, 0.35);
+  color: #B794FF;
   font-size: 12.5px;
   font-weight: 600;
   padding: 5px 12px;
@@ -249,7 +249,7 @@ html, body, #root {
   gap: 4px;
   font-size: 13px;
   font-weight: 600;
-  color: #F59E0B;
+  color: #FFB020;
 }
 .ps-flame .icon { animation: ps-flame-pop 0.3s ease; display: inline-block; }
 
@@ -263,12 +263,12 @@ html, body, #root {
 }
 .ps-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
+  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
   transition: width 0.15s linear;
 }
 
 .ps-progress-fill.timer {
-  background: linear-gradient(90deg, #F59E0B, #F87171);
+  background: linear-gradient(90deg, #FFB020, #FF7A7A);
 }
 
 .ps-prompt-banner {
@@ -336,18 +336,18 @@ html, body, #root {
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
 }
-.ps-option:hover:not(:disabled) { border-color: #3B82F6; background: rgba(59, 130, 246, 0.06); }
+.ps-option:hover:not(:disabled) { border-color: #4F9CFF; background: rgba(79, 156, 255, 0.06); }
 .ps-option:active:not(:disabled) { transform: scale(0.97); }
 .ps-option:disabled { cursor: default; }
-.ps-option.correct { border-color: #34D399; background: rgba(52, 211, 153, 0.12); color: #34D399; }
-.ps-option.wrong { border-color: #F87171; background: rgba(248, 113, 113, 0.1); color: #F87171; }
+.ps-option.correct { border-color: #2FF3B0; background: rgba(47, 243, 176, 0.12); color: #2FF3B0; }
+.ps-option.wrong { border-color: #FF7A7A; background: rgba(255, 122, 122, 0.1); color: #FF7A7A; }
 
 .ps-levelup-toast {
   position: absolute;
   top: 14px;
   left: 50%;
-  background: linear-gradient(90deg, rgba(52, 211, 153, 0.16), rgba(59, 130, 246, 0.16));
-  border: 1px solid rgba(52, 211, 153, 0.35);
+  background: linear-gradient(90deg, rgba(47, 243, 176, 0.16), rgba(79, 156, 255, 0.16));
+  border: 1px solid rgba(47, 243, 176, 0.35);
   color: #E5E7EB;
   font-size: 13px;
   font-weight: 600;
@@ -382,7 +382,7 @@ html, body, #root {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.ps-stat .value.correct { color: #34D399; }
+.ps-stat .value.correct { color: #2FF3B0; }
 
 .ps-results-grid {
   display: grid;
@@ -875,7 +875,7 @@ useDisableBackButton();
                     cy="32"
                     r={RING_R}
                     fill="none"
-                    stroke={timeLeft < 3000 ? "#F87171" : "#3B82F6"}
+                    stroke={timeLeft < 3000 ? "#FF7A7A" : "#4F9CFF"}
                     strokeWidth="4"
                     strokeLinecap="round"
                     strokeDasharray={RING_CIRC}
