@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { themeCss, navCss } from "../utils/theme";
+import ThemeToggle from "../components/ThemeToggle";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getUser, clearSession, startAssessment } from "../utils/session";
 import { TiTick } from "react-icons/ti";
@@ -20,6 +22,7 @@ import { PiSpeedometerBold } from "react-icons/pi";
 
 
 const styles = `
+${themeCss}
 * { box-sizing: border-box; }
 @keyframes ar-spin {
   to {
@@ -29,7 +32,7 @@ const styles = `
 html, body, #root {
   margin: 0 !important;
   padding: 0 !important;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100% !important;
   max-width: none !important;
   border: none !important;
@@ -64,9 +67,9 @@ html, body, #root {
 .ar-page {
   width: 100%;
   min-height: 100vh;
-  background: #0B0F19;
+  background: var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
-  color: #E5E7EB;
+  color: var(--bone);
   position: relative;
   overflow-x: hidden;
 }
@@ -76,57 +79,57 @@ html, body, #root {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(139, 147, 167, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 147, 167, 0.045) 1px, transparent 1px);
+    linear-gradient(rgba(var(--mute-rgb), 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--mute-rgb), 0.045) 1px, transparent 1px);
   background-size: 64px 64px;
   mask-image: radial-gradient(ellipse 80% 45% at 50% 0%, black 25%, transparent 70%);
   -webkit-mask-image: radial-gradient(ellipse 80% 45% at 50% 0%, black 25%, transparent 70%);
 }
 .ar-blob { position: absolute; border-radius: 50%; filter: blur(110px); opacity: 0.1; }
-.ar-blob.b1 { width: 460px; height: 460px; top: -150px; left: -100px; background: radial-gradient(circle, rgba(52,211,153,0.5), transparent 70%); }
-.ar-blob.b2 { width: 420px; height: 420px; top: 30%; right: -140px; background: radial-gradient(circle, rgba(167,139,250,0.4), transparent 70%); }
+.ar-blob.b1 { width: 460px; height: 460px; top: -150px; left: -100px; background: radial-gradient(circle, rgba(var(--mint-rgb),0.5), transparent 70%); }
+.ar-blob.b2 { width: 420px; height: 420px; top: 30%; right: -140px; background: radial-gradient(circle, rgba(var(--violet-rgb),0.4), transparent 70%); }
 
 /* ---- Nav (identical to HomePage / PerformancePage) ---- */
 .hp-nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 50;
   display: flex; justify-content: space-between; align-items: center;
   gap: 24px; padding: 16px 40px;
-  background: rgba(11, 15, 25, 0.97);
+  background: rgba(var(--ink-rgb), 0.97);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid #1a2033;
+  border-bottom: 1px solid var(--line);
 }
 .hp-nav::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--mint-rgb), 0.35), transparent);
 }
 .hp-logo { display: flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 700; letter-spacing: -0.3px; cursor: default; flex-shrink: 0; }
-.hp-logo-dot { width: 8px; height: 8px; border-radius: 50%; background: #34D399; flex-shrink: 0; box-shadow: 0 0 6px 1px rgba(52, 211, 153, 0.45); }
-.hp-nav-links { display: flex; align-items: center; gap: 6px; margin: 0 auto; padding: 4px; background: rgba(255, 255, 255, 0.02); border: 1px solid #1a2033; border-radius: 999px; }
-.hp-nav-links a { color: #8B93A7; text-decoration: none; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 999px; transition: color 0.15s ease, background 0.15s ease; }
-.hp-nav-links a:hover { color: #E5E7EB; background: rgba(255, 255, 255, 0.05); }
-.hp-nav-links a.active { color: #34D399; background: rgba(52, 211, 153, 0.08); }
-.hp-nav-cta { display: inline-flex; align-items: center; background: #141A2E; border: 1px solid #232A3D; color: #E5E7EB; font-family: inherit; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 999px; cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease; flex-shrink: 0; }
-.hp-nav-cta:hover { border-color: #34D399; color: #34D399; }
+.hp-logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); flex-shrink: 0; box-shadow: 0 0 6px 1px rgba(var(--mint-rgb), 0.45); }
+.hp-nav-links { display: flex; align-items: center; gap: 6px; margin: 0 auto; padding: 4px; background: rgba(var(--wash-rgb), 0.02); border: 1px solid var(--line); border-radius: 999px; }
+.hp-nav-links a { color: var(--mute); text-decoration: none; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 999px; transition: color 0.15s ease, background 0.15s ease; }
+.hp-nav-links a:hover { color: var(--bone); background: rgba(var(--wash-rgb), 0.05); }
+.hp-nav-links a.active { color: var(--mint); background: rgba(var(--mint-rgb), 0.08); }
+.hp-nav-cta { display: inline-flex; align-items: center; background: var(--panel); border: 1px solid var(--line); color: var(--bone); font-family: inherit; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 999px; cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease; flex-shrink: 0; }
+.hp-nav-cta:hover { border-color: var(--mint); color: var(--mint); }
 @media (max-width: 760px) { .hp-nav-links { display: none; } }
-.hp-wordmark { color: #E5E7EB; transition: color 0.2s ease; }
+.hp-wordmark { color: var(--bone); transition: color 0.2s ease; }
 .hp-nav-right { position: relative; }
-.hp-menu-btn { display: flex; align-items: center; gap: 10px; background: #141A2E; border: 1px solid #232A3D; border-radius: 999px; padding: 6px 14px 6px 6px; cursor: pointer; color: #E5E7EB; font-size: 13px; font-weight: 500; font-family: inherit; transition: border-color 0.15s ease; }
-.hp-menu-btn:hover { border-color: #34D399; }
-.hp-menu-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #34D399, #3B82F6); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #05221A; flex-shrink: 0; }
+.hp-menu-btn { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px 6px 6px; cursor: pointer; color: var(--bone); font-size: 13px; font-weight: 500; font-family: inherit; transition: border-color 0.15s ease; }
+.hp-menu-btn:hover { border-color: var(--mint); }
+.hp-menu-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--mint), var(--blue)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--on-accent); flex-shrink: 0; }
 .hp-menu-hamburger { display: flex; flex-direction: column; gap: 3px; width: 14px; }
-.hp-menu-hamburger span { height: 2px; background: #8B93A7; border-radius: 2px; transition: transform 0.2s ease, opacity 0.2s ease; }
+.hp-menu-hamburger span { height: 2px; background: var(--mute); border-radius: 2px; transition: transform 0.2s ease, opacity 0.2s ease; }
 .hp-menu-btn.open .hp-menu-hamburger span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
 .hp-menu-btn.open .hp-menu-hamburger span:nth-child(2) { opacity: 0; }
 .hp-menu-btn.open .hp-menu-hamburger span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
-.hp-dropdown { position: absolute; top: calc(100% + 10px); right: 0; width: 220px; background: #141A2E; border: 1px solid #232A3D; border-radius: 12px; padding: 8px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4); overflow: hidden; max-height: 0; opacity: 0; pointer-events: none; transition: max-height 0.25s ease, opacity 0.2s ease; }
+.hp-dropdown { position: absolute; top: calc(100% + 10px); right: 0; width: 220px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4); overflow: hidden; max-height: 0; opacity: 0; pointer-events: none; transition: max-height 0.25s ease, opacity 0.2s ease; }
 .hp-dropdown.open { max-height: 400px; opacity: 1; pointer-events: auto; }
-.hp-dropdown-user { padding: 10px 12px; border-bottom: 1px solid #232A3D; margin-bottom: 6px; }
-.hp-dropdown-user .name { color: #E5E7EB; font-size: 13px; font-weight: 600; }
-.hp-dropdown-user .email { color: #8B93A7; font-size: 11px; margin-top: 2px; }
-.hp-dropdown a, .hp-dropdown button { display: block; width: 100%; text-align: left; background: none; border: none; color: #C7CCDB; font-size: 13.5px; font-family: inherit; padding: 10px 12px; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.12s ease, color 0.12s ease; }
-.hp-dropdown a:hover, .hp-dropdown button:hover { background: rgba(255, 255, 255, 0.05); color: #E5E7EB; }
-.hp-dropdown button.logout { color: #F87171; }
-.hp-dropdown button.logout:hover { background: rgba(248, 113, 113, 0.1); }
+.hp-dropdown-user { padding: 10px 12px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+.hp-dropdown-user .name { color: var(--bone); font-size: 13px; font-weight: 600; }
+.hp-dropdown-user .email { color: var(--mute); font-size: 11px; margin-top: 2px; }
+.hp-dropdown a, .hp-dropdown button { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--soft); font-size: 13.5px; font-family: inherit; padding: 10px 12px; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.12s ease, color 0.12s ease; }
+.hp-dropdown a:hover, .hp-dropdown button:hover { background: rgba(var(--wash-rgb), 0.05); color: var(--bone); }
+.hp-dropdown button.logout { color: var(--coral); }
+.hp-dropdown button.logout:hover { background: rgba(var(--coral-rgb), 0.1); }
 .hp-logo {
   display: flex;
   align-items: center;
@@ -141,20 +144,20 @@ html, body, #root {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #34D399;
+  background: var(--mint);
   flex-shrink: 0;
 }
 
 .hp-wordmark {
-  color: #E5E7EB;
+  color: var(--bone);
 
   background-image: linear-gradient(
     90deg,
-    #34D399,
-    #3B82F6,
-    #A78BFA,
-    #F59E0B,
-    #F87171
+    var(--mint),
+    var(--blue),
+    var(--violet),
+    var(--amber),
+    var(--coral)
   );
 
   background-size: 300% 100%;
@@ -180,21 +183,21 @@ html, body, #root {
   background-position: 0% 0;
 }
 /* ---- Buttons (identical to HomePage) ---- */
-.hp-btn-primary { background: linear-gradient(90deg, #34D399, #3B82F6); color: #05221A; border: none; border-radius: 10px; padding: 13px 26px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.15s ease; }
-.hp-btn-primary:hover { box-shadow: 0 6px 24px rgba(52, 211, 153, 0.3); }
+.hp-btn-primary { background: linear-gradient(90deg, var(--mint), var(--blue)); color: var(--on-accent); border: none; border-radius: 10px; padding: 13px 26px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.15s ease; }
+.hp-btn-primary:hover { box-shadow: 0 6px 24px rgba(var(--mint-rgb), 0.3); }
 .hp-btn-primary:active { transform: scale(0.97); }
-.hp-btn-secondary { background: transparent; color: #E5E7EB; border: 1px solid #232A3D; border-radius: 10px; padding: 13px 26px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: border-color 0.15s ease; }
-.hp-btn-secondary:hover { border-color: #34D399; }
+.hp-btn-secondary { background: transparent; color: var(--bone); border: 1px solid var(--line); border-radius: 10px; padding: 13px 26px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: border-color 0.15s ease; }
+.hp-btn-secondary:hover { border-color: var(--mint); }
 
 /* ---- Container / header ---- */
 .ar-container { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: 124px 24px 90px; }
 
 .ar-back {
   display: inline-flex; align-items: center; gap: 6px;
-  color: #8B93A7; text-decoration: none; font-size: 13px; font-weight: 500;
+  color: var(--mute); text-decoration: none; font-size: 13px; font-weight: 500;
   margin-bottom: 22px; transition: color 0.15s ease;
 }
-.ar-back:hover { color: #34D399; }
+.ar-back:hover { color: var(--mint); }
 
 .ar-header {
   display: flex; justify-content: space-between; align-items: flex-start;
@@ -204,17 +207,17 @@ html, body, #root {
 
 .ar-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(52, 211, 153, 0.08); border: 1px solid rgba(52, 211, 153, 0.28);
-  color: #34D399; font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+  background: rgba(var(--mint-rgb), 0.08); border: 1px solid rgba(var(--mint-rgb), 0.28);
+  color: var(--mint); font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
   text-transform: uppercase; padding: 6px 14px 6px 10px; border-radius: 20px; margin-bottom: 16px;
 }
-.ar-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; }
+.ar-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); }
 
-.ar-header h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; color: #F3F5F8; margin: 0 0 12px; }
+.ar-header h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; color: var(--bone); margin: 0 0 12px; }
 
-.ar-header-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: #8B93A7; font-size: 13px; }
-.ar-header-meta .chip { display: inline-flex; align-items: center; gap: 7px; background: #141A2E; border: 1px solid #232A3D; border-radius: 999px; padding: 6px 14px; }
-.ar-header-meta .chip b { color: #C7CCDB; font-weight: 600; font-family: 'SF Mono', 'Roboto Mono', monospace; font-size: 12px; }
+.ar-header-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--mute); font-size: 13px; }
+.ar-header-meta .chip { display: inline-flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; }
+.ar-header-meta .chip b { color: var(--soft); font-weight: 600; font-family: 'SF Mono', 'Roboto Mono', monospace; font-size: 12px; }
 
 /* ---- Stat cards ---- */
 .ar-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; animation: ar-fade-up 0.5s ease 0.05s both; }
@@ -222,101 +225,101 @@ html, body, #root {
 @media (max-width: 560px) { .ar-stats-grid { grid-template-columns: 1fr; } }
 
 .ar-stat-card {
-  background: #141A2E; border: 1px solid #232A3D; border-radius: 16px; padding: 22px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px;
   display: flex; align-items: center; gap: 16px;
   transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 .ar-stat-card:hover {
-  transform: translateY(-3px); border-color: var(--accent, #34D399);
-  box-shadow: 0 12px 28px -14px color-mix(in srgb, var(--accent, #34D399) 55%, transparent);
+  transform: translateY(-3px); border-color: var(--accent, var(--mint));
+  box-shadow: 0 12px 28px -14px color-mix(in srgb, var(--accent, var(--mint)) 55%, transparent);
 }
 
 .ar-stat-body { flex: 1; min-width: 0; }
-.ar-stat-value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: #F3F5F8; line-height: 1.15; }
-.ar-stat-label { font-size: 12px; color: #8B93A7; font-weight: 500; margin-top: 3px; }
+.ar-stat-value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: var(--bone); line-height: 1.15; }
+.ar-stat-label { font-size: 12px; color: var(--mute); font-weight: 500; margin-top: 3px; }
 
 .ar-ring-wrap { position: relative; width: 54px; height: 54px; flex-shrink: 0; }
 .ar-ring-wrap svg { transform: rotate(-90deg); }
-.ar-ring-track { fill: none; stroke: #232A3D; stroke-width: 5; }
-.ar-ring-fill { fill: none; stroke: var(--accent, #34D399); stroke-width: 5; stroke-linecap: round; animation: ar-draw-ring 1.1s ease 0.2s both; }
+.ar-ring-track { fill: none; stroke: var(--line); stroke-width: 5; }
+.ar-ring-fill { fill: none; stroke: var(--accent, var(--mint)); stroke-width: 5; stroke-linecap: round; animation: ar-draw-ring 1.1s ease 0.2s both; }
 
 .ar-stat-icon {
   width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; font-size: 19px;
-  background: color-mix(in srgb, var(--accent, #34D399) 15%, transparent); color: var(--accent, #34D399);
+  background: color-mix(in srgb, var(--accent, var(--mint)) 15%, transparent); color: var(--accent, var(--mint));
 }
 
 .ar-status-pill {
   display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
   padding: 5px 13px; font-size: 13px; font-weight: 600;
-  background: rgba(52, 211, 153, 0.12); color: #34D399;
+  background: rgba(var(--mint-rgb), 0.12); color: var(--mint);
 }
 .ar-status-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
 /* ---- Section heads ---- */
 .ar-section-head { margin: 44px 0 18px; }
-.ar-section-head h2 { font-size: 20px; font-weight: 700; color: #E5E7EB; margin: 0 0 4px; letter-spacing: -0.3px; }
-.ar-section-head p { font-size: 13.5px; color: #8B93A7; margin: 0; }
+.ar-section-head h2 { font-size: 20px; font-weight: 700; color: var(--bone); margin: 0 0 4px; letter-spacing: -0.3px; }
+.ar-section-head p { font-size: 13.5px; color: var(--mute); margin: 0; }
 
 /* ---- Charts ---- */
 .ar-charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
 @media (max-width: 900px) { .ar-charts-grid { grid-template-columns: 1fr; } }
 
 .ar-chart-card {
-  background: #141A2E; border: 1px solid #232A3D; border-radius: 16px; padding: 24px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 24px;
   animation: ar-fade-up 0.5s ease 0.1s both;
 }
 
 .ar-chart-head { margin-bottom: 18px; }
-.ar-chart-head h4 { font-size: 15px; font-weight: 700; color: #E5E7EB; margin: 0 0 3px; }
-.ar-chart-head p { font-size: 12.5px; color: #8B93A7; margin: 0; }
+.ar-chart-head h4 { font-size: 15px; font-weight: 700; color: var(--bone); margin: 0 0 3px; }
+.ar-chart-head p { font-size: 12.5px; color: var(--mute); margin: 0; }
 
 .ar-chart-card svg { width: 100%; height: auto; display: block; overflow: visible; }
 
 /* bar chart */
 .ar-bar-group { transform-origin: bottom; transform-box: fill-box; animation: ar-grow-y 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.ar-bar-label { fill: #6B7386; font-size: 10.5px; font-family: 'Inter', sans-serif; }
-.ar-bar-value { fill: #C7CCDB; font-size: 11px; font-weight: 700; font-family: 'Inter', sans-serif; }
-.ar-grid-line { stroke: #1f2740; stroke-width: 1; }
+.ar-bar-label { fill: var(--faint); font-size: 10.5px; font-family: 'Inter', sans-serif; }
+.ar-bar-value { fill: var(--soft); font-size: 11px; font-weight: 700; font-family: 'Inter', sans-serif; }
+.ar-grid-line { stroke: var(--line); stroke-width: 1; }
 
 /* radar chart */
 .ar-radar-shape { animation: ar-grow-scale 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: center; transform-box: fill-box; }
-.ar-radar-grid { fill: none; stroke: #232A3D; stroke-width: 1; }
-.ar-radar-axis { stroke: #1f2740; stroke-width: 1; }
-.ar-radar-label { fill: #8B93A7; font-size: 10.5px; font-family: 'Inter', sans-serif; }
-.ar-radar-dot { fill: #34D399; }
+.ar-radar-grid { fill: none; stroke: var(--line); stroke-width: 1; }
+.ar-radar-axis { stroke: var(--line); stroke-width: 1; }
+.ar-radar-label { fill: var(--mute); font-size: 10.5px; font-family: 'Inter', sans-serif; }
+.ar-radar-dot { fill: var(--mint); }
 
 /* line chart */
-.ar-line-path { fill: none; stroke: #3B82F6; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; animation: ar-draw-line 1.1s ease both; }
-.ar-line-dot { fill: #0B0F19; stroke: #3B82F6; stroke-width: 2; }
-.ar-line-label { fill: #6B7386; font-size: 10.5px; font-family: 'Inter', sans-serif; }
-.ar-line-value { fill: #8B93A7; font-size: 10px; font-family: 'Inter', sans-serif; }
+.ar-line-path { fill: none; stroke: var(--blue); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; animation: ar-draw-line 1.1s ease both; }
+.ar-line-dot { fill: var(--ink); stroke: var(--blue); stroke-width: 2; }
+.ar-line-label { fill: var(--faint); font-size: 10.5px; font-family: 'Inter', sans-serif; }
+.ar-line-value { fill: var(--mute); font-size: 10px; font-family: 'Inter', sans-serif; }
 
 /* donut chart */
 .ar-donut-wrap { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; justify-content: center; }
 .ar-donut-svg { width: 160px !important; height: 160px !important; flex-shrink: 0; }
 .ar-donut-ring { animation: ar-draw-ring 1.1s ease 0.15s both; }
-.ar-donut-center-value { fill: #F3F5F8; font-size: 24px; font-weight: 800; font-family: 'Inter', sans-serif; text-anchor: middle; }
-.ar-donut-center-label { fill: #6B7386; font-size: 10px; font-family: 'Inter', sans-serif; text-anchor: middle; text-transform: uppercase; letter-spacing: 0.05em; }
+.ar-donut-center-value { fill: var(--bone); font-size: 24px; font-weight: 800; font-family: 'Inter', sans-serif; text-anchor: middle; }
+.ar-donut-center-label { fill: var(--faint); font-size: 10px; font-family: 'Inter', sans-serif; text-anchor: middle; text-transform: uppercase; letter-spacing: 0.05em; }
 .ar-donut-legend { display: flex; flex-direction: column; gap: 12px; }
-.ar-donut-legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #C7CCDB; }
+.ar-donut-legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--soft); }
 .ar-donut-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.ar-donut-legend-val { color: #F3F5F8; font-weight: 700; margin-left: auto; padding-left: 16px; }
+.ar-donut-legend-val { color: var(--bone); font-weight: 700; margin-left: auto; padding-left: 16px; }
 
 /* ---- AI summary ---- */
 .ar-summary-card {
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.05), rgba(59, 130, 246, 0.05));
-  border: 1px solid #232A3D; border-radius: 18px; padding: 32px;
+  background: linear-gradient(135deg, rgba(var(--mint-rgb), 0.05), rgba(var(--blue-rgb), 0.05));
+  border: 1px solid var(--line); border-radius: 18px; padding: 32px;
   animation: ar-fade-up 0.5s ease 0.12s both;
 }
 .ar-summary-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .ar-summary-badge {
   width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-  // background: linear-gradient(135deg, #34D399, #3B82F6);
+  // background: linear-gradient(135deg, var(--mint), var(--blue));
   display: flex; align-items: center; justify-content: center; font-size: 17px;
 }
-.ar-summary-card h3 { font-size: 18px; font-weight: 700; color: #E5E7EB; margin: 0; letter-spacing: -0.3px; }
-.ar-summary-card p { font-size: 14.5px; color: #B9BFCE; line-height: 1.75; margin: 0; }
+.ar-summary-card h3 { font-size: 18px; font-weight: 700; color: var(--bone); margin: 0; letter-spacing: -0.3px; }
+.ar-summary-card p { font-size: 14.5px; color: var(--soft); line-height: 1.75; margin: 0; }
 .logo-link {
   text-decoration: none;
   color: inherit;
@@ -329,7 +332,7 @@ html, body, #root {
 
 .ar-tag-chip {
   display: flex; align-items: center; gap: 12px;
-  background: #141A2E; border: 1px solid #232A3D; border-radius: 14px; padding: 16px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px;
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 .ar-tag-chip:hover { transform: translateY(-2px); border-color: var(--accent); }
@@ -338,48 +341,48 @@ html, body, #root {
   display: flex; align-items: center; justify-content: center; font-size: 16px;
   background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent);
 }
-.ar-tag-chip span.label { font-size: 13.5px; font-weight: 600; color: #E5E7EB; }
+.ar-tag-chip span.label { font-size: 13.5px; font-weight: 600; color: var(--bone); }
 
 /* ---- Recommendations ---- */
 .ar-rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 @media (max-width: 760px) { .ar-rec-grid { grid-template-columns: 1fr; } }
 
 .ar-rec-card {
-  background: #141A2E; border: 1px solid #232A3D; border-radius: 16px; padding: 22px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px;
   display: flex; gap: 16px;
   transition: transform 0.18s ease, border-color 0.18s ease;
 }
-.ar-rec-card:hover { transform: translateY(-2px); border-color: #2c3450; }
+.ar-rec-card:hover { transform: translateY(-2px); border-color: var(--line-hi); }
 .ar-rec-icon {
   width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; font-size: 18px;
-  background: rgba(52, 211, 153, 0.1); color: #34D399;
+  background: rgba(var(--mint-rgb), 0.1); color: var(--mint);
 }
-.ar-rec-card h5 { font-size: 14.5px; font-weight: 700; color: #E5E7EB; margin: 0 0 6px; }
-.ar-rec-card p { font-size: 13px; color: #8B93A7; line-height: 1.6; margin: 0; }
+.ar-rec-card h5 { font-size: 14.5px; font-weight: 700; color: var(--bone); margin: 0 0 6px; }
+.ar-rec-card p { font-size: 13px; color: var(--mute); line-height: 1.6; margin: 0; }
 
 /* ---- Footer actions ---- */
 .ar-footer-actions {
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
-  gap: 14px; margin-top: 56px; padding-top: 36px; border-top: 1px solid #1a2033;
+  gap: 14px; margin-top: 56px; padding-top: 36px; border-top: 1px solid var(--line);
 }
 
 .ar-btn-icon {
   display: inline-flex; align-items: center; gap: 8px;
-  background: transparent; border: 1px solid #232A3D; color: #E5E7EB;
+  background: transparent; border: 1px solid var(--line); color: var(--bone);
   font-family: inherit; font-size: 14px; font-weight: 600;
   padding: 13px 24px; border-radius: 10px; cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
-.ar-btn-icon:hover { border-color: #34D399; color: #34D399; background: rgba(52, 211, 153, 0.06); }
+.ar-btn-icon:hover { border-color: var(--mint); color: var(--mint); background: rgba(var(--mint-rgb), 0.06); }
 
 .ar-btn-primary-icon {
   display: inline-flex; align-items: center; gap: 8px;
-  background: linear-gradient(90deg, #34D399, #3B82F6); color: #05221A; border: none;
+  background: linear-gradient(90deg, var(--mint), var(--blue)); color: var(--on-accent); border: none;
   border-radius: 10px; padding: 13px 26px; font-size: 14px; font-weight: 700;
   font-family: inherit; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.15s ease;
 }
-.ar-btn-primary-icon:hover { box-shadow: 0 6px 24px rgba(52, 211, 153, 0.3); }
+.ar-btn-primary-icon:hover { box-shadow: 0 6px 24px rgba(var(--mint-rgb), 0.3); }
 .ar-btn-primary-icon:active { transform: scale(0.97); }
 
 @media (max-width: 720px) {
@@ -396,6 +399,7 @@ html, body, #root {
   .ar-summary-card { padding: 22px; }
   .ar-donut-wrap { gap: 18px; }
 }
+${navCss}
 `;
 
 // ---- Sample report data — replace with a real fetch keyed on :id ----
@@ -427,16 +431,16 @@ const REPORT_SEED = {
   summary:
     "Across this session, performance was strongest in memory recall and sustained attention, with the Memory Matrix and Focus Grid rounds both landing well above baseline. Reaction time improved steadily across the session, suggesting good adaptation and warm-up effect. Decision-making tasks showed more variance, with speed occasionally trading off against accuracy under time pressure. Working memory and cognitive flexibility scored in a solid-but-improvable range, pointing to task switching as the main lever for the next session. Overall, the profile reflects a careful, accuracy-oriented player with room to build speed and adaptability.",
   // strengths: [
-  //   { label: "Excellent Memory", icon: <FaBrain />, hex: "#34D399" },
-  //   { label: "High Attention", icon:<GoGoal />, hex: "#3B82F6" },
-  //   { label: "Strong Accuracy", icon: <TiTick />, hex: "#34D399" },
-  //   { label: "Consistent Performance", icon: <FaChartLine />, hex: "#A78BFA" },
+  //   { label: "Excellent Memory", icon: <FaBrain />, hex: "var(--mint)" },
+  //   { label: "High Attention", icon:<GoGoal />, hex: "var(--blue)" },
+  //   { label: "Strong Accuracy", icon: <TiTick />, hex: "var(--mint)" },
+  //   { label: "Consistent Performance", icon: <FaChartLine />, hex: "var(--violet)" },
   // ],
   // improvements: [
-  //   { label: "Reaction Speed", icon: <FaBolt />, hex: "#F59E0B" },
-  //   { label: "Task Switching", icon: <MdOutlineLoop />, hex: "#F59E0B" },
-  //   { label: "Working Memory", icon: <FaPuzzlePiece />, hex: "#F87171" },
-  //   { label: "Decision Speed", icon: <FaBalanceScale />, hex: "#F87171" },
+  //   { label: "Reaction Speed", icon: <FaBolt />, hex: "var(--amber)" },
+  //   { label: "Task Switching", icon: <MdOutlineLoop />, hex: "var(--amber)" },
+  //   { label: "Working Memory", icon: <FaPuzzlePiece />, hex: "var(--coral)" },
+  //   { label: "Decision Speed", icon: <FaBalanceScale />, hex: "var(--coral)" },
   // ],
   // recommendations: [
   //   { icon: <FaBolt />, title: "Speed-focused drills", desc: "Add short, timed reaction exercises 2–3 times a week to build faster response thresholds without sacrificing accuracy." },
@@ -508,8 +512,8 @@ function BarChart({ data }) {
       })}
       <defs>
         <linearGradient id="arBarGrad" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="#3B82F6" />
-          <stop offset="100%" stopColor="#34D399" />
+          <stop offset="0%" stopColor="var(--blue)" />
+          <stop offset="100%" stopColor="var(--mint)" />
         </linearGradient>
       </defs>
     </svg>
@@ -541,8 +545,8 @@ function RadarChart({ data }) {
       <polygon
         className="ar-radar-shape"
         points={dataPolygon}
-        fill="rgba(52, 211, 153, 0.18)"
-        stroke="#34D399"
+        fill="rgba(var(--mint-rgb), 0.18)"
+        stroke="var(--mint)"
         strokeWidth="2"
       />
       {dataPoints.map(([x, y], i) => (
@@ -577,7 +581,7 @@ function ReactionLineChart({ data = [] }) {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          color: "#9ca3af",
+          color: "var(--mute)",
         }}
       >
         No reaction time data available
@@ -644,12 +648,12 @@ const min = Math.min(...values);
         >
           <stop
             offset="0%"
-            stopColor="#3B82F6"
+            stopColor="var(--blue)"
             stopOpacity="0.22"
           />
           <stop
             offset="100%"
-            stopColor="#3B82F6"
+            stopColor="var(--blue)"
             stopOpacity="0"
           />
         </linearGradient>
@@ -723,14 +727,14 @@ function DonutChart({ correct, incorrect }) {
   return (
     <div className="ar-donut-wrap">
       <svg className="ar-donut-svg" viewBox={`0 0 ${size} ${size}`}>
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#232A3D" strokeWidth={stroke} />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
         <circle
           className="ar-donut-ring"
           cx={cx}
           cy={cy}
           r={r}
           fill="none"
-          stroke="#34D399"
+          stroke="var(--mint)"
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circumference}
@@ -742,12 +746,12 @@ function DonutChart({ correct, incorrect }) {
       </svg>
       <div className="ar-donut-legend">
         <div className="ar-donut-legend-item">
-          <span className="ar-donut-legend-dot" style={{ background: "#34D399" }} />
+          <span className="ar-donut-legend-dot" style={{ background: "var(--mint)" }} />
           Correct responses
           <span className="ar-donut-legend-val">{correct}%</span>
         </div>
         <div className="ar-donut-legend-item">
-          <span className="ar-donut-legend-dot" style={{ background: "#232A3D" }} />
+          <span className="ar-donut-legend-dot" style={{ background: "var(--line)" }} />
           Incorrect responses
           <span className="ar-donut-legend-val">{incorrect}%</span>
         </div>
@@ -800,7 +804,7 @@ const recommendations = [];
   strengths.push({
     label: "Excellent Memory",
     icon: <GiBrain />,
-    hex: "#34D399"
+    hex: "var(--mint)"
   });
 }
 
@@ -808,7 +812,7 @@ if (sessions.some(s => s.gameId === "cpt" && s.accuracy >= 80)) {
   strengths.push({
     label: "High Attention",
     icon: <RiFocus3Fill />,
-    hex: "#3B82F6"
+    hex: "var(--blue)"
   });
 }
 
@@ -816,7 +820,7 @@ if (sessions.some(s => s.accuracy >= 90)) {
   strengths.push({
     label: "Strong Accuracy",
     icon: <RiFocus2Fill />,
-    hex: "#10B981"
+    hex: "var(--teal)"
   });
 }
 
@@ -827,14 +831,14 @@ if (avgAccuracy >= 75) {
   strengths.push({
     label: "Consistent Performance",
     icon: <GrDocumentPerformance />,
-    hex: "#F59E0B"
+    hex: "var(--amber)"
   });
 }
 if (sessions.some(s => s.avgTimeMs > 2500)) {
   improvements.push({
     label: "Reaction Speed",
     icon: <GiStopwatch />,
-    hex: "#f25e5eff"
+    hex: "var(--coral)"
   });
 }
 
@@ -844,7 +848,7 @@ if (multis && multis.accuracy < 75) {
   improvements.push({
     label: "Task Switching",
     icon: <MdSwitchAccessShortcut />,
-    hex: "#F97316"
+    hex: "var(--orange)"
   });
 }
 
@@ -854,7 +858,7 @@ if (opSpan && opSpan.accuracy < 70) {
   improvements.push({
     label: "Working Memory",
     icon: <BsFillPuzzleFill />,
-    hex: "#8B5CF6"
+    hex: "var(--lilac)"
   });
 }
 
@@ -864,7 +868,7 @@ if (rules && rules.accuracy < 70) {
   improvements.push({
     label: "Decision Speed",
     icon: <PiSpeedometerBold />,
-    hex: "#EC4899"
+    hex: "var(--pink)"
   });
 }
 if (improvements.some(i => i.label === "Reaction Speed")) {
@@ -1033,8 +1037,8 @@ if (loading) {
           style={{
             width: 36,
             height: 36,
-            border: "3px solid #232A3D",
-            borderTopColor: "#34D399",
+            border: "3px solid var(--line)",
+            borderTopColor: "var(--mint)",
             borderRadius: "50%",
             animation: "ar-spin 0.8s linear infinite",
           }}
@@ -1062,7 +1066,7 @@ if (!assessment) {
       >
         <h2>No completed assessment found</h2>
 
-        <p style={{ color: "#8B93A7", marginBottom: 24 }}>
+        <p style={{ color: "var(--mute)", marginBottom: 24 }}>
           Complete an assessment to view analytics.
         </p>
 
@@ -1296,6 +1300,7 @@ const incorrectResponses = Math.max(
         )} */}
 
         <div className="hp-nav-right" ref={menuRef}>
+          <ThemeToggle />
           {user ? (
             <>
               <button className={`hp-menu-btn ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen((o) => !o)}>
@@ -1341,15 +1346,15 @@ const incorrectResponses = Math.max(
         </div>
 
         <div className="ar-stats-grid">
-          <div className="ar-stat-card" style={{ "--accent": "#34D399" }}>
-            <MiniRing value={report.overallScore} accent="#34D399" />
+          <div className="ar-stat-card" style={{ "--accent": "var(--mint)" }}>
+            <MiniRing value={report.overallScore} accent="var(--mint)" />
             <div className="ar-stat-body">
-              <div className="ar-stat-value">{report.overallScore}<span style={{ fontSize: 14, color: "#6B7386", fontWeight: 600 }}>/100</span></div>
+              <div className="ar-stat-value">{report.overallScore}<span style={{ fontSize: 14, color: "var(--faint)", fontWeight: 600 }}>/100</span></div>
               <div className="ar-stat-label">Overall Cognitive Score</div>
             </div>
           </div>
 
-          <div className="ar-stat-card" style={{ "--accent": "#3B82F6" }}>
+          <div className="ar-stat-card" style={{ "--accent": "var(--blue)" }}>
             <div className="ar-stat-icon"> <GoGoal /></div>
             <div className="ar-stat-body">
               <div className="ar-stat-value" style={{ fontSize: 19 }}>{report.gameplayProfile}</div>
@@ -1357,15 +1362,15 @@ const incorrectResponses = Math.max(
             </div>
           </div>
 
-          <div className="ar-stat-card" style={{ "--accent": "#A78BFA" }}>
-            <MiniRing value={report.confidence} accent="#A78BFA" />
+          <div className="ar-stat-card" style={{ "--accent": "var(--violet)" }}>
+            <MiniRing value={report.confidence} accent="var(--violet)" />
             <div className="ar-stat-body">
               <div className="ar-stat-value">{report.confidence}%</div>
               <div className="ar-stat-label">Prediction Confidence</div>
             </div>
           </div>
 
-          <div className="ar-stat-card" style={{ "--accent": "#34D399" }}>
+          <div className="ar-stat-card" style={{ "--accent": "var(--mint)" }}>
             <div className="ar-stat-icon"><TiTick /></div>
             <div className="ar-stat-body">
               <span className="ar-status-pill"><span className="dot" />{report.status}</span>

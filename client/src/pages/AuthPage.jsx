@@ -1,7 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
+import { themeCss } from "../utils/theme";
+import VoxelPainter from "../components/VoxelPainter";
+import ThemeToggle from "../components/ThemeToggle";
 
 
 const styles = `
+${themeCss}
 * {
   box-sizing: border-box;
 }
@@ -9,7 +13,7 @@ const styles = `
 html, body, #root {
   margin: 0 !important;
   padding: 0 !important;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100% !important;
   max-width: none !important;
   min-height: 100vh;
@@ -22,7 +26,7 @@ html, body, #root {
   width: 100%;
   display: grid;
   grid-template-columns: 1.1fr 1fr;
-  background: #0B0F19;
+  background: var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
 }
 
@@ -32,14 +36,8 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 28px;
   padding: 48px;
-}
-
-.auth-brand canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
 }
 
 .auth-brand-content {
@@ -53,14 +51,14 @@ html, body, #root {
   gap: 12px;
   font-size: 30px;
   font-weight: 700;
-  color: #E5E7EB;
+  color: var(--bone);
   letter-spacing: -0.5px;
 }
 
 .auth-wordmark {
-  color: #E5E7EB;
+  color: var(--bone);
   transition: background-position 0.5s ease, color 0.1s ease;
-  background-image: linear-gradient(90deg, #34D399, #3B82F6, #A78BFA, #F59E0B, #F87171);
+  background-image: linear-gradient(90deg, var(--mint), var(--blue), var(--violet), var(--amber), var(--coral));
   background-size: 300% 100%;
   background-position: 100% 0;
   -webkit-background-clip: text;
@@ -77,43 +75,51 @@ html, body, #root {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: #34D399;
+  background: var(--mint);
   flex-shrink: 0;
 }
 
 .auth-tagline {
-  margin-top: auto;
-  padding-top: 200px;
   position: relative;
   z-index: 2;
+}
+
+.auth-stage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 560px;
 }
 
 .auth-tagline h1 {
   font-size: 34px;
   font-weight: 600;
-  color: #E5E7EB;
+  color: var(--bone);
   line-height: 1.25;
   margin: 0 0 12px;
 }
 
 .auth-tagline span {
-  color: #34D399;
+  color: var(--mint);
 }
 
 .auth-tagline p {
   font-size: 14px;
-  color: #8B93A7;
+  color: var(--mute);
   line-height: 1.6;
   max-width: 380px;
   margin: 0;
 }
 
 .auth-panel {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 48px;
 }
+
+.auth-theme { position: absolute; top: 20px; right: 24px; }
 
 .auth-card {
   width: 100%;
@@ -124,13 +130,13 @@ html, body, #root {
   height: 4px;
   border-radius: 4px;
   margin-bottom: 28px;
-  background: linear-gradient(90deg, #34D399, #3B82F6, #A78BFA, #F59E0B, #F87171);
+  background: linear-gradient(90deg, var(--mint), var(--blue), var(--violet), var(--amber), var(--coral));
 }
 
 .auth-toggle {
   display: flex;
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 10px;
   padding: 4px;
   margin-bottom: 24px;
@@ -142,7 +148,7 @@ html, body, #root {
   border: none;
   border-radius: 7px;
   background: transparent;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 14px;
   font-weight: 500;
   font-family: inherit;
@@ -151,19 +157,19 @@ html, body, #root {
 }
 
 .auth-toggle button.active {
-  background: #34D399;
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
 }
 
 .auth-card h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 20px;
   font-weight: 600;
   margin: 0 0 6px;
 }
 
 .auth-card .sub {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   margin: 0 0 22px;
 }
@@ -175,18 +181,18 @@ html, body, #root {
 .auth-field label {
   display: block;
   font-size: 13px;
-  color: #8B93A7;
+  color: var(--mute);
   margin-bottom: 6px;
 }
 
 .auth-field input {
   width: 100%;
   box-sizing: border-box;
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 11px 14px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   font-family: inherit;
   outline: none;
@@ -194,18 +200,18 @@ html, body, #root {
 }
 
 .auth-field input:focus {
-  border-color: var(--focus-color, #34D399);
-  box-shadow: 0 0 0 3px var(--focus-glow, rgba(52, 211, 153, 0.15));
+  border-color: var(--focus-color, var(--mint));
+  box-shadow: 0 0 0 3px var(--focus-glow, rgba(var(--mint-rgb), 0.15));
 }
 
 .auth-field input::placeholder {
-  color: #4B5468;
+  color: var(--faint);
 }
 
 .auth-error {
-  background: rgba(216, 90, 48, 0.1);
-  border: 1px solid rgba(216, 90, 48, 0.3);
-  color: #F0997B;
+  background: rgba(var(--coral-rgb), 0.1);
+  border: 1px solid rgba(var(--coral-rgb), 0.3);
+  color: var(--coral);
   font-size: 13px;
   padding: 10px 12px;
   border-radius: 8px;
@@ -217,8 +223,9 @@ html, body, #root {
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(90deg, #34D399, #3B82F6);
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
+  box-shadow: 3px 3px 0 var(--blue);
   font-size: 14px;
   font-weight: 600;
   font-family: inherit;
@@ -235,14 +242,14 @@ html, body, #root {
 .auth-switch {
   text-align: center;
   font-size: 13px;
-  color: #8B93A7;
+  color: var(--mute);
   margin-top: 20px;
 }
 
 .auth-switch button {
   background: none;
   border: none;
-  color: #34D399;
+  color: var(--mint);
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
@@ -261,132 +268,6 @@ html, body, #root {
   .auth-field input { font-size: 16px; }
 }
 `;
-
-// Six nodes = your six cognitive skills. Each orbits the core at its own
-// radius/speed; pulses travel inward along the spokes like data being
-// assessed. This is the actual mechanic of the product, not decoration.
-const SKILLS = [
-  { label: "Memory", color: "52, 211, 153" },    // mint
-  { label: "Attention", color: "59, 130, 246" }, // blue
-  { label: "Observation", color: "167, 139, 250" }, // purple
-  { label: "Planning", color: "59, 130, 246" },  // blue
-  { label: "Reaction", color: "245, 158, 11" },  // amber
-  { label: "Decision", color: "248, 113, 113" }, // coral
-];
-
-function SkillOrbit() {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    let animationId;
-    let width, height, cx, cy, baseRadius;
-    let t = 0;
-
-    function resize() {
-      width = canvas.parentElement.clientWidth;
-      height = canvas.parentElement.clientHeight;
-      canvas.width = width;
-      canvas.height = height;
-      cx = width * 0.5;
-      cy = height * 0.42;
-      baseRadius = Math.min(width, height) * 0.34;
-    }
-
-    function drawOrbitRing(radiusX, radiusY, color) {
-      ctx.strokeStyle = `rgba(${color}, 0.14)`;
-      ctx.lineWidth = 1;
-      ctx.setLineDash([2, 6]);
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, radiusX, radiusY, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-
-    function drawCore(pulse) {
-      const r = 11 + pulse * 5;
-      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 5);
-      grad.addColorStop(0, `rgba(52, 211, 153, ${0.55 + pulse * 0.2})`);
-      grad.addColorStop(1, "rgba(52, 211, 153, 0)");
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r * 5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = "rgba(229, 231, 235, 0.95)";
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function tick() {
-      t += 0.006;
-      ctx.clearRect(0, 0, width, height);
-
-      const corePulse = (Math.sin(t * 2) + 1) / 2;
-
-      SKILLS.forEach((skill, i) => {
-        const radius = baseRadius * (1 + 0.16 * (i % 3) / 2);
-        drawOrbitRing(radius, radius * 0.55, skill.color);
-      });
-
-      drawCore(corePulse);
-
-      SKILLS.forEach((skill, i) => {
-        const angle = t * (0.3 + i * 0.025) + (i * Math.PI * 2) / SKILLS.length;
-        const radius = baseRadius * (1 + 0.16 * (i % 3) / 2);
-        const x = cx + Math.cos(angle) * radius;
-        const y = cy + Math.sin(angle) * radius * 0.55;
-
-        const lineGrad = ctx.createLinearGradient(x, y, cx, cy);
-        lineGrad.addColorStop(0, `rgba(${skill.color}, 0.4)`);
-        lineGrad.addColorStop(1, `rgba(${skill.color}, 0.04)`);
-        ctx.strokeStyle = lineGrad;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(cx, cy);
-        ctx.stroke();
-
-        const travel = (t * 0.8 + i * 0.6) % 1;
-        const px = x + (cx - x) * travel;
-        const py = y + (cy - y) * travel;
-        ctx.fillStyle = `rgba(${skill.color}, ${0.95 * (1 - travel * 0.5)})`;
-        ctx.beginPath();
-        ctx.arc(px, py, 2.6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = `rgba(${skill.color}, 0.95)`;
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = `rgba(${skill.color}, 0.18)`;
-        ctx.beginPath();
-        ctx.arc(x, y, 13, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.font = "13px Inter, sans-serif";
-        ctx.fillStyle = "rgba(139, 147, 167, 0.85)";
-        ctx.textAlign = "center";
-        ctx.fillText(skill.label, x, y + 26);
-      });
-
-      animationId = requestAnimationFrame(tick);
-    }
-
-    resize();
-    tick();
-    window.addEventListener("resize", resize);
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} />;
-}
 
 export default function AuthPage() {
   const [mode, setMode] = useState("login"); // 'login' | 'register'
@@ -456,12 +337,14 @@ export default function AuthPage() {
       <style>{styles}</style>
 
       <div className="auth-brand">
-        <SkillOrbit />
         <div className="auth-brand-content">
           <div className="auth-logo">
-            <span className="auth-logo-dot" />
+            <span className="auth-logo-mark"><i /><i /><i /><i /></span>
             <span className="auth-wordmark">Mind Metrics</span>
           </div>
+        </div>
+        <div className="auth-stage">
+          <VoxelPainter stageHeight={360} />
         </div>
         <div className="auth-tagline">
         <h1>
@@ -477,6 +360,7 @@ export default function AuthPage() {
       </div>
 
       <div className="auth-panel">
+        <div className="auth-theme"><ThemeToggle /></div>
         <div className="auth-card">
           <div className="auth-card-topbar" />
           <div className="auth-toggle">
@@ -515,7 +399,7 @@ export default function AuthPage() {
                   placeholder="abc"
                   value={form.name}
                   onChange={handleChange}
-                  style={{ "--focus-color": "#A78BFA", "--focus-glow": "rgba(167, 139, 250, 0.15)" }}
+                  style={{ "--focus-color": "var(--violet)", "--focus-glow": "rgba(var(--violet-rgb), 0.15)" }}
                   required
                 />
               </div>
@@ -529,7 +413,7 @@ export default function AuthPage() {
                 placeholder="you@example.com"
                 value={form.email}
                 onChange={handleChange}
-                style={{ "--focus-color": "#3B82F6", "--focus-glow": "rgba(59, 130, 246, 0.15)" }}
+                style={{ "--focus-color": "var(--blue)", "--focus-glow": "rgba(var(--blue-rgb), 0.15)" }}
                 required
               />
             </div>
@@ -546,8 +430,8 @@ export default function AuthPage() {
   pattern="[A-Za-z0-9]+"
   title="Use at least 6 characters with letters and numbers only"
   style={{
-    "--focus-color": "#F87171",
-    "--focus-glow": "rgba(248, 113, 113, 0.15)",
+    "--focus-color": "var(--coral)",
+    "--focus-glow": "rgba(var(--coral-rgb), 0.15)",
   }}
   required
 />
