@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { themeCss } from "../utils/theme";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
 import { setCurrentGameIndex } from "../utils/session";
@@ -28,6 +29,7 @@ function pickHighlightedCells(gridSize, count) {
 }
 
 const styles = `
+${themeCss}
 * {
   box-sizing: border-box;
 }
@@ -35,7 +37,7 @@ const styles = `
 html, body, #root {
   margin: 0;
   padding: 0;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100%;
   min-height: 100vh;
 }
@@ -49,9 +51,9 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.1), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 20% 20%, rgba(var(--violet-rgb), 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(var(--blue-rgb), 0.1), transparent 40%),
+    var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
   box-sizing: border-box;
@@ -59,14 +61,14 @@ html, body, #root {
 }
 
 .mm-intro-screen h1 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 32px;
   font-weight: 700;
   margin: 0;
 }
 
 .mm-intro-screen .sub {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 15px;
   max-width: 440px;
   margin: 0;
@@ -82,8 +84,8 @@ html, body, #root {
 }
 
 .mm-intro-card {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 18px 20px;
   width: 170px;
@@ -95,18 +97,18 @@ html, body, #root {
   height: 22px;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
 }
 
 .mm-intro-card .title {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;
 }
 
 .mm-intro-card .desc {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -115,7 +117,7 @@ html, body, #root {
   display: grid;
   grid-template-columns: 1fr 220px;
   gap: 20px;
-  background: #0B0F19;
+  background: var(--ink);
   min-height: 100vh;
   padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
@@ -126,10 +128,10 @@ html, body, #root {
 .mm-arena {
   position: relative;
   background:
-    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
-    #141A2E;
-  border: 1px solid #232A3D;
+    radial-gradient(circle at 15% 20%, rgba(var(--violet-rgb), 0.08), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(var(--blue-rgb), 0.08), transparent 40%),
+    var(--panel);
+  border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
   min-height: 480px;
@@ -175,23 +177,23 @@ html, body, #root {
 }
 
 .mm-arena-header h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 4px;
 }
 
 .mm-arena-header p {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   margin: 0;
   max-width: 340px;
 }
 
 .mm-badge {
-  background: rgba(47, 243, 176, 0.12);
-  border: 1px solid rgba(47, 243, 176, 0.35);
-  color: #2FF3B0;
+  background: rgba(var(--mint-rgb), 0.12);
+  border: 1px solid rgba(var(--mint-rgb), 0.35);
+  color: var(--mint);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
@@ -200,9 +202,9 @@ html, body, #root {
 }
 
 .mm-badge.warn {
-  background: rgba(255, 176, 32, 0.12);
-  border-color: rgba(255, 176, 32, 0.35);
-  color: #FFB020;
+  background: rgba(var(--amber-rgb), 0.12);
+  border-color: rgba(var(--amber-rgb), 0.35);
+  color: var(--amber);
 }
 
 .mm-board-area {
@@ -222,8 +224,8 @@ html, body, #root {
   width: 100%;
   height: 100%;
   border-radius: 12px;
-  border: 1px solid #232A3D;
-  background: #0B0F19;
+  border: 1px solid var(--line);
+  background: var(--ink);
   cursor: pointer;
   transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
@@ -233,19 +235,19 @@ html, body, #root {
 }
 
 .mm-cell.mm-shown {
-  background: radial-gradient(circle at 35% 30%, #8CF7CC, #2FF3B0);
-  box-shadow: 0 0 18px rgba(47, 243, 176, 0.5);
+  background: radial-gradient(circle at 35% 30%, var(--mint-soft), var(--mint));
+  box-shadow: 0 0 18px rgba(var(--mint-rgb), 0.5);
 }
 
 .mm-cell.mm-correct {
-  background: radial-gradient(circle at 35% 30%, #8CF7CC, #2FF3B0);
-  box-shadow: 0 0 14px rgba(47, 243, 176, 0.45);
+  background: radial-gradient(circle at 35% 30%, var(--mint-soft), var(--mint));
+  box-shadow: 0 0 14px rgba(var(--mint-rgb), 0.45);
   cursor: default;
 }
 
 .mm-cell.mm-wrong {
-  background: radial-gradient(circle at 35% 30%, #FFB4B4, #FF7A7A);
-  box-shadow: 0 0 14px rgba(255, 122, 122, 0.45);
+  background: radial-gradient(circle at 35% 30%, var(--coral-soft), var(--coral));
+  box-shadow: 0 0 14px rgba(var(--coral-rgb), 0.45);
 }
 
 .mm-cell.mm-disabled {
@@ -265,31 +267,31 @@ html, body, #root {
 }
 
 .mm-stat .label {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 11px;
 }
 
 .mm-stat .value {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
 }
 
-.mm-stat .value.score { color: #FFB020; }
-.mm-stat .value.wrong { color: #FF7A7A; }
-.mm-stat .value.level { color: #2FF3B0; }
+.mm-stat .value.score { color: var(--amber); }
+.mm-stat .value.wrong { color: var(--coral); }
+.mm-stat .value.level { color: var(--mint); }
 
 .mm-progress-bar {
   height: 6px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 8px;
@@ -297,12 +299,12 @@ html, body, #root {
 
 .mm-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
   transition: width 0.2s ease;
 }
 
 .mm-progress-fill.timer {
-  background: linear-gradient(90deg, #FFB020, #FF7A7A);
+  background: linear-gradient(90deg, var(--amber), var(--coral));
   transition: width 1s linear;
 }
 
@@ -318,21 +320,22 @@ html, body, #root {
 }
 
 .mm-center-msg h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 24px;
   margin: 0;
 }
 
 .mm-center-msg p {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 14px;
   margin: 0;
   max-width: 340px;
 }
 
 .mm-btn {
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
+  box-shadow: 3px 3px 0 var(--blue);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -352,14 +355,14 @@ html, body, #root {
 }
 
 .mm-results-grid div {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
 }
 
-.mm-results-grid .label { color: #8B93A7; font-size: 11px; }
-.mm-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+.mm-results-grid .label { color: var(--mute); font-size: 11px; }
+.mm-results-grid .value { color: var(--bone); font-size: 16px; font-weight: 600; }
 
 /* ---- Responsive: stack sidebar under the arena on narrow screens ---- */
 @media (max-width: 900px) {
@@ -667,7 +670,7 @@ useDisableBackButton();
             <div className="desc">Click every cell that was highlighted.</div>
           </div>
           <div className="mm-intro-card">
-            <div className="dot" style={{ background: "#FF7A7A" }} />
+            <div className="dot" style={{ background: "var(--coral)" }} />
             <div className="title">Wrong click</div>
             <div className="desc">Costs points, doesn't end the level.</div>
           </div>
@@ -693,7 +696,7 @@ if (phase === "done") {
       >
         <h2
           style={{
-            color: "#E5E7EB",
+            color: "var(--bone)",
             fontSize: 22,
             marginBottom: 24,
           }}
@@ -756,7 +759,7 @@ if (phase === "done") {
   >
     <style>{styles}</style>
       <div className={`mm-arena ${shake ? "shake" : ""}`}>
-        <div className={`mm-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
+        <div className={`mm-flash ${flash ? "on" : ""}`} style={{ background: "var(--coral)" }} />
 
         {phase !== "done" && (
           <div className="mm-arena-header">

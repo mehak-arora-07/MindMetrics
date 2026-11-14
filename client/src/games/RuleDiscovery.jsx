@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { themeCss } from "../utils/theme";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
 import { motion } from "framer-motion";
@@ -63,12 +64,13 @@ function getResultCopy(score) {
 }
 
 const styles = `
+${themeCss}
 * { box-sizing: border-box; }
 
 html, body, #root {
   margin: 0 !important;
   padding: 0 !important;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100% !important;
   max-width: none !important;
   height: 100vh;
@@ -118,23 +120,23 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 20% 20%, rgba(var(--violet-rgb), 0.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(var(--blue-rgb), 0.08), transparent 40%),
+    var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
   text-align: center;
 }
 
-.rd-intro-screen h1 { color: #E5E7EB; font-size: 32px; font-weight: 700; margin: 0; }
-.rd-intro-screen .sub { color: #8B93A7; font-size: 15px; max-width: 460px; margin: 0; line-height: 1.6; }
+.rd-intro-screen h1 { color: var(--bone); font-size: 32px; font-weight: 700; margin: 0; }
+.rd-intro-screen .sub { color: var(--mute); font-size: 15px; max-width: 460px; margin: 0; line-height: 1.6; }
 
 .rd-example {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 18px 26px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 15px;
   font-weight: 600;
   display: flex;
@@ -143,19 +145,20 @@ html, body, #root {
 }
 
 .rd-example .chip {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 6px 12px;
   font-size: 18px;
 }
 
-.rd-example .chip.accept { border-color: #2FF3B0; color: #2FF3B0; }
-.rd-example .chip.reject { border-color: #FF7A7A; color: #FF7A7A; }
+.rd-example .chip.accept { border-color: var(--mint); color: var(--mint); }
+.rd-example .chip.reject { border-color: var(--coral); color: var(--coral); }
 
 .rd-btn {
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
+  box-shadow: 3px 3px 0 var(--blue);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -186,9 +189,9 @@ html, body, #root {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.06), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.06), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 15% 20%, rgba(var(--violet-rgb), 0.06), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(var(--blue-rgb), 0.06), transparent 40%),
+    var(--ink);
 }
 
 .rd-main {
@@ -213,12 +216,12 @@ html, body, #root {
   align-items: center;
 }
 
-.rd-topbar h2 { color: #E5E7EB; font-size: 17px; font-weight: 600; margin: 0; }
+.rd-topbar h2 { color: var(--bone); font-size: 17px; font-weight: 600; margin: 0; }
 
 .rd-round-badge {
-  background: rgba(183, 148, 255, 0.12);
-  border: 1px solid rgba(183, 148, 255, 0.35);
-  color: #B794FF;
+  background: rgba(var(--violet-rgb), 0.12);
+  border: 1px solid rgba(var(--violet-rgb), 0.35);
+  color: var(--violet);
   font-size: 12.5px;
   font-weight: 600;
   padding: 5px 12px;
@@ -228,19 +231,19 @@ html, body, #root {
 .rd-progress-bar {
   width: 100%;
   height: 5px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 5px;
   overflow: hidden;
 }
 
 .rd-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
   transition: width 0.15s linear;
 }
 
 .rd-progress-fill.timer {
-  background: linear-gradient(90deg, #FFB020, #FF7A7A);
+  background: linear-gradient(90deg, var(--amber), var(--coral));
   transition: width 1s linear;
 }
 
@@ -249,8 +252,8 @@ html, body, #root {
   width: 100%;
   flex: 1;
   min-height: 0;
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 16px;
   display: flex;
   gap: 20px;
@@ -282,12 +285,12 @@ html, body, #root {
   width: 130px;
   height: 130px;
   border-radius: 20px;
-  background: #0B0F19;
-  border: 2px solid #232A3D;
+  background: var(--ink);
+  border: 2px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 44px;
   font-weight: 700;
   font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
@@ -312,21 +315,21 @@ html, body, #root {
 .rd-accept-btn:active, .rd-reject-btn:active { transform: scale(0.95); }
 
 .rd-accept-btn {
-  background: rgba(47, 243, 176, 0.15);
-  border: 2px solid #2FF3B0;
-  color: #2FF3B0;
+  background: rgba(var(--mint-rgb), 0.15);
+  border: 2px solid var(--mint);
+  color: var(--mint);
 }
 
 .rd-reject-btn {
-  background: rgba(255, 122, 122, 0.15);
-  border: 2px solid #FF7A7A;
-  color: #FF7A7A;
+  background: rgba(var(--coral-rgb), 0.15);
+  border: 2px solid var(--coral);
+  color: var(--coral);
 }
 
 .rd-guess-btn {
-  background: rgba(183, 148, 255, 0.15);
-  border: 2px solid #B794FF;
-  color: #B794FF;
+  background: rgba(var(--violet-rgb), 0.15);
+  border: 2px solid var(--violet);
+  color: var(--violet);
   border-radius: 10px;
   padding: 10px 20px;
   font-size: 13px;
@@ -350,7 +353,7 @@ html, body, #root {
 }
 
 .rd-log-title {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
@@ -361,12 +364,12 @@ html, body, #root {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 13px;
-  color: #E5E7EB;
+  color: var(--bone);
 }
 
 .rd-log-entry .result {
@@ -376,8 +379,8 @@ html, body, #root {
   border-radius: 10px;
 }
 
-.rd-log-entry .result.accepted { background: rgba(47, 243, 176, 0.15); color: #2FF3B0; }
-.rd-log-entry .result.rejected { background: rgba(255, 122, 122, 0.15); color: #FF7A7A; }
+.rd-log-entry .result.accepted { background: rgba(var(--mint-rgb), 0.15); color: var(--mint); }
+.rd-log-entry .result.rejected { background: rgba(var(--coral-rgb), 0.15); color: var(--coral); }
 
 .rd-guess-col {
   flex: 1;
@@ -398,10 +401,10 @@ html, body, #root {
 }
 
 .rd-guess-option {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 10px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   font-weight: 600;
   font-family: inherit;
@@ -412,29 +415,29 @@ html, body, #root {
 .rd-guess-option:active { transform: scale(0.96); }
 
 .rd-guess-option.correct {
-  border-color: #2FF3B0;
-  background: rgba(47, 243, 176, 0.15);
-  color: #2FF3B0;
+  border-color: var(--mint);
+  background: rgba(var(--mint-rgb), 0.15);
+  color: var(--mint);
 }
 
 .rd-guess-option.wrong {
-  border-color: #FF7A7A;
-  background: rgba(255, 122, 122, 0.12);
-  color: #FF7A7A;
+  border-color: var(--coral);
+  background: rgba(var(--coral-rgb), 0.12);
+  color: var(--coral);
 }
 
 .rd-stat {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 16px;
   text-align: center;
 }
 
-.rd-stat .label { color: #8B93A7; font-size: 12px; margin-bottom: 6px; }
-.rd-stat .value { color: #E5E7EB; font-size: 22px; font-weight: 600; }
-.rd-stat .value.score { color: #FFB020; }
-.rd-stat .value.solved { color: #2FF3B0; }
+.rd-stat .label { color: var(--mute); font-size: 12px; margin-bottom: 6px; }
+.rd-stat .value { color: var(--bone); font-size: 22px; font-weight: 600; }
+.rd-stat .value.score { color: var(--amber); }
+.rd-stat .value.solved { color: var(--mint); }
 
 .rd-center-msg {
   position: absolute;
@@ -446,15 +449,15 @@ html, body, #root {
   gap: 14px;
   text-align: center;
   padding: 24px;
-  background: rgba(11, 15, 25, 0.85);
+  background: rgba(var(--ink-rgb), 0.85);
   z-index: 4;
 }
 
-.rd-center-msg h3 { color: #E5E7EB; font-size: 20px; margin: 0; }
-.rd-center-msg p { color: #8B93A7; font-size: 13px; margin: 0; max-width: 340px; }
+.rd-center-msg h3 { color: var(--bone); font-size: 20px; margin: 0; }
+.rd-center-msg p { color: var(--mute); font-size: 13px; margin: 0; max-width: 340px; }
 
 .rd-results-subtitle {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 14px;
   margin: -18px 0 24px;
 }
@@ -469,7 +472,7 @@ html, body, #root {
 }
 
 .rd-result-card {
-  border: 1px solid #232A3D;
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 14px;
   display: flex;
@@ -478,19 +481,19 @@ html, body, #root {
 }
 
 .rd-result-label {
-  border: 1px solid #232A3D;
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 9px 12px;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 12.5px;
   text-align: center;
 }
 
 .rd-result-value {
-  border: 1px solid #232A3D;
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 700;
   text-align: center;
@@ -999,7 +1002,7 @@ useDisableBackButton();
           {bankLoaded ? "Start the Game" : ""}
         </button>
         {bankLoaded && (
-          <p style={{ color: "#4B5468", fontSize: 11 }}>
+          <p style={{ color: "var(--faint)", fontSize: 11 }}>
             {bankSource === "api" ? "" : "Using offline question set"}
           </p>
         )}
@@ -1020,7 +1023,7 @@ useDisableBackButton();
       <div className="rd-intro-screen rd-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 8 }}>Scores</h2>
+          <h2 style={{ color: "var(--bone)", fontSize: 22, marginBottom: 8 }}>Scores</h2>
           <p className="rd-results-subtitle">{getResultCopy(score).title}</p>
           <div className="rd-results-grid">
             <div className="rd-result-card">
@@ -1084,7 +1087,7 @@ useDisableBackButton();
         </div>
 
         <div className={`rd-arena ${shake ? "shake" : ""}`}>
-          <div className={`rd-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
+          <div className={`rd-flash ${flash ? "on" : ""}`} style={{ background: "var(--coral)" }} />
 
           {phase === "classify" && (
             <>
@@ -1138,7 +1141,7 @@ useDisableBackButton();
                 })}
               </div>
               {phase === "guessResult" && (
-                <p style={{ color: "#8B93A7", fontSize: 13 }}>
+                <p style={{ color: "var(--mute)", fontSize: 13 }}>
                   {guessWasCorrect
                     ? `Correct. The hidden rule was ${rounds[roundIndex].data.rule}.`
                     : `Not quite. The hidden rule was ${rounds[roundIndex].data.rule}.`}

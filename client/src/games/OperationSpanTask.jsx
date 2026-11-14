@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { themeCss } from "../utils/theme";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
 import { motion } from "framer-motion";
@@ -90,6 +91,7 @@ function generateEquationFallback(difficulty) {
 }
 
 const styles = `
+${themeCss}
 * {
   box-sizing: border-box;
 }
@@ -97,7 +99,7 @@ const styles = `
 html, body, #root {
   margin: 0;
   padding: 0;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100%;
   min-height: 100vh;
 }
@@ -111,9 +113,9 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.1), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 20% 20%, rgba(var(--violet-rgb), 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(var(--blue-rgb), 0.1), transparent 40%),
+    var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
   box-sizing: border-box;
@@ -121,14 +123,14 @@ html, body, #root {
 }
 
 .os-intro-screen h1 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 32px;
   font-weight: 700;
   margin: 0;
 }
 
 .os-intro-screen .sub {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 15px;
   max-width: 460px;
   margin: 0;
@@ -144,8 +146,8 @@ html, body, #root {
 }
 
 .os-intro-card {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 18px 20px;
   width: 170px;
@@ -157,18 +159,18 @@ html, body, #root {
   height: 22px;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
 }
 
 .os-intro-card .title {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;
 }
 
 .os-intro-card .desc {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -177,7 +179,7 @@ html, body, #root {
   display: grid;
   grid-template-columns: 1fr 220px;
   gap: 20px;
-  background: #0B0F19;
+  background: var(--ink);
   height: 100vh;
   padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
@@ -189,10 +191,10 @@ html, body, #root {
 .os-arena {
   position: relative;
   background:
-    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
-    #141A2E;
-  border: 1px solid #232A3D;
+    radial-gradient(circle at 15% 20%, rgba(var(--violet-rgb), 0.08), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(var(--blue-rgb), 0.08), transparent 40%),
+    var(--panel);
+  border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
   height: 100%;
@@ -238,23 +240,23 @@ html, body, #root {
 }
 
 .os-arena-header h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 4px;
 }
 
 .os-arena-header p {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   margin: 0;
   max-width: 340px;
 }
 
 .os-badge {
-  background: rgba(47, 243, 176, 0.12);
-  border: 1px solid rgba(47, 243, 176, 0.35);
-  color: #2FF3B0;
+  background: rgba(var(--mint-rgb), 0.12);
+  border: 1px solid rgba(var(--mint-rgb), 0.35);
+  color: var(--mint);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
@@ -263,9 +265,9 @@ html, body, #root {
 }
 
 .os-badge.warn {
-  background: rgba(255, 176, 32, 0.12);
-  border-color: rgba(255, 176, 32, 0.35);
-  color: #FFB020;
+  background: rgba(var(--amber-rgb), 0.12);
+  border-color: rgba(var(--amber-rgb), 0.35);
+  color: var(--amber);
 }
 
 .os-board-area {
@@ -280,7 +282,7 @@ html, body, #root {
 }
 
 .os-phase-label {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -288,39 +290,39 @@ html, body, #root {
 }
 
 .os-equation {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 34px;
   font-weight: 700;
   font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 22px 34px;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .os-equation.os-eq-correct {
-  border-color: #2FF3B0;
-  background: rgba(47, 243, 176, 0.08);
+  border-color: var(--mint);
+  background: rgba(var(--mint-rgb), 0.08);
 }
 
 .os-equation.os-eq-wrong {
-  border-color: #FF7A7A;
-  background: rgba(255, 122, 122, 0.08);
+  border-color: var(--coral);
+  background: rgba(var(--coral-rgb), 0.08);
 }
 
 .os-math-timer {
   width: 100%;
   max-width: 320px;
   height: 5px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 6px;
   overflow: hidden;
 }
 
 .os-math-timer-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #FFB020);
+  background: linear-gradient(90deg, var(--mint), var(--amber));
   transition: width 0.2s linear;
 }
 
@@ -330,10 +332,10 @@ html, body, #root {
 }
 
 .os-yesno-btn {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 10px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 15px;
   font-weight: 700;
   font-family: inherit;
@@ -346,8 +348,8 @@ html, body, #root {
   transform: scale(0.96);
 }
 
-.os-yesno-btn.yes:hover { border-color: #2FF3B0; color: #2FF3B0; }
-.os-yesno-btn.no:hover { border-color: #FF7A7A; color: #FF7A7A; }
+.os-yesno-btn.yes:hover { border-color: var(--mint); color: var(--mint); }
+.os-yesno-btn.no:hover { border-color: var(--coral); color: var(--coral); }
 
 .os-yesno-btn:disabled {
   cursor: default;
@@ -358,20 +360,20 @@ html, body, #root {
   min-width: 220px;
   padding: 34px 30px;
   border-radius: 20px;
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
 }
 
 .os-letter-box .letter {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 54px;
   font-weight: 700;
   font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
 }
 
 .os-recall-instructions {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 15px;
   font-weight: 600;
   max-width: 420px;
@@ -388,27 +390,27 @@ html, body, #root {
   width: 46px;
   height: 46px;
   border-radius: 10px;
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 20px;
   font-weight: 700;
   font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
 }
 
 .os-slot.os-slot-correct {
-  background: radial-gradient(circle at 35% 30%, #8CF7CC, #2FF3B0);
+  background: radial-gradient(circle at 35% 30%, var(--mint-soft), var(--mint));
   border-color: transparent;
-  color: #05221A;
+  color: var(--on-accent);
 }
 
 .os-slot.os-slot-wrong {
-  background: radial-gradient(circle at 35% 30%, #FFB4B4, #FF7A7A);
+  background: radial-gradient(circle at 35% 30%, var(--coral-soft), var(--coral));
   border-color: transparent;
-  color: #3D0B0B;
+  color: var(--on-accent);
 }
 
 .os-letter-grid {
@@ -418,10 +420,10 @@ html, body, #root {
 }
 
 .os-letter-btn {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 10px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 17px;
   font-weight: 700;
   font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
@@ -440,9 +442,9 @@ html, body, #root {
 }
 
 .os-backspace-btn {
-  background: rgba(255, 122, 122, 0.1);
-  border: 1px solid rgba(255, 122, 122, 0.4);
-  color: #FF7A7A;
+  background: rgba(var(--coral-rgb), 0.1);
+  border: 1px solid rgba(var(--coral-rgb), 0.4);
+  color: var(--coral);
   border-radius: 10px;
   padding: 10px 20px;
   font-size: 13px;
@@ -469,31 +471,31 @@ html, body, #root {
 }
 
 .os-stat .label {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 11px;
 }
 
 .os-stat .value {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
 }
 
-.os-stat .value.score { color: #FFB020; }
-.os-stat .value.wrong { color: #FF7A7A; }
-.os-stat .value.level { color: #2FF3B0; }
+.os-stat .value.score { color: var(--amber); }
+.os-stat .value.wrong { color: var(--coral); }
+.os-stat .value.level { color: var(--mint); }
 
 .os-progress-bar {
   height: 6px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 8px;
@@ -501,12 +503,12 @@ html, body, #root {
 
 .os-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
   transition: width 0.2s ease;
 }
 
 .os-progress-fill.timer {
-  background: linear-gradient(90deg, #FFB020, #FF7A7A);
+  background: linear-gradient(90deg, var(--amber), var(--coral));
   transition: width 1s linear;
 }
 
@@ -522,14 +524,15 @@ html, body, #root {
 }
 
 .os-center-msg h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 24px;
   margin: 0;
 }
 
 .os-btn {
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
+  box-shadow: 3px 3px 0 var(--blue);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -549,14 +552,14 @@ html, body, #root {
 }
 
 .os-results-grid div {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
 }
 
-.os-results-grid .label { color: #8B93A7; font-size: 11px; }
-.os-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+.os-results-grid .label { color: var(--mute); font-size: 11px; }
+.os-results-grid .value { color: var(--bone); font-size: 16px; font-weight: 600; }
 
 .os-btn-row {
   display: flex;
@@ -1123,7 +1126,7 @@ async function endGame() {
             <div className="desc">A letter flashes right after — keep it in mind.</div>
           </div>
           <div className="os-intro-card">
-            <div className="dot" style={{ background: "#FF7A7A" }} />
+            <div className="dot" style={{ background: "var(--coral)" }} />
             <div className="title">Recall</div>
             <div className="desc">Tap every letter back, in the order it appeared.</div>
           </div>
@@ -1149,7 +1152,7 @@ if (phase === "done") {
       >
         <h2
           style={{
-            color: "#E5E7EB",
+            color: "var(--bone)",
             fontSize: 22,
             marginBottom: 24,
           }}
@@ -1214,7 +1217,7 @@ return (
   >
     <style>{styles}</style>
       <div className={`os-arena ${shake ? "shake" : ""}`}>
-        <div className={`os-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
+        <div className={`os-flash ${flash ? "on" : ""}`} style={{ background: "var(--coral)" }} />
 
         {phase !== "done" && (
           <div className="os-arena-header">

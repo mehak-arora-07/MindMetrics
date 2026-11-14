@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { themeCss } from "../utils/theme";
 import { saveGameSession } from "../utils/session";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
@@ -101,12 +102,13 @@ const RING_R = 26;
 const RING_CIRC = 2 * Math.PI * RING_R;
 
 const styles = `
+${themeCss}
 * { box-sizing: border-box; }
 
 html, body, #root {
   margin: 0 !important;
   padding: 0 !important;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100% !important;
   max-width: none !important;
   height: 100vh;
@@ -154,32 +156,33 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 20% 20%, rgba(var(--violet-rgb), 0.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(var(--blue-rgb), 0.08), transparent 40%),
+    var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
   text-align: center;
 }
 
-.ps-intro-screen h1 { color: #E5E7EB; font-size: 32px; font-weight: 700; margin: 0; }
-.ps-intro-screen .sub { color: #8B93A7; font-size: 15px; max-width: 460px; margin: 0; line-height: 1.6; }
+.ps-intro-screen h1 { color: var(--bone); font-size: 32px; font-weight: 700; margin: 0; }
+.ps-intro-screen .sub { color: var(--mute); font-size: 15px; max-width: 460px; margin: 0; line-height: 1.6; }
 
 .ps-example {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 18px 26px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 19px;
   font-weight: 600;
   letter-spacing: 1.5px;
 }
-.ps-example span { color: #4F9CFF; }
+.ps-example span { color: var(--blue); }
 
 .ps-btn {
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
+  box-shadow: 3px 3px 0 var(--blue);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -204,9 +207,9 @@ html, body, #root {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.06), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.06), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 15% 20%, rgba(var(--violet-rgb), 0.06), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(var(--blue-rgb), 0.06), transparent 40%),
+    var(--ink);
 }
 
 .ps-main {
@@ -230,13 +233,13 @@ html, body, #root {
   justify-content: space-between;
   align-items: center;
 }
-.ps-topbar h2 { color: #E5E7EB; font-size: 17px; font-weight: 600; margin: 0; }
+.ps-topbar h2 { color: var(--bone); font-size: 17px; font-weight: 600; margin: 0; }
 .ps-topright { display: flex; align-items: center; gap: 10px; }
 
 .ps-round-badge {
-  background: rgba(183, 148, 255, 0.12);
-  border: 1px solid rgba(183, 148, 255, 0.35);
-  color: #B794FF;
+  background: rgba(var(--violet-rgb), 0.12);
+  border: 1px solid rgba(var(--violet-rgb), 0.35);
+  color: var(--violet);
   font-size: 12.5px;
   font-weight: 600;
   padding: 5px 12px;
@@ -249,35 +252,35 @@ html, body, #root {
   gap: 4px;
   font-size: 13px;
   font-weight: 600;
-  color: #FFB020;
+  color: var(--amber);
 }
 .ps-flame .icon { animation: ps-flame-pop 0.3s ease; display: inline-block; }
 
 .ps-progress-bar {
   width: 100%;
   height: 5px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 5px;
   overflow: hidden;
   margin-top: 8px;
 }
 .ps-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
   transition: width 0.15s linear;
 }
 
 .ps-progress-fill.timer {
-  background: linear-gradient(90deg, #FFB020, #FF7A7A);
+  background: linear-gradient(90deg, var(--amber), var(--coral));
 }
 
 .ps-prompt-banner {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid #232A3D;
+  background: rgba(var(--wash-rgb), 0.03);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 14px 20px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   text-align: center;
 }
@@ -287,8 +290,8 @@ html, body, #root {
   width: 100%;
   flex: 1;
   min-height: 0;
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -303,11 +306,11 @@ html, body, #root {
 .ps-ring-svg { transform: rotate(-90deg); }
 
 .ps-pattern-display {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(var(--wash-rgb), 0.04);
+  border: 1px solid rgba(var(--wash-rgb), 0.09);
   border-radius: 12px;
   padding: 18px 28px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 22px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -326,29 +329,29 @@ html, body, #root {
 }
 
 .ps-option {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid #232A3D;
+  background: rgba(var(--wash-rgb), 0.03);
+  border: 1px solid var(--line);
   border-radius: 10px;
   padding: 15px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 17px;
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
 }
-.ps-option:hover:not(:disabled) { border-color: #4F9CFF; background: rgba(79, 156, 255, 0.06); }
+.ps-option:hover:not(:disabled) { border-color: var(--blue); background: rgba(var(--blue-rgb), 0.06); }
 .ps-option:active:not(:disabled) { transform: scale(0.97); }
 .ps-option:disabled { cursor: default; }
-.ps-option.correct { border-color: #2FF3B0; background: rgba(47, 243, 176, 0.12); color: #2FF3B0; }
-.ps-option.wrong { border-color: #FF7A7A; background: rgba(255, 122, 122, 0.1); color: #FF7A7A; }
+.ps-option.correct { border-color: var(--mint); background: rgba(var(--mint-rgb), 0.12); color: var(--mint); }
+.ps-option.wrong { border-color: var(--coral); background: rgba(var(--coral-rgb), 0.1); color: var(--coral); }
 
 .ps-levelup-toast {
   position: absolute;
   top: 14px;
   left: 50%;
-  background: linear-gradient(90deg, rgba(47, 243, 176, 0.16), rgba(79, 156, 255, 0.16));
-  border: 1px solid rgba(47, 243, 176, 0.35);
-  color: #E5E7EB;
+  background: linear-gradient(90deg, rgba(var(--mint-rgb), 0.16), rgba(var(--blue-rgb), 0.16));
+  border: 1px solid rgba(var(--mint-rgb), 0.35);
+  color: var(--bone);
   font-size: 13px;
   font-weight: 600;
   padding: 8px 18px;
@@ -365,24 +368,24 @@ html, body, #root {
   text-align: center;
 }
 .ps-stat .label {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 11px;
 }
 .ps-stat .value {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.ps-stat .value.correct { color: #2FF3B0; }
+.ps-stat .value.correct { color: var(--mint); }
 
 .ps-results-grid {
   display: grid;
@@ -393,13 +396,13 @@ html, body, #root {
   margin: 0 auto;
 }
 .ps-results-grid div {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
 }
-.ps-results-grid .label { color: #8B93A7; font-size: 11px; }
-.ps-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+.ps-results-grid .label { color: var(--mute); font-size: 11px; }
+.ps-results-grid .value { color: var(--bone); font-size: 16px; font-weight: 600; }
 
 /* ---- Responsive: stack sidebar under the arena on narrow screens ---- */
 @media (max-width: 900px) {
@@ -781,7 +784,7 @@ useDisableBackButton();
           {bankLoaded ? "Start the Game" : ""}
         </button>
         {bankLoaded && (
-          <p style={{ color: "#4B5468", fontSize: 11 }}>
+          <p style={{ color: "var(--faint)", fontSize: 11 }}>
             {bankSource === "api" ? "" : "Using offline question set"}
           </p>
         )}
@@ -794,7 +797,7 @@ useDisableBackButton();
       <div className="ps-intro-screen ps-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-          <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
+          <h2 style={{ color: "var(--bone)", fontSize: 22, marginBottom: 24 }}>Scores</h2>
           <div className="ps-results-grid">
             <div>
               <div className="label">Score</div>
@@ -869,13 +872,13 @@ useDisableBackButton();
             <>
               <div className="ps-ring-wrap">
                 <svg className="ps-ring-svg" width="64" height="64" viewBox="0 0 64 64">
-                  <circle cx="32" cy="32" r={RING_R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
+                  <circle cx="32" cy="32" r={RING_R} fill="none" stroke="rgba(var(--wash-rgb),0.08)" strokeWidth="4" />
                   <circle
                     cx="32"
                     cy="32"
                     r={RING_R}
                     fill="none"
-                    stroke={timeLeft < 3000 ? "#FF7A7A" : "#4F9CFF"}
+                    stroke={timeLeft < 3000 ? "var(--coral)" : "var(--blue)"}
                     strokeWidth="4"
                     strokeLinecap="round"
                     strokeDasharray={RING_CIRC}

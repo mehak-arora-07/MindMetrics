@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { themeCss } from "../utils/theme";
 import { saveGameSession } from "../utils/session";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
@@ -81,12 +82,13 @@ function isTrueTargetAt(stream, index, rules) {
 }
 
 const styles = `
+${themeCss}
 * { box-sizing: border-box; }
 
 html, body, #root {
   margin: 0 !important;
   padding: 0 !important;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100% !important;
   max-width: none !important;
   height: 100vh;
@@ -133,23 +135,23 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 20% 20%, rgba(var(--violet-rgb), 0.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(var(--blue-rgb), 0.08), transparent 40%),
+    var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
   text-align: center;
 }
 
-.cpt-intro-screen h1 { color: #E5E7EB; font-size: 32px; font-weight: 700; margin: 0; }
-.cpt-intro-screen .sub { color: #8B93A7; font-size: 15px; max-width: 460px; margin: 0; line-height: 1.6; }
+.cpt-intro-screen h1 { color: var(--bone); font-size: 32px; font-weight: 700; margin: 0; }
+.cpt-intro-screen .sub { color: var(--mute); font-size: 15px; max-width: 460px; margin: 0; line-height: 1.6; }
 
 .cpt-example {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 18px 26px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 16px;
   font-weight: 600;
   display: flex;
@@ -158,19 +160,20 @@ html, body, #root {
 }
 
 .cpt-example .letter-chip {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 6px 12px;
   font-size: 18px;
 }
 
-.cpt-example .letter-chip.cue { border-color: #4F9CFF; color: #7DB8FF; }
-.cpt-example .letter-chip.target { border-color: #2FF3B0; color: #2FF3B0; }
+.cpt-example .letter-chip.cue { border-color: var(--blue); color: var(--blue-soft); }
+.cpt-example .letter-chip.target { border-color: var(--mint); color: var(--mint); }
 
 .cpt-btn {
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
+  box-shadow: 3px 3px 0 var(--blue);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -201,9 +204,9 @@ html, body, #root {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.06), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.06), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 15% 20%, rgba(var(--violet-rgb), 0.06), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(var(--blue-rgb), 0.06), transparent 40%),
+    var(--ink);
 }
 
 .cpt-main {
@@ -228,12 +231,12 @@ html, body, #root {
   align-items: center;
 }
 
-.cpt-topbar h2 { color: #E5E7EB; font-size: 17px; font-weight: 600; margin: 0; }
+.cpt-topbar h2 { color: var(--bone); font-size: 17px; font-weight: 600; margin: 0; }
 
 .cpt-round-badge {
-  background: rgba(183, 148, 255, 0.12);
-  border: 1px solid rgba(183, 148, 255, 0.35);
-  color: #B794FF;
+  background: rgba(var(--violet-rgb), 0.12);
+  border: 1px solid rgba(var(--violet-rgb), 0.35);
+  color: var(--violet);
   font-size: 12.5px;
   font-weight: 600;
   padding: 5px 12px;
@@ -242,25 +245,25 @@ html, body, #root {
 
 .cpt-rule-banner {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid #232A3D;
+  background: rgba(var(--wash-rgb), 0.03);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 14px 20px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   text-align: center;
 }
 
-.cpt-rule-banner b.cue { color: #7DB8FF; }
-.cpt-rule-banner b.target { color: #2FF3B0; }
+.cpt-rule-banner b.cue { color: var(--blue-soft); }
+.cpt-rule-banner b.target { color: var(--mint); }
 
 .cpt-arena {
   position: relative;
   width: 100%;
   flex: 1;
   min-height: 0;
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -282,7 +285,7 @@ html, body, #root {
 .cpt-letter {
   font-size: 88px;
   font-weight: 700;
-  color: #E5E7EB;
+  color: var(--bone);
   animation: cpt-letter-in 0.15s ease;
 }
 
@@ -291,7 +294,7 @@ html, body, #root {
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  border: 2px solid var(--burst-color, #2FF3B0);
+  border: 2px solid var(--burst-color, var(--mint));
   pointer-events: none;
   animation: cpt-burst 0.45s ease-out forwards;
   z-index: 2;
@@ -300,9 +303,9 @@ html, body, #root {
 .cpt-respond-hint {
   position: absolute;
   bottom: 22px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #232A3D;
-  color: #8B93A7;
+  background: rgba(var(--wash-rgb), 0.05);
+  border: 1px solid var(--line);
+  color: var(--mute);
   font-size: 12px;
   padding: 8px 16px;
   border-radius: 20px;
@@ -312,7 +315,7 @@ html, body, #root {
 .cpt-progress-bar {
   width: 100%;
   height: 5px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 5px;
   overflow: hidden;
   margin-top: 8px;
@@ -320,12 +323,12 @@ html, body, #root {
 
 .cpt-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
   transition: width 0.15s linear;
 }
 
 .cpt-progress-fill.timer {
-  background: linear-gradient(90deg, #FFB020, #FF7A7A);
+  background: linear-gradient(90deg, var(--amber), var(--coral));
   transition: width 1s linear;
 }
 
@@ -337,25 +340,25 @@ html, body, #root {
 }
 
 .cpt-stat .label {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 11px;
 }
 .cpt-stat .value {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
 }
-.cpt-stat .value.hits { color: #2FF3B0; }
-.cpt-stat .value.misses { color: #FF7A7A; }
-.cpt-stat .value.fp { color: #FFB020; }
+.cpt-stat .value.hits { color: var(--mint); }
+.cpt-stat .value.misses { color: var(--coral); }
+.cpt-stat .value.fp { color: var(--amber); }
 
 .cpt-center-msg {
   position: absolute;
@@ -367,12 +370,12 @@ html, body, #root {
   gap: 14px;
   text-align: center;
   padding: 24px;
-  background: rgba(11, 15, 25, 0.75);
+  background: rgba(var(--ink-rgb), 0.75);
   z-index: 4;
 }
 
-.cpt-center-msg h3 { color: #E5E7EB; font-size: 20px; margin: 0; }
-.cpt-center-msg p { color: #8B93A7; font-size: 13px; margin: 0; max-width: 320px; }
+.cpt-center-msg h3 { color: var(--bone); font-size: 20px; margin: 0; }
+.cpt-center-msg p { color: var(--mute); font-size: 13px; margin: 0; max-width: 320px; }
 
 .cpt-results-grid {
   display: grid;
@@ -384,13 +387,13 @@ html, body, #root {
 }
 
 .cpt-results-grid div {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
 }
-.cpt-results-grid .label { color: #8B93A7; font-size: 11px; }
-.cpt-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+.cpt-results-grid .label { color: var(--mute); font-size: 11px; }
+.cpt-results-grid .value { color: var(--bone); font-size: 16px; font-weight: 600; }
 
 @media (max-width: 760px) {
   html, body, #root {
@@ -597,7 +600,7 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
         return s + HIT_POINTS;
       });
       setFlash("hit");
-      spawnBurst("#2FF3B0");
+      spawnBurst("var(--mint)");
     } else if (wasTrueTarget && !clicked) {
       setMisses((m) => {
         missesRef.current = m + 1;
@@ -847,13 +850,13 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
           <span className="letter-chip cue">A</span>
           <span>→</span>
           <span className="letter-chip target">X</span>
-          <span style={{ color: "#8B93A7", fontWeight: 500 }}>= press BACKSPACE</span>
+          <span style={{ color: "var(--mute)", fontWeight: 500 }}>= press BACKSPACE</span>
         </div>
         <button className="cpt-btn" onClick={startGame} disabled={!bankLoaded}>
           {bankLoaded ? "Start the Game" : ""}
         </button>
         {bankLoaded && (
-          <p style={{ color: "#4B5468", fontSize: 11 }}>
+          <p style={{ color: "var(--faint)", fontSize: 11 }}>
             {bankSource === "api" ? "" : "Using offline question set"}
           </p>
         )}
@@ -866,7 +869,7 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
       <div className="cpt-intro-screen cpt-screen">
         <style>{styles}</style>
         <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
-        <h2 style={{ color: "#E5E7EB", fontSize: 22, marginBottom: 24 }}>Scores</h2>
+        <h2 style={{ color: "var(--bone)", fontSize: 22, marginBottom: 24 }}>Scores</h2>
           <div className="cpt-results-grid">
             <div>
               <div className="label">Score</div>
@@ -945,7 +948,7 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
           <div
             className="cpt-flash"
             style={{
-              background: flash === "hit" ? "#2FF3B0" : flash === "fp" ? "#FF7A7A" : "#FFB020",
+              background: flash === "hit" ? "var(--mint)" : flash === "fp" ? "var(--coral)" : "var(--amber)",
               opacity: flash ? undefined : 0,
             }}
             key={flash ? letterPos : "none"}
@@ -972,8 +975,8 @@ export default function CPT({ onComplete, onNextGame, userId, assessmentId }) {
               <h3>Round {roundIndex + 1}</h3>
               {rulesForRound.map((r) => (
                 <p key={r.ruleId}>
-                  Press BACKSPACE for <b style={{ color: "#2FF3B0" }}>{r.target}</b> only after{" "}
-                  <b style={{ color: "#7DB8FF" }}>{r.cue}</b>
+                  Press BACKSPACE for <b style={{ color: "var(--mint)" }}>{r.target}</b> only after{" "}
+                  <b style={{ color: "var(--blue-soft)" }}>{r.cue}</b>
                 </p>
               ))}
             </div>

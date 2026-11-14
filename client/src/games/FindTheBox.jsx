@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { themeCss } from "../utils/theme";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
 import { motion } from "framer-motion";
@@ -48,6 +49,7 @@ function buildBoxLabels(boxCount, correctLetter) {
 }
 
 const styles = `
+${themeCss}
 * {
   box-sizing: border-box;
 }
@@ -55,7 +57,7 @@ const styles = `
 html, body, #root {
   margin: 0;
   padding: 0;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100%;
   min-height: 100vh;
 }
@@ -69,9 +71,9 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.1), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 20% 20%, rgba(var(--violet-rgb), 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(var(--blue-rgb), 0.1), transparent 40%),
+    var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
   box-sizing: border-box;
@@ -79,14 +81,14 @@ html, body, #root {
 }
 
 .fb-intro-screen h1 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 32px;
   font-weight: 700;
   margin: 0;
 }
 
 .fb-intro-screen .sub {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 15px;
   max-width: 460px;
   margin: 0;
@@ -102,8 +104,8 @@ html, body, #root {
 }
 
 .fb-intro-card {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 18px 20px;
   width: 170px;
@@ -115,18 +117,18 @@ html, body, #root {
   height: 22px;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
 }
 
 .fb-intro-card .title {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;
 }
 
 .fb-intro-card .desc {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -135,7 +137,7 @@ html, body, #root {
   display: grid;
   grid-template-columns: 1fr 220px;
   gap: 20px;
-  background: #0B0F19;
+  background: var(--ink);
   height: 100vh;
   padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
@@ -147,10 +149,10 @@ html, body, #root {
 .fb-arena {
   position: relative;
   background:
-    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
-    #141A2E;
-  border: 1px solid #232A3D;
+    radial-gradient(circle at 15% 20%, rgba(var(--violet-rgb), 0.08), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(var(--blue-rgb), 0.08), transparent 40%),
+    var(--panel);
+  border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
   height: 100%;
@@ -196,23 +198,23 @@ html, body, #root {
 }
 
 .fb-arena-header h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 4px;
 }
 
 .fb-arena-header p {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   margin: 0;
   max-width: 340px;
 }
 
 .fb-badge {
-  background: rgba(47, 243, 176, 0.12);
-  border: 1px solid rgba(47, 243, 176, 0.35);
-  color: #2FF3B0;
+  background: rgba(var(--mint-rgb), 0.12);
+  border: 1px solid rgba(var(--mint-rgb), 0.35);
+  color: var(--mint);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
@@ -221,9 +223,9 @@ html, body, #root {
 }
 
 .fb-badge.warn {
-  background: rgba(255, 176, 32, 0.12);
-  border-color: rgba(255, 176, 32, 0.35);
-  color: #FFB020;
+  background: rgba(var(--amber-rgb), 0.12);
+  border-color: rgba(var(--amber-rgb), 0.35);
+  color: var(--amber);
 }
 
 .fb-board-area {
@@ -238,7 +240,7 @@ html, body, #root {
 }
 
 .fb-phase-label {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -248,26 +250,26 @@ html, body, #root {
 .fb-round-timer {
   width: 260px;
   height: 5px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 6px;
   overflow: hidden;
 }
 
 .fb-round-timer-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FFB020, #FF7A7A);
+  background: linear-gradient(90deg, var(--amber), var(--coral));
   transition: width 0.05s linear;
 }
 
 .fb-hint {
-  color: #B794FF;
+  color: var(--violet);
   font-size: 14px;
   font-weight: 600;
   max-width: 480px;
 }
 
 .fb-sentence {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 22px;
   font-weight: 700;
   font-family: 'Inter', -apple-system, sans-serif;
@@ -287,9 +289,9 @@ html, body, #root {
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  background: #0B0F19;
-  border: 1px solid #232A3D;
-  color: #E5E7EB;
+  background: var(--ink);
+  border: 1px solid var(--line);
+  color: var(--bone);
   font-size: 20px;
   font-weight: 700;
   font-family: inherit;
@@ -302,16 +304,16 @@ html, body, #root {
 }
 
 .fb-box.fb-correct {
-  background: radial-gradient(circle at 35% 30%, #8CF7CC, #2FF3B0);
-  box-shadow: 0 0 14px rgba(47, 243, 176, 0.45);
-  color: #05221A;
+  background: radial-gradient(circle at 35% 30%, var(--mint-soft), var(--mint));
+  box-shadow: 0 0 14px rgba(var(--mint-rgb), 0.45);
+  color: var(--on-accent);
   cursor: default;
 }
 
 .fb-box.fb-wrong {
-  background: radial-gradient(circle at 35% 30%, #FFB4B4, #FF7A7A);
-  box-shadow: 0 0 14px rgba(255, 122, 122, 0.45);
-  color: #3D0B0B;
+  background: radial-gradient(circle at 35% 30%, var(--coral-soft), var(--coral));
+  box-shadow: 0 0 14px rgba(var(--coral-rgb), 0.45);
+  color: var(--on-accent);
   cursor: default;
 }
 
@@ -333,31 +335,31 @@ html, body, #root {
 }
 
 .fb-stat .label {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 11px;
 }
 
 .fb-stat .value {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
 }
 
-.fb-stat .value.score { color: #FFB020; }
-.fb-stat .value.wrong { color: #FF7A7A; }
-.fb-stat .value.level { color: #2FF3B0; }
+.fb-stat .value.score { color: var(--amber); }
+.fb-stat .value.wrong { color: var(--coral); }
+.fb-stat .value.level { color: var(--mint); }
 
 .fb-progress-bar {
   height: 6px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 8px;
@@ -365,12 +367,12 @@ html, body, #root {
 
 .fb-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
   transition: width 0.2s ease;
 }
 
 .fb-progress-fill.timer {
-  background: linear-gradient(90deg, #FFB020, #FF7A7A);
+  background: linear-gradient(90deg, var(--amber), var(--coral));
   transition: width 1s linear;
 }
 
@@ -386,15 +388,16 @@ html, body, #root {
 }
 
 .fb-center-msg h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 28px;
   font-weight: 700;
   margin: 0 0 8px;
 }
 
 .fb-btn {
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
+  box-shadow: 3px 3px 0 var(--blue);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -424,7 +427,7 @@ html, body, #root {
 }
 
 .fb-result-card {
-  border: 1px solid #232A3D;
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 16px;
   display: flex;
@@ -433,19 +436,19 @@ html, body, #root {
 }
 
 .fb-result-label {
-  border: 1px solid #232A3D;
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px 14px;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   text-align: center;
 }
 
 .fb-result-value {
-  border: 1px solid #232A3D;
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 20px;
   font-weight: 700;
   text-align: center;
@@ -815,7 +818,7 @@ useDisableBackButton();
             <div className="desc">Figure out the exact letter the hint is pointing to.</div>
           </div>
           <div className="fb-intro-card">
-            <div className="dot" style={{ background: "#FF7A7A" }} />
+            <div className="dot" style={{ background: "var(--coral)" }} />
             <div className="title">Click the box</div>
             <div className="desc">Select the box labeled with that letter, fast.</div>
           </div>
@@ -841,7 +844,7 @@ if (phase === "done") {
       >
         <h2
           style={{
-            color: "#E5E7EB",
+            color: "var(--bone)",
             fontSize: 22,
             marginBottom: 24,
           }}
@@ -908,7 +911,7 @@ if (phase === "done") {
   >
     <style>{styles}</style>
       <div className={`fb-arena ${shake ? "shake" : ""}`}>
-        <div className={`fb-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
+        <div className={`fb-flash ${flash ? "on" : ""}`} style={{ background: "var(--coral)" }} />
 
         {phase !== "done" && (
           <div className="fb-arena-header">
@@ -988,8 +991,8 @@ if (phase === "done") {
                 justifyContent: "center",
                 fontSize: 18,
                 fontWeight: 700,
-                color: "#05131A",
-                background: selected === question?.answer ? "#2FF3B0" : "#FF7A7A",
+                color: "var(--on-accent)",
+                background: selected === question?.answer ? "var(--mint)" : "var(--coral)",
               }}
             >
               {selected === question?.answer ? "Correct!" : "Not quite"}

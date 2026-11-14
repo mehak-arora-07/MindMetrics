@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { themeCss } from "../utils/theme";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
 import { motion } from "framer-motion";
@@ -23,14 +24,14 @@ const MAX_POSSIBLE_SCORE = ROUNDS.reduce((sum, r) => sum + r.mathCount * MATH_PO
 
 const COLORS = ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "Pink", "Teal"];
 const COLOR_HEX = {
-  Red: "#FF7A7A",
-  Blue: "#7DB8FF",
-  Green: "#2FF3B0",
-  Yellow: "#FFD43B",
-  Purple: "#D09BFF",
-  Orange: "#FFA060",
-  Pink: "#FF86C8",
-  Teal: "#35F0D8",
+  Red: "var(--coral)",
+  Blue: "var(--blue-soft)",
+  Green: "var(--mint)",
+  Yellow: "var(--yellow)",
+  Purple: "var(--lilac)",
+  Orange: "var(--orange)",
+  Pink: "var(--pink)",
+  Teal: "var(--teal)",
 };
 
 function randInt(min, max) {
@@ -105,6 +106,7 @@ function buildMemoryQuestion(sequence) {
 }
 
 const styles = `
+${themeCss}
 * {
   box-sizing: border-box;
 }
@@ -112,7 +114,7 @@ const styles = `
 html, body, #root {
   margin: 0;
   padding: 0;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100%;
   min-height: 100vh;
 }
@@ -126,9 +128,9 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.1), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 20% 20%, rgba(var(--violet-rgb), 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(var(--blue-rgb), 0.1), transparent 40%),
+    var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
   box-sizing: border-box;
@@ -136,14 +138,14 @@ html, body, #root {
 }
 
 .cs-intro-screen h1 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 32px;
   font-weight: 700;
   margin: 0;
 }
 
 .cs-intro-screen .sub {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 15px;
   max-width: 460px;
   margin: 0;
@@ -159,8 +161,8 @@ html, body, #root {
 }
 
 .cs-intro-card {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 18px 20px;
   width: 170px;
@@ -172,18 +174,18 @@ html, body, #root {
   height: 22px;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
 }
 
 .cs-intro-card .title {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;
 }
 
 .cs-intro-card .desc {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -192,7 +194,7 @@ html, body, #root {
   display: grid;
   grid-template-columns: 1fr 220px;
   gap: 20px;
-  background: #0B0F19;
+  background: var(--ink);
   height: 100vh;
   padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
@@ -204,10 +206,10 @@ html, body, #root {
 .cs-arena {
   position: relative;
   background:
-    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
-    #141A2E;
-  border: 1px solid #232A3D;
+    radial-gradient(circle at 15% 20%, rgba(var(--violet-rgb), 0.08), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(var(--blue-rgb), 0.08), transparent 40%),
+    var(--panel);
+  border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
   height: 100%;
@@ -253,7 +255,7 @@ html, body, #root {
 }
 
 .cs-arena-header h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 4px;
@@ -261,7 +263,7 @@ html, body, #root {
 
 .cs-round-progress-bar {
   height: 5px;
-  background: #232A3D;
+  background: var(--line);
   margin: 0 24px 8px;
   border-radius: 5px;
   overflow: hidden;
@@ -269,14 +271,14 @@ html, body, #root {
 
 .cs-round-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
   transition: width 0.3s ease;
 }
 
 .cs-badge {
-  background: rgba(47, 243, 176, 0.12);
-  border: 1px solid rgba(47, 243, 176, 0.35);
-  color: #2FF3B0;
+  background: rgba(var(--mint-rgb), 0.12);
+  border: 1px solid rgba(var(--mint-rgb), 0.35);
+  color: var(--mint);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
@@ -285,9 +287,9 @@ html, body, #root {
 }
 
 .cs-badge.warn {
-  background: rgba(255, 176, 32, 0.12);
-  border-color: rgba(255, 176, 32, 0.35);
-  color: #FFB020;
+  background: rgba(var(--amber-rgb), 0.12);
+  border-color: rgba(var(--amber-rgb), 0.35);
+  color: var(--amber);
 }
 
 .cs-board-area {
@@ -302,7 +304,7 @@ html, body, #root {
 }
 
 .cs-phase-label {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -316,7 +318,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #05131A;
+  color: var(--on-accent);
   font-size: 26px;
   font-weight: 700;
   font-family: 'Inter', -apple-system, sans-serif;
@@ -324,17 +326,17 @@ html, body, #root {
 }
 
 .cs-question {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 32px;
   font-weight: 700;
   font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
 }
 
 .cs-input {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 10px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 20px;
   font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
   padding: 12px 16px;
@@ -344,7 +346,7 @@ html, body, #root {
 }
 
 .cs-input:focus {
-  border-color: #2FF3B0;
+  border-color: var(--mint);
 }
 
 .cs-options {
@@ -357,10 +359,10 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 10px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   font-weight: 600;
   font-family: inherit;
@@ -381,16 +383,16 @@ html, body, #root {
 }
 
 .cs-option.cs-correct {
-  background: radial-gradient(circle at 35% 30%, #8CF7CC, #2FF3B0);
-  box-shadow: 0 0 14px rgba(47, 243, 176, 0.45);
-  color: #05221A;
+  background: radial-gradient(circle at 35% 30%, var(--mint-soft), var(--mint));
+  box-shadow: 0 0 14px rgba(var(--mint-rgb), 0.45);
+  color: var(--on-accent);
   cursor: default;
 }
 
 .cs-option.cs-wrong {
-  background: radial-gradient(circle at 35% 30%, #FFB4B4, #FF7A7A);
-  box-shadow: 0 0 14px rgba(255, 122, 122, 0.45);
-  color: #3D0B0B;
+  background: radial-gradient(circle at 35% 30%, var(--coral-soft), var(--coral));
+  box-shadow: 0 0 14px rgba(var(--coral-rgb), 0.45);
+  color: var(--on-accent);
   cursor: default;
 }
 
@@ -412,31 +414,31 @@ html, body, #root {
 }
 
 .cs-stat .label {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 11px;
 }
 
 .cs-stat .value {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
 }
 
-.cs-stat .value.score { color: #FFB020; }
-.cs-stat .value.wrong { color: #FF7A7A; }
-.cs-stat .value.level { color: #2FF3B0; }
+.cs-stat .value.score { color: var(--amber); }
+.cs-stat .value.wrong { color: var(--coral); }
+.cs-stat .value.level { color: var(--mint); }
 
 .cs-progress-bar {
   height: 6px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 8px;
@@ -444,12 +446,12 @@ html, body, #root {
 
 .cs-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
   transition: width 0.2s ease;
 }
 
 .cs-progress-fill.timer {
-  background: linear-gradient(90deg, #FFB020, #FF7A7A);
+  background: linear-gradient(90deg, var(--amber), var(--coral));
   transition: width 1s linear;
 }
 
@@ -465,14 +467,15 @@ html, body, #root {
 }
 
 .cs-center-msg h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 24px;
   margin: 0;
 }
 
 .cs-btn {
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
+  box-shadow: 3px 3px 0 var(--blue);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -501,14 +504,14 @@ html, body, #root {
 }
 
 .cs-results-grid div {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
 }
 
-.cs-results-grid .label { color: #8B93A7; font-size: 11px; }
-.cs-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+.cs-results-grid .label { color: var(--mute); font-size: 11px; }
+.cs-results-grid .value { color: var(--bone); font-size: 16px; font-weight: 600; }
 
 @media (max-width: 760px) {
   .cs-wrap {
@@ -897,7 +900,7 @@ export default function DualTask({ onComplete, userId, assessmentId, onNextGame 
             <div className="desc">Quick math questions — type the answer.</div>
           </div>
           <div className="cs-intro-card">
-            <div className="dot" style={{ background: "#FF7A7A" }} />
+            <div className="dot" style={{ background: "var(--coral)" }} />
             <div className="title">Recall</div>
             <div className="desc">Pick the color that was in that position.</div>
           </div>
@@ -923,7 +926,7 @@ if (phase === "done") {
       >
         <h2
           style={{
-            color: "#E5E7EB",
+            color: "var(--bone)",
             fontSize: 22,
             marginBottom: 24,
           }}
@@ -986,7 +989,7 @@ if (phase === "done") {
   >
     <style>{styles}</style>
       <div className={`cs-arena ${shake ? "shake" : ""}`}>
-        <div className={`cs-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
+        <div className={`cs-flash ${flash ? "on" : ""}`} style={{ background: "var(--coral)" }} />
 
         {phase !== "done" && (
           <div className="cs-arena-header">
@@ -1013,7 +1016,7 @@ if (phase === "done") {
             <div className="cs-phase-label">Memorize</div>
             <div
               className="cs-color-box"
-              style={{ background: COLOR_HEX[sequence[seqStepIndex]] || "#232A3D" }}
+              style={{ background: COLOR_HEX[sequence[seqStepIndex]] || "var(--line)" }}
             >
               {sequence[seqStepIndex] || ""}
             </div>
@@ -1073,7 +1076,7 @@ if (phase === "done") {
             <div
               className="cs-color-box"
               style={{
-                background: memorySelected === memoryQuestion?.correctAnswer ? "#2FF3B0" : "#FF7A7A",
+                background: memorySelected === memoryQuestion?.correctAnswer ? "var(--mint)" : "var(--coral)",
                 fontSize: 18,
               }}
             >

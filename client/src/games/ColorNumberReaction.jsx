@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { themeCss } from "../utils/theme";
 import { saveGameSession } from "../utils/session";
 import { useNavigate } from "react-router-dom";
 import { getNextGamePath } from "../utils/gameSequence";
@@ -30,11 +31,11 @@ const MAX_POSSIBLE_SCORE = ROUNDS.reduce(
 );
 
 const COLORS = [
-  { name: "RED", hex: "#FF7A7A" },
-  { name: "BLUE", hex: "#7DB8FF" },
-  { name: "GREEN", hex: "#2FF3B0" },
-  { name: "YELLOW", hex: "#FFD43B" },
-  { name: "PURPLE", hex: "#B794FF" },
+  { name: "RED", hex: "var(--coral)" },
+  { name: "BLUE", hex: "var(--blue-soft)" },
+  { name: "GREEN", hex: "var(--mint)" },
+  { name: "YELLOW", hex: "var(--yellow)" },
+  { name: "PURPLE", hex: "var(--violet)" },
 ];
 
 const RULES = COLORS.flatMap((c) => [
@@ -85,6 +86,7 @@ function buildStimulusProcedural(rule, forceGo) {
 }
 
 const styles = `
+${themeCss}
 * {
   box-sizing: border-box;
 }
@@ -92,7 +94,7 @@ const styles = `
 html, body, #root {
   margin: 0;
   padding: 0;
-  background: #0B0F19;
+  background: var(--ink);
   width: 100%;
   min-height: 100vh;
 }
@@ -106,9 +108,9 @@ html, body, #root {
   justify-content: center;
   gap: 20px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(183, 148, 255, 0.1), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(79, 156, 255, 0.1), transparent 40%),
-    #0B0F19;
+    radial-gradient(circle at 20% 20%, rgba(var(--violet-rgb), 0.1), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(var(--blue-rgb), 0.1), transparent 40%),
+    var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
   padding: 24px;
   box-sizing: border-box;
@@ -116,14 +118,14 @@ html, body, #root {
 }
 
 .sr-intro-screen h1 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 32px;
   font-weight: 700;
   margin: 0;
 }
 
 .sr-intro-screen .sub {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 15px;
   max-width: 460px;
   margin: 0;
@@ -139,8 +141,8 @@ html, body, #root {
 }
 
 .sr-intro-card {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 18px 20px;
   width: 170px;
@@ -152,18 +154,18 @@ html, body, #root {
   height: 22px;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
 }
 
 .sr-intro-card .title {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;
 }
 
 .sr-intro-card .desc {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -172,7 +174,7 @@ html, body, #root {
   display: grid;
   grid-template-columns: 1fr 220px;
   gap: 20px;
-  background: #0B0F19;
+  background: var(--ink);
   height: 100vh;
   padding: 32px;
   font-family: 'Inter', -apple-system, sans-serif;
@@ -184,10 +186,10 @@ html, body, #root {
 .sr-arena {
   position: relative;
   background:
-    radial-gradient(circle at 15% 20%, rgba(183, 148, 255, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(79, 156, 255, 0.08), transparent 40%),
-    #141A2E;
-  border: 1px solid #232A3D;
+    radial-gradient(circle at 15% 20%, rgba(var(--violet-rgb), 0.08), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(var(--blue-rgb), 0.08), transparent 40%),
+    var(--panel);
+  border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
   height: 100%;
@@ -233,14 +235,14 @@ html, body, #root {
 }
 
 .sr-arena-header h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 4px;
 }
 
 .sr-arena-header p {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   margin: 0;
   max-width: 340px;
@@ -254,9 +256,9 @@ html, body, #root {
 }
 
 .sr-badge {
-  background: rgba(47, 243, 176, 0.12);
-  border: 1px solid rgba(47, 243, 176, 0.35);
-  color: #2FF3B0;
+  background: rgba(var(--mint-rgb), 0.12);
+  border: 1px solid rgba(var(--mint-rgb), 0.35);
+  color: var(--mint);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 12px;
@@ -265,9 +267,9 @@ html, body, #root {
 }
 
 .sr-badge.round {
-  background: rgba(79, 156, 255, 0.12);
-  border-color: rgba(79, 156, 255, 0.35);
-  color: #7DB8FF;
+  background: rgba(var(--blue-rgb), 0.12);
+  border-color: rgba(var(--blue-rgb), 0.35);
+  color: var(--blue-soft);
 }
 
 .sr-board-area {
@@ -282,7 +284,7 @@ html, body, #root {
 }
 
 .sr-phase-label {
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -297,16 +299,16 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   gap: 14px;
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 20px;
   padding: 30px 40px;
   transition: border-color 0.1s ease, background 0.1s ease;
 }
 
 .sr-stimulus-card.sr-good {
-  border-color: #2FF3B0;
-  background: rgba(47, 243, 176, 0.06);
+  border-color: var(--mint);
+  background: rgba(var(--mint-rgb), 0.06);
 }
 
 .sr-word {
@@ -319,7 +321,7 @@ html, body, #root {
 .sr-number {
   font-size: 34px;
   font-weight: 700;
-  color: #E5E7EB;
+  color: var(--bone);
   font-family: 'Inter', -apple-system, sans-serif; font-variant-numeric: tabular-nums;
 }
 
@@ -333,9 +335,9 @@ html, body, #root {
   bottom: 22px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #232A3D;
-  color: #8B93A7;
+  background: rgba(var(--wash-rgb), 0.05);
+  border: 1px solid var(--line);
+  color: var(--mute);
   font-size: 12px;
   padding: 8px 16px;
   border-radius: 20px;
@@ -344,26 +346,26 @@ html, body, #root {
 
 .sr-info-card {
   max-width: 440px;
-  background: rgba(47, 243, 176, 0.08);
-  border: 1px solid rgba(47, 243, 176, 0.4);
+  background: rgba(var(--mint-rgb), 0.08);
+  border: 1px solid rgba(var(--mint-rgb), 0.4);
   border-radius: 20px;
   padding: 32px 36px;
 }
 
 .sr-info-card.sr-info-round {
-  background: rgba(79, 156, 255, 0.08);
-  border-color: rgba(79, 156, 255, 0.4);
+  background: rgba(var(--blue-rgb), 0.08);
+  border-color: rgba(var(--blue-rgb), 0.4);
 }
 
 .sr-info-card-text {
-  color: #2FF3B0;
+  color: var(--mint);
   font-size: 24px;
   font-weight: 800;
   line-height: 1.4;
 }
 
 .sr-info-round .sr-info-card-text {
-  color: #7DB8FF;
+  color: var(--blue-soft);
   font-size: 20px;
 }
 
@@ -380,31 +382,31 @@ html, body, #root {
 }
 
 .sr-stat .label {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #8B93A7;
+  color: var(--mute);
   font-size: 11px;
 }
 
 .sr-stat .value {
-  background: #141A2E;
-  border: 1px solid #232A3D;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 18px;
   font-weight: 600;
 }
 
-.sr-stat .value.score { color: #FFB020; }
-.sr-stat .value.wrong { color: #FF7A7A; }
-.sr-stat .value.good { color: #2FF3B0; }
+.sr-stat .value.score { color: var(--amber); }
+.sr-stat .value.wrong { color: var(--coral); }
+.sr-stat .value.good { color: var(--mint); }
 
 .sr-progress-bar {
   height: 6px;
-  background: #232A3D;
+  background: var(--line);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 8px;
@@ -412,12 +414,12 @@ html, body, #root {
 
 .sr-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
+  background: linear-gradient(90deg, var(--mint), var(--blue));
   transition: width 0.2s ease;
 }
 
 .sr-progress-fill.timer {
-  background: linear-gradient(90deg, #FFB020, #FF7A7A);
+  background: linear-gradient(90deg, var(--amber), var(--coral));
   transition: width 1s linear;
 }
 
@@ -433,14 +435,15 @@ html, body, #root {
 }
 
 .sr-center-msg h2 {
-  color: #E5E7EB;
+  color: var(--bone);
   font-size: 24px;
   margin: 0;
 }
 
 .sr-btn {
-  background: linear-gradient(90deg, #2FF3B0, #4F9CFF);
-  color: #05221A;
+  background: var(--mint);
+  color: var(--on-accent);
+  box-shadow: 3px 3px 0 var(--blue);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -457,8 +460,8 @@ html, body, #root {
 
 .sr-btn-secondary {
   background: transparent;
-  color: #E5E7EB;
-  border: 1px solid #232A3D;
+  color: var(--bone);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px 28px;
   font-size: 14px;
@@ -482,14 +485,14 @@ html, body, #root {
 }
 
 .sr-results-grid div {
-  background: #0B0F19;
-  border: 1px solid #232A3D;
+  background: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px;
 }
 
-.sr-results-grid .label { color: #8B93A7; font-size: 11px; }
-.sr-results-grid .value { color: #E5E7EB; font-size: 16px; font-weight: 600; }
+.sr-results-grid .label { color: var(--mute); font-size: 11px; }
+.sr-results-grid .value { color: var(--bone); font-size: 16px; font-weight: 600; }
 
 @media (max-width: 760px) {
   .sr-wrap {
@@ -1001,7 +1004,7 @@ async function endGame() {
             <div className="desc">Ignore the word's meaning — go by ink color + parity.</div>
           </div>
           <div className="sr-intro-card">
-            <div className="dot" style={{ background: "#FF7A7A" }} />
+            <div className="dot" style={{ background: "var(--coral)" }} />
             <div className="title">Respond</div>
             <div className="desc">Press SPACE only if both conditions are true.</div>
           </div>
@@ -1027,7 +1030,7 @@ if (phase === "done") {
       >
         <h2
           style={{
-            color: "#E5E7EB",
+            color: "var(--bone)",
             fontSize: 22,
             marginBottom: 24,
           }}
@@ -1088,7 +1091,7 @@ if (phase === "done") {
   >
     <style>{styles}</style>
       <div className={`sr-arena ${shake ? "shake" : ""}`}>
-        <div className={`sr-flash ${flash ? "on" : ""}`} style={{ background: "#FF7A7A" }} />
+        <div className={`sr-flash ${flash ? "on" : ""}`} style={{ background: "var(--coral)" }} />
 
         {phase !== "done" && (
           <div className="sr-arena-header">
