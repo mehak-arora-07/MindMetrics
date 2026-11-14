@@ -377,22 +377,28 @@ export default function HomePage() {
   }, []);
 
   async function handleStart() {
-    if (!user) { navigate("/login"); return; }
-    setStarting(true);
-    try {
-      clearAssessmentCompleted();
-      const newAssessmentId = await startAssessment();
-      startAssessmentFlow();
-      console.log("New assessment created:", newAssessmentId);
-      console.log("Stored assessment ID:", localStorage.getItem("assessmentId"));
-      navigate("/play/memory-matrix");
-    } catch (err) {
-      console.error("Could not start assessment:", err);
+  if (!user) { navigate("/login"); return; }
+  setStarting(true);
+  try {
+    clearAssessmentCompleted();
+    const newAssessmentId = await startAssessment();
+    startAssessmentFlow();
+    console.log("New assessment created:", newAssessmentId);
+    console.log("Stored assessment ID:", localStorage.getItem("assessmentId"));
+    navigate("/play/memory-matrix");
+  } catch (err) {
+    console.error("Could not start assessment:", err);
+    if (String(err.message).toLowerCase().includes("token")) {
+      clearSession();
+      alert("Your session expired. Please log in again.");
+      navigate("/login");
+    } else {
       alert("Couldn't start the assessment. Please try again.");
-    } finally {
-      setStarting(false);
     }
+  } finally {
+    setStarting(false);
   }
+}
 
   function handleLogout() { clearSession(); navigate("/login"); }
 
